@@ -1,5 +1,4 @@
-source("objs4.R")
-
+library(CloneFinder)
 set.seed(523476)
 
 # example; equal prevalences of compartments

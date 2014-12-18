@@ -1,0 +1,125 @@
+
+R version 3.1.0 (2014-04-10) -- "Spring Dance"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(CloneFinder)
+> set.seed(523476)
+> 
+> # example; equal prevalences of compartments
+> clone <- Clone(10000)
+> clone@weights
+[1] 0.2 0.2 0.2 0.2 0.2
+> table(clone@segments)
+
+   1    2    3    4    5 
+1987 2001 1969 1984 2059 
+> rm(clone)
+> 
+> # example; highly biased prevalences of compartments
+> wts <- rev(5^(1:5))
+> wts <- wts/sum(wts)
+> clone <- Clone(10000, wts)
+> clone@weights
+[1] 0.800256082 0.160051216 0.032010243 0.006402049 0.001280410
+> table(clone@segments)
+
+   1    2    3    4    5 
+8030 1563  335   66    6 
+> rm(clone)
+> 
+> # example: tumor with two clones of unequal weight
+> tumor <- AbstractTumor(c(3,1), 200, wts)
+> tdata <- tumor@data
+> summary(tdata)
+     Clone1         Clone2     
+ Min.   :1.00   Min.   :1.000  
+ 1st Qu.:1.00   1st Qu.:1.000  
+ Median :1.00   Median :1.000  
+ Mean   :1.28   Mean   :1.185  
+ 3rd Qu.:1.00   3rd Qu.:1.000  
+ Max.   :4.00   Max.   :3.000  
+> table(A=tdata[,1], B=tdata[,2])
+   B
+A     1   2   3
+  1 129  22   2
+  2  33   6   1
+  3   3   1   1
+  4   2   0   0
+> summary(tumor@markers)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   43.0   631.8  1114.0  1076.0  1534.0  1998.0 
+> tumor@fraction
+Clone1 Clone2 
+  0.75   0.25 
+> rm(tumor, tdata)
+> 
+> # example: specifying segment lengths
+> segs <- runif(300, 20, 3000)
+> tumor <- AbstractTumor(c(3,1), segs, wts)
+> rm(segs)
+> tdata <- tumor@data
+> table(A=tdata[,1], B=tdata[,2])
+   B
+A     1   2   3
+  1 194  35   5
+  2  39  17   1
+  3   5   2   0
+  4   2   0   0
+> summary(tumor@markers)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   29.2   707.7  1433.0  1473.0  2138.0  2991.0 
+> tumor@fraction
+Clone1 Clone2 
+  0.75   0.25 
+> tumor@weights
+Compartment1 Compartment2 Compartment3 Compartment4 Compartment5 
+ 0.800256082  0.160051216  0.032010243  0.006402049  0.001280410 
+> 
+> # continued example
+> # known compartment centers
+> xy <- data.frame(x = c(.2, .7, .8, .1, .4),
++                  y = c(.2, .3, .5, .9, .7))
+> temp <- Tumor(tumor, xy)
+> head(tumor@data, 10)
+          Clone1 Clone2
+Segment1       3      1
+Segment2       2      1
+Segment3       2      1
+Segment4       1      1
+Segment5       1      1
+Segment6       1      1
+Segment7       1      1
+Segment8       1      1
+Segment9       1      1
+Segment10      1      1
+> head(temp@compartments, 10)
+          Compartment1 Compartment2 Compartment3 Compartment4 Compartment5
+Segment1          0.25         0.00         0.75            0            0
+Segment2          0.25         0.75         0.00            0            0
+Segment3          0.25         0.75         0.00            0            0
+Segment4          1.00         0.00         0.00            0            0
+Segment5          1.00         0.00         0.00            0            0
+Segment6          1.00         0.00         0.00            0            0
+Segment7          1.00         0.00         0.00            0            0
+Segment8          1.00         0.00         0.00            0            0
+Segment9          1.00         0.00         0.00            0            0
+Segment10         1.00         0.00         0.00            0            0
+> rm(temp, tumor, tdata, xy, wts)
+> 
+> 
+> proc.time()
+   user  system elapsed 
+   0.35    0.04    0.37 
