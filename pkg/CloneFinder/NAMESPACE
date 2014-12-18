@@ -5,7 +5,6 @@
 # converting base fuctions or S3 methods into S4 methods
 exportMethods("summary") # comes from 'base'
 import(methods)
-import(graphics)
 importFrom(graphics, "plot", "hist")
 exportMethods("plot", "hist")
 

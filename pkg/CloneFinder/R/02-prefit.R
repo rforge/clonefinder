@@ -48,7 +48,7 @@ updatePhiVectors <- function(object, nPhi=10000) {
   for (i in 1:1000) {
     index <- 1 + multiplier*(i-1)
     iset <- index:(index+multiplier-1)
-    newphiset[iset,] <- rdirichlet(multiplier, 2*phiset[maxLikeIndex[i],])
+    newphiset[iset,] <- rdirichlet(multiplier, 2*object@phiset[object@maxLikeIndex[i],])
   }
   newphiset <- .reorderVectors(newphiset)
 # get the likelihoods for the new phis
@@ -59,7 +59,7 @@ updatePhiVectors <- function(object, nPhi=10000) {
   phipick <- newphiset[maxLikeIndex,]
   new("PrefitCloneModel",
       data=object@data,
-      phiset=phiset,
+      phiset=newphiset,
       likelihoods=likelihoods,
       maxLikeIndex = maxLikeIndex,
       phipick = phipick)

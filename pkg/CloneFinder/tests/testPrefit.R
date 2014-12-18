@@ -30,7 +30,11 @@ ls()
 simdata <- generateData(tumor)
 
 firstPass <- PrefitCloneModel(simdata)
-
 plot(firstPass)
 hist(firstPass, breaks=123)
 summary(firstPass)
+
+secondPass <- updatePhiVectors(firstPass)
+plot(secondPass)
+hist(secondPass, breaks=56)
+summary(secondPass)

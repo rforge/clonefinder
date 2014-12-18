@@ -52,13 +52,19 @@ Warning messages:
 > simdata <- generateData(tumor)
 > 
 > firstPass <- PrefitCloneModel(simdata)
-> 
 > plot(firstPass)
 > hist(firstPass, breaks=123)
 > summary(firstPass)
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
       1       1       1       1       1       1 
 > 
+> secondPass <- updatePhiVectors(firstPass)
+> plot(secondPass)
+> hist(secondPass, breaks=56)
+> summary(secondPass)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      1       1       1       1       1       1 
+> 
 > proc.time()
    user  system elapsed 
-  13.93    0.14   14.14 
+  25.31    0.18   25.58 
