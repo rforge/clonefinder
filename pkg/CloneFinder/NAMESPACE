@@ -1,10 +1,20 @@
 ###
 ### NAMESPACE
 ###
-import(methods)
+exportMethods("summary") # comes from 'base'
 
+import(methods)
+import(graphics)
+importFrom(graphics, "plot", "hist")
+exportMethods("plot", "hist")
+
+### cloneMaker
 exportClasses("Clone", "AbstractTumor", "Tumor")
 
 export("Clone", "AbstractTumor", "Tumor")
 
 export("generateData", "likely", "sampleSimplex")
+
+### prefit
+exportClasses("PrefitCloneModel")
+export("PrefitCloneModel")

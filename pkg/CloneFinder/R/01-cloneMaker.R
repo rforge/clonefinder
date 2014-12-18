@@ -28,7 +28,7 @@ Clone <- function(nSegments, weights=rep(1/5, 5)) {
   new("Clone", segments=segs, weights=weights)
 }
 
-############ TUMOR ############
+############ ABSTRACT TUMOR ############
 # A tumor is a set of clones, each of which is associated with a
 # fraction, subject to the constraint that the sum of the fractions
 # equals one.
@@ -123,7 +123,7 @@ generateData <- function(object, sigma0=0.25) {
 }
 
 ########################################################################
-# PArt 2: Bayesian Model Assessment
+# Part 2: Bayesian Model Assessment
 
 # compute the likelihood for each row in the dataset
 #
