@@ -9,6 +9,6 @@ Description: This package defines the classes used to identify
   components and number of clusters (reaping) in a joint application
   of PCA and hierarchical clustering.
 Depends: R (>= 3.0)
-Imports: methods, graphics
+Imports: methods, graphics, mc2d
 License: Apache License (== 2.0)
 URL: http://oompa.r-forge.r-project.org/

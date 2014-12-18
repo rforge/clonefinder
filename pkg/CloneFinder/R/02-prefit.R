@@ -2,31 +2,64 @@
 
 setClass("PrefitCloneModel",
          representation=list(
+           data="data.frame",
            phiset = "matrix",
            likelihoods = "matrix",
            phipick="matrix",
            maxLikeIndex = "vector"))
 
-PrefitCloneModel <- function(segmentdata, nPhi = 10000) {
-# simulate a uniform set of phi-vectors
-  phiset <- sampleSimplex(nPhi, 5)
+.reorderVectors <- function(phiset) {
 # Reorder the rows by distance from (1,0,...,0).
-# This is only wiorth doing since we know that the most
+# This is only worth doing since we know that the most
 # common correct answer should be closest to here.
   temp <- phiset
   temp[,1] <- temp[,1]-1
   euclid <- apply(temp^2, 1, sum)
-  phiset <- phiset[order(euclid),]
-  rm(temp, euclid)
+  phiset[order(euclid),]
+}
+
+PrefitCloneModel <- function(segmentdata, nPhi = 10000) {
+# simulate a uniform set of phi-vectors
+  phiset <- .reorderVectors(sampleSimplex(nPhi, 5))
 # compute all the likelihoods
   likelihoods <- apply(phiset, 1, function(phi) {
-    likely(simdata, phi, tumor, sigma0=0.25)
+    likely(segmentdata, phi, tumor, sigma0=0.25)
   })
 # locate the maximum likelihood for each phi-vector
   maxLikeIndex <- apply(likelihoods, 1, which.max)
   phipick <- phiset[maxLikeIndex,]
 # return the results, bundled in an S4 class
-  new("PrefitCloneModel", phiset=phiset,
+  new("PrefitCloneModel",
+      data=segmentdata,
+      phiset=phiset,
+      likelihoods=likelihoods,
+      maxLikeIndex = maxLikeIndex,
+      phipick = phipick)
+}
+
+updatePhiVectors <- function(object, nPhi=10000) {
+  if (!inherits(object, "PrefitCloneModel")) {
+    object <- PrefitCloneModel(object, nPhi)
+  }
+  multiplier <- round(nPhi/1000)
+# resample the phi vectors to be near the ones selected as
+# optimal in the first pass
+  newphiset <- matrix(NA, ncol=5, nrow=nPhi)
+  for (i in 1:1000) {
+    index <- 1 + multiplier*(i-1)
+    iset <- index:(index+multiplier-1)
+    newphiset[iset,] <- rdirichlet(multiplier, 2*phiset[maxLikeIndex[i],])
+  }
+  newphiset <- .reorderVectors(newphiset)
+# get the likelihoods for the new phis
+  likelihoods <- apply(newphiset, 1, function(phi) {
+    likely(object@data, phi, tumor, sigma0=0.25)
+  })
+  maxLikeIndex <- apply(likelihoods, 1, which.max)
+  phipick <- newphiset[maxLikeIndex,]
+  new("PrefitCloneModel",
+      data=object@data,
+      phiset=phiset,
       likelihoods=likelihoods,
       maxLikeIndex = maxLikeIndex,
       phipick = phipick)
