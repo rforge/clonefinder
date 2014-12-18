@@ -1,0 +1,10 @@
+###
+### NAMESPACE
+###
+import(methods)
+
+exportClasses("Clone", "AbstractTumor", "Tumor")
+
+export("Clone", "AbstractTumor", "Tumor")
+
+export("generateData", "likely", "sampleSimplex")
