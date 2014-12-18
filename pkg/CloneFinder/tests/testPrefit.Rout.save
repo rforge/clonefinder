@@ -1,0 +1,64 @@
+
+R version 3.1.0 (2014-04-10) -- "Spring Dance"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(CloneFinder)
+Warning messages:
+1: replacing previous import by 'graphics::plot' when loading 'CloneFinder' 
+2: replacing previous import by 'graphics::hist' when loading 'CloneFinder' 
+> 
+> set.seed(363453)
+> 
+> # Parameters that we need to define the structure
+> TrueNclones<- 3
+> nSeg <- 1000
+> wts <- rev(5^(1:5))
+> wts <- wts/sum(wts)
+> xy <- data.frame(x = c(.2, .7, .8, .1, .4),
++                  y = c(.2, .3, .5, .9, .7))
+> 
+> # generate the markers explicitly
+> markers <- round(runif(nSeg, 25, 1000))
+> fracs<-c(5, 3, 1)
+> TrueNclones<- length(fracs)
+> #nclones is the number of clones we beleive there to be
+> nclones<- 3
+> 
+> # now simulate a tumor; length of 'fracs' in first argument is number of clones
+> abstractTumor <- AbstractTumor(fracs, markers, wts)
+> # and get the concrete representation
+> tumor <- Tumor(abstractTumor, xy)
+> # clean up by removing stuff we don't need
+> rm(markers, wts, abstractTumor)
+> ls()
+[1] "TrueNclones" "fracs"       "nSeg"        "nclones"     "tumor"      
+[6] "xy"         
+> 
+> # simulate data by selecting the weighted means with appropriate
+> # standard error of the mean
+> simdata <- generateData(tumor)
+> 
+> firstPass <- PrefitCloneModel(simdata)
+> 
+> plot(firstPass)
+> hist(firstPass, breaks=123)
+> summary(firstPass)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      1       1       1       1       1       1 
+> 
+> proc.time()
+   user  system elapsed 
+  13.93    0.14   14.14 
