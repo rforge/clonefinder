@@ -93,5 +93,4 @@ head(tumor@centers)
 rm(baseModel, tdata, xy, wts)
 
 # use the last example to generate data
-
-
+simdata <- generateData(tumor)

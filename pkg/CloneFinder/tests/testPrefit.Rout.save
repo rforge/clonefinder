@@ -1,5 +1,5 @@
 
-R version 3.1.0 (2014-04-10) -- "Spring Dance"
+R version 3.1.1 (2014-07-10) -- "Sock it to Me"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
@@ -16,42 +16,36 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(CloneFinder)
-Warning messages:
-1: replacing previous import by 'graphics::plot' when loading 'CloneFinder' 
-2: replacing previous import by 'graphics::hist' when loading 'CloneFinder' 
 > 
 > set.seed(363453)
 > 
-> # Parameters that we need to define the structure
-> TrueNclones<- 3
+> # generate the markers explicitly
 > nSeg <- 1000
-> wts <- rev(5^(1:5))
-> wts <- wts/sum(wts)
+> markers <- round(runif(nSeg, 25, 1000))
+> # Centers needed to define the pure structure
 > xy <- data.frame(x = c(.2, .7, .8, .1, .4),
 +                  y = c(.2, .3, .5, .9, .7))
+> # start by creating the compartment model
+> baseModel <- CompartmentModel(markers, xy, sigma0=0.25)
+> rm(xy, nSeg, markers)
 > 
-> # generate the markers explicitly
-> markers <- round(runif(nSeg, 25, 1000))
-> fracs<-c(5, 3, 1)
-> TrueNclones<- length(fracs)
-> #nclones is the number of clones we beleive there to be
-> nclones<- 3
-> 
+> # Now we set up an abstract tumnor
+> wts <- rev(5^(1:5))
+> wts <- wts/sum(wts)
+> fracs <- c(5, 3, 1)
+> TrueNclones <- length(fracs)
 > # now simulate a tumor; length of 'fracs' in first argument is number of clones
-> abstractTumor <- AbstractTumor(fracs, markers, wts)
-> # and get the concrete representation
-> tumor <- Tumor(abstractTumor, xy)
-> # clean up by removing stuff we don't need
-> rm(markers, wts, abstractTumor)
+> tumor <- Tumor(baseModel, fracs, wts)
+> rm(wts, fracs, baseModel)
 > ls()
-[1] "TrueNclones" "fracs"       "nSeg"        "nclones"     "tumor"      
-[6] "xy"         
+[1] "TrueNclones" "tumor"      
 > 
 > # simulate data by selecting the weighted means with appropriate
 > # standard error of the mean
 > simdata <- generateData(tumor)
 > 
 > firstPass <- PrefitCloneModel(simdata)
+There were 50 or more warnings (use warnings() to see the first 50)
 > plot(firstPass)
 > hist(firstPass, breaks=123)
 > summary(firstPass)
@@ -59,6 +53,7 @@ Warning messages:
       1       1       1       1       1       1 
 > 
 > secondPass <- updatePhiVectors(firstPass)
+There were 50 or more warnings (use warnings() to see the first 50)
 > plot(secondPass)
 > hist(secondPass, breaks=56)
 > summary(secondPass)
@@ -67,4 +62,4 @@ Warning messages:
 > 
 > proc.time()
    user  system elapsed 
-  25.31    0.18   25.58 
+  14.94    0.12   15.22 
