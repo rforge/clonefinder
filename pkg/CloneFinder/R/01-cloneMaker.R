@@ -146,8 +146,33 @@ likely <- function(dataset, phi, object, sigma0=1) {
   sigma <- sigma0/sqrt(markers) # SEM
   px <- dnorm(dataset$x, center$x, sigma)
   py <- dnorm(dataset$y, center$y, sigma)
-  px*py
+  px * py
 }
+
+logLikely <- function(dataset, phi, object, sigma0=.25) {
+  # dataset = matrix with 'x' and 'y' columns produced by "generateData"
+  # phi = vector of probabilities for each compartment
+  # object = TumorByCompartment
+  xy <- object@pureCenters
+  markers <- object@markers
+  if (length(phi) < nrow(xy)-1) stop("You did not supply enough entries in 'phi'")
+  if (length(phi) > nrow(xy)) stop("You supplied too many entries in 'phi'")
+  if (length(phi) < nrow(xy)) {
+    lastphi <- 1 - sum(phi)
+    phi <- c(phi, lastphi)
+  }
+  if (any(phi < 0)) stop("Negative probabailities are not allowed")
+  phi <- matrix(phi/sum(phi), nrow=1) # make sure they add up to 1
+  center <- as.data.frame(phi %*% as.matrix(xy))
+  secondMomentX <- sum(phi*(xy[,1]^2+sigma0^2))
+  secondMomentY <- sum(phi*(xy[,2]^2+sigma0^2))
+  sigmaX <- (secondMomentX - (sum(phi*xy[,1]))^2)/sqrt(markers)
+  sigmaY <- (secondMomentY - (sum(phi*xy[,2]))^2)/sqrt(markers)
+  px <- dnorm(dataset$x, center$x, sigmaX, log=TRUE)
+  py <- dnorm(dataset$y, center$y, sigmaY, log=TRUE)
+  px + py
+}
+
 
 
 sampleSimplex <- function(n, d=5) {

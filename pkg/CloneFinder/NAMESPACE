@@ -17,7 +17,7 @@ exportClasses("Clone", "AbstractTumor", "Tumor")
 
 export("Clone", "AbstractTumor", "Tumor")
 
-export("generateData", "likely", "sampleSimplex")
+export("generateData", "likely", "logLikely", "sampleSimplex")
 
 ### prefit
 exportClasses("PrefitCloneModel")
