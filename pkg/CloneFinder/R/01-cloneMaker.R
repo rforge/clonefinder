@@ -1,13 +1,13 @@
 ########################################################################
-# Part 2: Bayesian Model Assessment
+# Part 1: Bayesian Model Assessment, phi-vectors per segment
 #
 
-###### CLONE MODEL ######
+###### COMPARTMENT MODEL ######
 # The underlying idea is that there is a set of pure "compartments"
 # representing fundamental copy number states.  In the current model,
 # these are characterized by their centers.  The variability of the
-# observations, however, depends on the number of markers in each
-# segment and on an estimate,. sigma0, of the core variability in
+# observations, however, depends on (1) the number of markers in each
+# segment and (2) an estimate, sigma0, of the core variability in
 # measurements observed at a single marker.
 
 setClass("CompartmentModel",
@@ -23,18 +23,18 @@ CompartmentModel <- function(markers, pureCenters, sigma0) {
     markers <- round(runif(markers, 25, 2000))
   }
   nSegments <- length(markers)
-#  if(is.null(names(markers))) names(markers) <- names(s)
+  if(is.null(names(markers))) names(markers) <- paste("Segment", 1:nSegments, sep='')
 
-    new("CompartmentModel",
-        markers=markers,
-        pureCenters=pureCenters,
-        sigma0=sigma0)
+  new("CompartmentModel",
+    markers=markers,
+    pureCenters=pureCenters,
+    sigma0=sigma0)
 }
 
 ###### Likelihoods computations #####
 # Given the compartment model (which contains the centers
-# and the number of markers per segment) and the 
-
+# and the number of markers per segment) and the vector of
+# fraction per compartment, 
 # compute the likelihood for each row in the dataset
 likely <- function(dataset, phi, compartmentModel, log=FALSE) {
   # dataset = matrix with 'x' and 'y' columns produced by "generateData"
@@ -74,7 +74,7 @@ sampleSimplex <- function(n, d=5) {
 }
 
 ########################################################################
-# Part 1: Simulating Data
+# Part 2: Simulating Data
 
 ############ CLONE ############
 # A clone is a list of segments, where each segment represents exactly
@@ -88,7 +88,7 @@ setClass("Clone", representation=list(
 # We should be able to simulate a clone if we know the number of segments,
 # the number of compartments, and the relative frequency/prevalence of
 # each compartment.
-Clone <- function(nSegments, weights=rep(1/5, 5)) {
+Clone <- function(nSegments, weights=rep(1/5, 5), segnames=NULL) {
   # nSegments = integer, the number of segments
   # weights   = vector, the prevalence of each compartment
   
@@ -99,24 +99,27 @@ Clone <- function(nSegments, weights=rep(1/5, 5)) {
 
   # now sample the compartments to generate a clone
   segs <- sample(length(weights), nSegments, replace=TRUE, prob=weights)
-  names(segs) <- paste("Segment", 1:nSegments, sep='')
+  if (is.null(segnames)) segnames <- paste("Segment", 1:nSegments, sep='')
+  names(segs) <- segnames
   new("Clone", segments=segs, weights=weights)
 }
 
-############ ABSTRACT TUMOR ############
+############ TUMOR ############
 # A tumor is a set of clones, each of which is associated with a
 # fraction, subject to the constraint that the sum of the fractions
 # equals one.
-setClass("AbstractTumor",
+setClass("Tumor",
          contains = "CompartmentModel",
          slots=list(
-             data = "matrix",
+             data = "matrix",         # segments x clones
              fraction = "numeric",
-             weights = "numeric"
+             weights = "numeric",
+             compartments = "matrix", # segments x compartmentys
+             centers = "data.frame"
              ))
 
-AbstractTumor <- function(compmod, fracs, weights) {
-  # compmod = CompartmentModel
+Tumor <- function(object, fracs, weights) {
+  # object = CompartmentModel
   # fracs   = vector, the fraction of cells represented by each clone
   # weights = vector, the prevalence of each pure compartment
 
@@ -132,45 +135,34 @@ AbstractTumor <- function(compmod, fracs, weights) {
   if (is.null(names(weights)))
     names(weights) <- paste("Compartment", 1:length(weights), sep="")
 
-  nSegments <- length(compmod@markers)
+  nSegments <- length(object@markers)
+  segnames <- names(object@markers)
 
   # fill in the matrix of compartments, one clone-column at a time
-  temp <- matrix(NA, nrow=nSegments, ncol=L)
+  dataset <- matrix(NA, nrow=nSegments, ncol=L)
   for (i in 1:L) {
-    temp[,i] <- s <- Clone(nSegments, weights)@segments
+    dataset[,i] <- s <- Clone(nSegments, weights, segnames)@segments
   }
-  dimnames(temp) <- list(names(s), names(fracs))
-  new("AbstractTumor", compmod, data = temp, fraction=fracs, weights=weights)
-}
+  dimnames(dataset) <- list(names(s), names(fracs))
 
-############ TUMOR REPRESENTATION ############
-setClass("Tumor", 
-         contains="AbstractTumor",
-         slots=c(
-           compartments = "matrix",
-           centers = "data.frame"
-           )
-         )
-
-# We should be able to convert the "segments x clone" matrix representation
-# of a tumor into a "segments x compartments" representation
-#
-Tumor <- function(object) {
-  # object = AbstractTumor produced by the constructor
-   
-  if (!inherits(object, "AbstractTumor")) stop("The 'object' must belong to the 'AbstractTumor' class.")
-    nCompartments <- length(object@weights)
-    nSegments <- nrow(object@data)
-    fvec <- matrix(object@fraction, ncol=1)
-    repr <- matrix(NA, nrow=nSegments, ncol=nCompartments)
-    for (comp in 1:nCompartments) {
-        temp <- 1*(object@data == comp)
-        repr[,comp] <- as.vector(temp %*% fvec)
-    }
-    dimnames(repr) <- list(rownames(object@data), names(object@weights))
-    centers <- as.data.frame(repr %*% as.matrix(object@pureCenters))
-    new("Tumor", object,
-        compartments=repr, centers=centers)
+  # convert from the "segments x clones" representations in 'dataset'
+  # to a "segments x compartments" representation
+  nCompartments <- length(weights)
+  fvec <- matrix(fracs, ncol=1)
+  repr <- matrix(NA, nrow=nSegments, ncol=nCompartments)
+  for (comp in 1:nCompartments) {
+      temp <- 1*(dataset == comp)
+      repr[,comp] <- as.vector(temp %*% fvec)
+  }
+  dimnames(repr) <- list(rownames(dataset), names(weights))
+  # get the averaged centers, over compartments
+  centers <- as.data.frame(repr %*% as.matrix(object@pureCenters))
+  new("Tumor", object,
+      data = dataset,
+      fraction=fracs,
+      weights=weights,
+      compartments=repr,
+      centers=centers)
 }
 
 ############ SIMULATING DATASET ############

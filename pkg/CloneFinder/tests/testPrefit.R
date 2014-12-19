@@ -18,13 +18,8 @@ wts <- wts/sum(wts)
 fracs <- c(5, 3, 1)
 TrueNclones <- length(fracs)
 # now simulate a tumor; length of 'fracs' in first argument is number of clones
-abstractTumor <- AbstractTumor(baseModel, fracs, wts)
+tumor <- Tumor(baseModel, fracs, wts)
 rm(wts, fracs, baseModel)
-
-# and get the concrete representation
-tumor <- Tumor(abstractTumor)
-# clean up by removing stuff we don't need
-rm(abstractTumor)
 ls()
 
 # simulate data by selecting the weighted means with appropriate
