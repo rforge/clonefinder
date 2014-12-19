@@ -1,4 +1,79 @@
 ########################################################################
+# Part 2: Bayesian Model Assessment
+#
+
+###### CLONE MODEL ######
+# The underlying idea is that there is a set of pure "compartments"
+# representing fundamental copy number states.  In the current model,
+# these are characterized by their centers.  The variability of the
+# observations, however, depends on the number of markers in each
+# segment and on an estimate,. sigma0, of the core variability in
+# measurements observed at a single marker.
+
+setClass("CompartmentModel",
+         representation=list(
+             markers = "numeric",             
+             pureCenters = "data.frame",
+             sigma0="numeric"))
+
+CompartmentModel <- function(markers, pureCenters, sigma0) {
+  # we allow the user to pass in 'nSegments' instead of the vector
+  # of markers. In that case, we simulate them internally
+  if (length(markers) == 1) {
+    markers <- round(runif(markers, 25, 2000))
+  }
+  nSegments <- length(markers)
+#  if(is.null(names(markers))) names(markers) <- names(s)
+
+    new("CompartmentModel",
+        markers=markers,
+        pureCenters=pureCenters,
+        sigma0=sigma0)
+}
+
+###### Likelihoods computations #####
+# Given the compartment model (which contains the centers
+# and the number of markers per segment) and the 
+
+# compute the likelihood for each row in the dataset
+likely <- function(dataset, phi, compartmentModel, log=FALSE) {
+  # dataset = matrix with 'x' and 'y' columns produced by "generateData"
+  # phi = vector of probabilities for each compartment
+  xy <- compartmentModel@pureCenters
+  markers <- compartmentModel@markers
+  sigma0 <- compartmentModel@sigma0
+  if (length(phi) < nrow(xy)-1) stop("You did not supply enough entries in 'phi'")
+  if (length(phi) > nrow(xy)) stop("You supplied too many entries in 'phi'")
+  if (length(phi) < nrow(xy)) {
+    lastphi <- 1 - sum(phi)
+    phi <- c(phi, lastphi)
+  }
+  if (any(phi < 0)) stop("Negative probabilities are not allowed")
+  phi <- matrix(phi/sum(phi), nrow=1) # make sure they add up to 1
+  center <- as.data.frame(phi %*% as.matrix(xy))
+  secondMomentX <- sum(phi * (xy[,1]^2 + sigma0^2))
+  secondMomentY <- sum(phi * (xy[,2]^2 + sigma0^2))
+  sigmaX <- (secondMomentX - (sum(phi*xy[,1]))^2) / sqrt(markers)
+  sigmaY <- (secondMomentY - (sum(phi*xy[,2]))^2) / sqrt(markers)
+  px <- dnorm(dataset$x, center$x, sigmaX, log)
+  py <- dnorm(dataset$y, center$y, sigmaY, log)
+  if(log) {
+      value <- px + py
+  } else {
+      value <- px * py
+  }
+  value
+}
+
+sampleSimplex <- function(n, d=5) {
+    result <- matrix(NA, nrow=n, ncol=d)
+    for (i in 1:n) {
+        result[i,] <- diff(sort( c(0, 1, runif(4, 0, 1)) ))
+    }
+    result
+}
+
+########################################################################
 # Part 1: Simulating Data
 
 ############ CLONE ############
@@ -32,16 +107,17 @@ Clone <- function(nSegments, weights=rep(1/5, 5)) {
 # A tumor is a set of clones, each of which is associated with a
 # fraction, subject to the constraint that the sum of the fractions
 # equals one.
-setClass("AbstractTumor", representation=list(
-                            data = "matrix",
-                            fraction = "numeric",
-                            markers = "numeric",
-                            weights = "numeric"
-                            ))
+setClass("AbstractTumor",
+         contains = "CompartmentModel",
+         slots=list(
+             data = "matrix",
+             fraction = "numeric",
+             weights = "numeric"
+             ))
 
-AbstractTumor <- function(fracs, markers, weights) {
+AbstractTumor <- function(compmod, fracs, weights) {
+  # compmod = CompartmentModel
   # fracs   = vector, the fraction of cells represented by each clone
-  # markers = vector, the number of SNP markers per segment
   # weights = vector, the prevalence of each pure compartment
 
   # sanity checks on the fractions
@@ -56,12 +132,7 @@ AbstractTumor <- function(fracs, markers, weights) {
   if (is.null(names(weights)))
     names(weights) <- paste("Compartment", 1:length(weights), sep="")
 
-  # we allow the user to pass in 'nSegments' instead of the vector
-  # of markers. In that case, we simulate them internally
-  if (length(markers) == 1) {
-    markers <- round(runif(markers, 25, 2000))
-  }
-  nSegments <- length(markers)
+  nSegments <- length(compmod@markers)
 
   # fill in the matrix of compartments, one clone-column at a time
   temp <- matrix(NA, nrow=nSegments, ncol=L)
@@ -69,8 +140,7 @@ AbstractTumor <- function(fracs, markers, weights) {
     temp[,i] <- s <- Clone(nSegments, weights)@segments
   }
   dimnames(temp) <- list(names(s), names(fracs))
-  if(is.null(names(markers))) names(markers) <- names(s)
-  new("AbstractTumor", data = temp, fraction=fracs, markers=markers, weights=weights)
+  new("AbstractTumor", compmod, data = temp, fraction=fracs, weights=weights)
 }
 
 ############ TUMOR REPRESENTATION ############
@@ -78,7 +148,6 @@ setClass("Tumor",
          contains="AbstractTumor",
          slots=c(
            compartments = "matrix",
-           pureCenters = "data.frame",
            centers = "data.frame"
            )
          )
@@ -86,9 +155,8 @@ setClass("Tumor",
 # We should be able to convert the "segments x clone" matrix representation
 # of a tumor into a "segments x compartments" representation
 #
-Tumor <- function(object, xy) {
-  # object = Tumor produced by the 'genTumor' function
-  # xy     = matrix containing the fixed centers of compartments in columns 'x' and 'y'
+Tumor <- function(object) {
+  # object = AbstractTumor produced by the constructor
    
   if (!inherits(object, "AbstractTumor")) stop("The 'object' must belong to the 'AbstractTumor' class.")
     nCompartments <- length(object@weights)
@@ -100,9 +168,9 @@ Tumor <- function(object, xy) {
         repr[,comp] <- as.vector(temp %*% fvec)
     }
     dimnames(repr) <- list(rownames(object@data), names(object@weights))
-    centers <- as.data.frame(repr %*% as.matrix(xy))
+    centers <- as.data.frame(repr %*% as.matrix(object@pureCenters))
     new("Tumor", object,
-        compartments=repr, pureCenters=xy, centers=centers)
+        compartments=repr, centers=centers)
 }
 
 ############ SIMULATING DATASET ############
@@ -122,66 +190,6 @@ generateData <- function(object, sigma0=0.25) {
   data.frame(x=xvec, y=yvec)
 }
 
-########################################################################
-# Part 2: Bayesian Model Assessment
-
-# compute the likelihood for each row in the dataset
-#
-# TODO: Understand the role of sigma0.
-likely <- function(dataset, phi, object, sigma0=1) {
-  # dataset = matrix with 'x' and 'y' columns produced by "generateData"
-  # phi = vector of probabilities for each compartment
-  # object = TumorByCompartment
-  xy <- object@pureCenters
-  markers <- object@markers
-  if (length(phi) < nrow(xy)-1) stop("You did not supply enough entries in 'phi'")
-  if (length(phi) > nrow(xy)) stop("You supplied too many entries in 'phi'")
-  if (length(phi) < nrow(xy)) {
-    lastphi <- 1 - sum(phi)
-    phi <- c(phi, lastphi)
-  }
-  if (any(phi < 0)) stop("Negative probabailities are not allowed")
-  phi <- matrix(phi/sum(phi), nrow=1) # make sure they add up to 1
-  center <- as.data.frame(phi %*% as.matrix(xy))
-  sigma <- sigma0/sqrt(markers) # SEM
-  px <- dnorm(dataset$x, center$x, sigma)
-  py <- dnorm(dataset$y, center$y, sigma)
-  px * py
-}
-
-logLikely <- function(dataset, phi, object, sigma0=.25) {
-  # dataset = matrix with 'x' and 'y' columns produced by "generateData"
-  # phi = vector of probabilities for each compartment
-  # object = TumorByCompartment
-  xy <- object@pureCenters
-  markers <- object@markers
-  if (length(phi) < nrow(xy)-1) stop("You did not supply enough entries in 'phi'")
-  if (length(phi) > nrow(xy)) stop("You supplied too many entries in 'phi'")
-  if (length(phi) < nrow(xy)) {
-    lastphi <- 1 - sum(phi)
-    phi <- c(phi, lastphi)
-  }
-  if (any(phi < 0)) stop("Negative probabailities are not allowed")
-  phi <- matrix(phi/sum(phi), nrow=1) # make sure they add up to 1
-  center <- as.data.frame(phi %*% as.matrix(xy))
-  secondMomentX <- sum(phi*(xy[,1]^2+sigma0^2))
-  secondMomentY <- sum(phi*(xy[,2]^2+sigma0^2))
-  sigmaX <- (secondMomentX - (sum(phi*xy[,1]))^2)/sqrt(markers)
-  sigmaY <- (secondMomentY - (sum(phi*xy[,2]))^2)/sqrt(markers)
-  px <- dnorm(dataset$x, center$x, sigmaX, log=TRUE)
-  py <- dnorm(dataset$y, center$y, sigmaY, log=TRUE)
-  px + py
-}
-
-
-
-sampleSimplex <- function(n, d=5) {
-    result <- matrix(NA, nrow=n, ncol=d)
-    for (i in 1:n) {
-        result[i,] <- diff(sort( c(0, 1, runif(4, 0, 1)) ))
-    }
-    result
-}
 
 ####################################################
 # from GlobalMaxLike

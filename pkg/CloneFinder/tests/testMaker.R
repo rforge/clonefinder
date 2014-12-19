@@ -15,8 +15,12 @@ clone@weights
 table(clone@segments)
 rm(clone)
 
+# known compartment centers
+xy <- data.frame(x = c(.2, .7, .8, .1, .4),
+                 y = c(.2, .3, .5, .9, .7))
+baseModel <- CompartmentModel(200, xy, 0.25)
 # example: tumor with two clones of unequal weight
-tumor <- AbstractTumor(c(3,1), 200, wts)
+tumor <- AbstractTumor(baseModel, c(3,1), wts)
 tdata <- tumor@data
 summary(tdata)
 table(A=tdata[,1], B=tdata[,2])
@@ -26,7 +30,8 @@ rm(tumor, tdata)
 
 # example: specifying segment lengths
 segs <- runif(300, 20, 3000)
-tumor <- AbstractTumor(c(3,1), segs, wts)
+baseModel <- CompartmentModel(segs, xy, 0.25)
+tumor <- AbstractTumor(baseModel, c(3,1), wts)
 rm(segs)
 tdata <- tumor@data
 table(A=tdata[,1], B=tdata[,2])
@@ -35,10 +40,7 @@ tumor@fraction
 tumor@weights
 
 # continued example
-# known compartment centers
-xy <- data.frame(x = c(.2, .7, .8, .1, .4),
-                 y = c(.2, .3, .5, .9, .7))
-temp <- Tumor(tumor, xy)
+temp <- Tumor(tumor)
 head(tumor@data, 10)
 head(temp@compartments, 10)
 rm(temp, tumor, tdata, xy, wts)

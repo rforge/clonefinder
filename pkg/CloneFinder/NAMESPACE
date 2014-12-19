@@ -13,11 +13,11 @@ import(mc2d)
 
 
 ### cloneMaker
-exportClasses("Clone", "AbstractTumor", "Tumor")
+exportClasses("CompartmentModel", "Clone", "AbstractTumor", "Tumor")
 
-export("Clone", "AbstractTumor", "Tumor")
+export("CompartmentModel", "Clone", "AbstractTumor", "Tumor")
 
-export("generateData", "likely", "logLikely", "sampleSimplex")
+export("generateData", "likely", "sampleSimplex")
 
 ### prefit
 exportClasses("PrefitCloneModel")

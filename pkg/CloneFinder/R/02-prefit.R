@@ -18,17 +18,16 @@ setClass("PrefitCloneModel",
   phiset[order(euclid),]
 }
 
-.computeLikelihoods <- function(phiset, segmentdata, tumor, sigma0, log=TRUE) {
-  FUN <- ifelse(log, logLikely, likely)
+.computeLikelihoods <- function(phiset, segmentdata, tumor, log=TRUE) {
   apply(phiset, 1, function(phi) {
-    FUN(segmentdata, phi, tumor, sigma0=0.25)
+    likely(segmentdata, phi, tumor, log)
   })
 }
 
-PrefitCloneModel <- function(segmentdata, nPhi = 10000, sigma0=0.25) {
+PrefitCloneModel <- function(segmentdata, nPhi = 10000) {
 # simulate a uniform set of phi-vectors
   phiset <- .reorderVectors(sampleSimplex(nPhi, 5))
-  likelihoods <- .computeLikelihoods(phiset, segmentdata, tumor, sigma0, TRUE)
+  likelihoods <- .computeLikelihoods(phiset, segmentdata, tumor, TRUE)
 # locate the maximum likelihood for each phi-vector
   maxLikeIndex <- apply(likelihoods, 1, which.max)
   phipick <- phiset[maxLikeIndex,]
@@ -41,7 +40,7 @@ PrefitCloneModel <- function(segmentdata, nPhi = 10000, sigma0=0.25) {
       phipick = phipick)
 }
 
-updatePhiVectors <- function(object, nPhi=10000, sigma0=0.25) {
+updatePhiVectors <- function(object, nPhi=10000) {
   if (!inherits(object, "PrefitCloneModel")) {
     object <- PrefitCloneModel(object, nPhi)
   }
@@ -56,10 +55,7 @@ updatePhiVectors <- function(object, nPhi=10000, sigma0=0.25) {
   }
   newphiset <- .reorderVectors(newphiset)
 # get the likelihoods for the new phis
-  likelihoods <- .computeLikelihoods(newphiset, object@data, tumor, sigma0, TRUE)
-  apply(newphiset, 1, function(phi) {
-    likely(object@data, phi, tumor, sigma0=0.25)
-  })
+  likelihoods <- .computeLikelihoods(newphiset, object@data, tumor, TRUE)
   maxLikeIndex <- apply(likelihoods, 1, which.max)
   phipick <- newphiset[maxLikeIndex,]
   new("PrefitCloneModel",
