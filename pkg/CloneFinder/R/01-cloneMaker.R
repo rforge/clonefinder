@@ -91,6 +91,8 @@ setClass("Clone", representation=list(
 Clone <- function(nSegments, weights=rep(1/5, 5), segnames=NULL) {
   # nSegments = integer, the number of segments
   # weights   = vector, the prevalence of each compartment
+
+  if (nSegments < 1) stop("Number of segments must be positive.")
   
   # start with sanity checks on the weights
   if(any(is.na(weights))) stop("Missing weights.")
@@ -100,6 +102,7 @@ Clone <- function(nSegments, weights=rep(1/5, 5), segnames=NULL) {
   # now sample the compartments to generate a clone
   segs <- sample(length(weights), nSegments, replace=TRUE, prob=weights)
   if (is.null(segnames)) segnames <- paste("Segment", 1:nSegments, sep='')
+  if (length(segnames) != length(segs)) stop("Wrong number of segment names.")
   names(segs) <- segnames
   new("Clone", segments=segs, weights=weights)
 }

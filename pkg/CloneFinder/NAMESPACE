@@ -2,7 +2,7 @@
 ### NAMESPACE
 ###
 
-# converting base fuctions or S3 methods into S4 methods
+# converting base functions or S3 methods into S4 methods
 exportMethods("summary") # comes from 'base'
 import(methods)
 importFrom(graphics, "plot", "hist")
@@ -11,14 +11,16 @@ exportMethods("plot", "hist")
 # used for Dirichlet - Multinomial distributions
 import(mc2d)
 
+### needed for simulations
+exportClasses("Clone", "Tumor")
+export("Clone", "Tumor")
+export("generateData")
 
-### cloneMaker
-exportClasses("CompartmentModel", "Clone", "Tumor")
+### needed for analysis
+exportClasses("CompartmentModel")
+export("CompartmentModel")
+export("likely", "sampleSimplex")
 
-export("CompartmentModel", "Clone", "Tumor")
-
-export("generateData", "likely", "sampleSimplex")
-
-### prefit
+### prefit (phi vectors per segment)
 exportClasses("PrefitCloneModel")
 export("PrefitCloneModel", "updatePhiVectors")
