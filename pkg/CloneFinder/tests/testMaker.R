@@ -90,5 +90,8 @@ head(tumor@data)
 head(tumor@compartments)
 head(tumor@centers)
 
-rm(baseModel, tumor, tdata, xy, wts)
+rm(baseModel, tdata, xy, wts)
+
+# use the last example to generate data
+
 

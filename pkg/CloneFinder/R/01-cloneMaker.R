@@ -51,12 +51,10 @@ likely <- function(dataset, phi, compartmentModel, log=FALSE) {
   if (any(phi < 0)) stop("Negative probabilities are not allowed")
   phi <- matrix(phi/sum(phi), nrow=1) # make sure they add up to 1
   center <- as.data.frame(phi %*% as.matrix(xy))
-  secondMomentX <- sum(phi * (xy[,1]^2 + sigma0^2))
-  secondMomentY <- sum(phi * (xy[,2]^2 + sigma0^2))
-  sigmaX <- (secondMomentX - (sum(phi*xy[,1]))^2) / sqrt(markers)
-  sigmaY <- (secondMomentY - (sum(phi*xy[,2]))^2) / sqrt(markers)
-  px <- dnorm(dataset$x, center$x, sigmaX, log)
-  py <- dnorm(dataset$y, center$y, sigmaY, log)
+  secondMoment <- phi %*% (xy^2 + sigma0^2)
+  sigma <- sqrt(sweep(secondMoment - center^2, 1, markers, '/'))
+  px <- dnorm(dataset$x, center$x, sigma[,1], log)
+  py <- dnorm(dataset$y, center$y, sigma[,2], log)
   if(log) {
       value <- px + py
   } else {
@@ -118,7 +116,8 @@ setClass("Tumor",
              fraction = "numeric",
              weights = "numeric",
              compartments = "matrix", # segments x compartmentys
-             centers = "data.frame"
+             centers = "data.frame",
+             SEM="matrix"
              ))
 
 Tumor <- function(object, fracs, weights) {
@@ -159,13 +158,20 @@ Tumor <- function(object, fracs, weights) {
   }
   dimnames(repr) <- list(rownames(dataset), names(weights))
   # get the averaged centers, over compartments
-  centers <- as.data.frame(repr %*% as.matrix(object@pureCenters))
+  xy <- as.matrix(object@pureCenters)
+  centers <- as.data.frame(repr %*% xy)
+  # get the SEM
+  secondMoment <- repr %*% (xy^2 + object@sigma0^2)
+  sigma <- sqrt(sweep(secondMoment - centers^2, 1, object@markers, '/'))
+  
   new("Tumor", object,
       data = dataset,
       fraction=fracs,
       weights=weights,
       compartments=repr,
-      centers=centers)
+      centers=centers,
+      SEM=sigma
+      )
 }
 
 ############ SIMULATING DATASET ############
@@ -173,15 +179,15 @@ Tumor <- function(object, fracs, weights) {
 # input:
 #   'centers; is the result of calling "findCenters"
 #   'markers' is the vector with the number of markers per segment
-generateData <- function(object, sigma0=0.25) {
-  # object = result of calling "representTumor"
+generateData <- function(object) {
   if (!inherits(object, "Tumor"))
     stop(paste("Incorrect class of 'object':", class(object)))
   centers <- object@centers
   markers <- object@markers
-  sigma <- sigma0/sqrt(markers) # standard error of the mean
-  xvec <- rnorm(length(markers), centers$x, sigma)
-  yvec <- rnorm(length(markers), centers$y, sigma)
+  xy <- object@pureCenters
+  # now we can genrate the data
+  xvec <- rnorm(length(markers), centers$x, object@SEM[,1])
+  yvec <- rnorm(length(markers), centers$y, object@SEM[,2])
   data.frame(x=xvec, y=yvec)
 }
 
