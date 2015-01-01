@@ -174,6 +174,11 @@ Tumor <- function(object, fracs, weights) {
       )
 }
 
+setMethod("summary", signature("Tumor"), function(object, ...) {
+    tdata <- object@data
+    table(A=tdata[,1], B=tdata[,2])
+})
+
 ############ SIMULATING DATASET ############
 
 # input:
@@ -189,6 +194,22 @@ generateData <- function(object) {
   xvec <- rnorm(length(markers), centers$x, object@SEM[,1])
   yvec <- rnorm(length(markers), centers$y, object@SEM[,2])
   data.frame(x=xvec, y=yvec)
+}
+
+sizeplot <- function(simdata, tumor) {
+    size <- 1 + round(sqrt(tumor@markers)/15)/2
+    filt <- size > log(128)/3
+    x <- tumor@pureCenters$x
+    y <- tumor@pureCenters$y
+    eps <- 0.1*diff(range(x))
+    plot(x, y, type='n',
+         xlim=c(min(x)-eps, max(x)+eps),
+         ylim=c(min(y)-eps, max(y)+eps))
+    text(x, y, 1:nrow(tumor@pureCenters))
+    points(tumor@pureCenters, cex=15, col='gray25')
+    points(simdata$x[filt], simdata$y[filt],
+           cex=size[filt], col="gray35", pch=16)
+    invisible(simdata)
 }
 
 

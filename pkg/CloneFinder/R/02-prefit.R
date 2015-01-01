@@ -6,6 +6,7 @@ setClass("PrefitCloneModel",
            phiset = "matrix",
            likelihoods = "matrix",
            phipick="matrix",
+           phiv="numeric",
            maxLikeIndex = "vector"))
 
 .reorderVectors <- function(phiset) {
@@ -37,7 +38,8 @@ PrefitCloneModel <- function(segmentdata, nPhi = 10000) {
       phiset=phiset,
       likelihoods=likelihoods,
       maxLikeIndex = maxLikeIndex,
-      phipick = phipick)
+      phipick = phipick,
+      phiv=as.vectr(phipick))
 }
 
 updatePhiVectors <- function(object, nPhi=10000) {
@@ -63,7 +65,8 @@ updatePhiVectors <- function(object, nPhi=10000) {
       phiset=newphiset,
       likelihoods=likelihoods,
       maxLikeIndex = maxLikeIndex,
-      phipick = phipick)
+      phipick = phipick,
+      phiv <- as.vector(phipick))
 }
 
 setMethod('plot', signature(x='PrefitCloneModel', y='missing'),
