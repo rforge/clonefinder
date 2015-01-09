@@ -1,7 +1,7 @@
-%\VignetteIndexEntry{NameNeedle}
-%\VignetteKeywords{Needleman-Wunsch, Global Alignment, Cell Line Names}
+%\VignetteIndexEntry{CloneFinder}
+%\VignetteKeywords{SNP,Copy Number,clone,subclone}
 %\VignetteDepends{stats}
-%\VignettePackage{NameNeedle}
+%\VignettePackage{CloneFinder}
 \documentclass{article}
 
 \usepackage{hyperref}
