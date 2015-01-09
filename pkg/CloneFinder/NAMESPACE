@@ -23,4 +23,4 @@ export("likely", "sampleSimplex")
 
 ### prefit (phi vectors per segment)
 exportClasses("PrefitCloneModel")
-export("PrefitCloneModel", "updatePhiVectors")
+export("PrefitCloneModel", "updatePhiVectors", "sizeplot")
