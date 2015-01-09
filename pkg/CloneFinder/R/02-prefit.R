@@ -39,7 +39,7 @@ PrefitCloneModel <- function(segmentdata, nPhi = 10000) {
       likelihoods=likelihoods,
       maxLikeIndex = maxLikeIndex,
       phipick = phipick,
-      phiv=as.vectr(phipick))
+      phiv=as.vector(phipick))
 }
 
 updatePhiVectors <- function(object, nPhi=10000) {
@@ -66,7 +66,7 @@ updatePhiVectors <- function(object, nPhi=10000) {
       likelihoods=likelihoods,
       maxLikeIndex = maxLikeIndex,
       phipick = phipick,
-      phiv <- as.vector(phipick))
+      phiv = as.vector(phipick))
 }
 
 setMethod('plot', signature(x='PrefitCloneModel', y='missing'),
