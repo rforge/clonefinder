@@ -1,0 +1,100 @@
+* using log directory 'C:/Users/Mark/Documents/CheckoutFolder/pkg/CloneFinder.Rcheck'
+* using R version 3.1.0 (2014-04-10)
+* using platform: x86_64-w64-mingw32 (64-bit)
+* using session charset: ISO8859-1
+* checking for file 'CloneFinder/DESCRIPTION' ... OK
+* this is package 'CloneFinder' version '0.2.4'
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: 'Kevin R. Coombes <krc@silicovore.com>'
+New submission
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... WARNING
+Found the following files with non-portable file names:
+  inst/extras/fittingModels2 (v2).R
+  inst/extras/fittingModelsGeneral (3).R
+  inst/extras/fittingModelsGeneral (4).R
+These are not fully portable file names.
+See section 'Package structure' in the 'Writing R Extensions' manual.
+* checking whether package 'CloneFinder' can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking 'build' directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+PrefitCloneModel: no visible binding for global variable 'tumor'
+maxfun: no visible binding for global variable 'temp'
+maxfun : optimfun : distfun: no visible binding for global variable
+  'paramtable'
+maxfun: no visible binding for global variable 'newphiset'
+updatePhiVectors: no visible binding for global variable 'tumor'
+* checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  'Clone' 'CompartmentModel' 'PrefitCloneModel' 'Tumor' 'generateData'
+  'likely' 'sampleSimplex' 'sizeplot' 'updatePhiVectors'
+Undocumented data sets:
+  'params_CLL' 'params_control'
+Undocumented S4 classes:
+  'Clone' 'CompartmentModel' 'PrefitCloneModel' 'Tumor'
+Undocumented S4 methods:
+  generic 'hist' and siglist 'PrefitCloneModel'
+  generic 'plot' and siglist 'PrefitCloneModel,missing'
+  generic 'summary' and siglist 'PrefitCloneModel'
+  generic 'summary' and siglist 'Tumor'
+All user-level objects in a package (including S4 classes and methods)
+should have documentation entries.
+See the chapter 'Writing R documentation files' in the 'Writing R
+Extensions' manual.
+* checking contents of 'data' directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+ WARNING
+'qpdf' is needed for checks on size reduction of PDFs
+* checking installed files from 'inst/doc' ... OK
+* checking files in 'vignettes' ... OK
+* checking examples ... NONE
+* checking for unstated dependencies in tests ... OK
+* checking tests ... OK
+  Running 'testMaker.R'
+  Comparing 'testMaker.Rout' to 'testMaker.Rout.save' ...cygwin warning:
+  MS-DOS style path detected: C:\Users\Mark\AppData\Local\Temp\RtmpK0biLE\Rdiffa45058849fe
+  Preferred POSIX equivalent is: /cygdrive/c/Users/Mark/AppData/Local/Temp/RtmpK0biLE/Rdiffa45058849fe
+  CYGWIN environment variable option "nodosfilewarning" turns off this warning.
+  Consult the user's guide for more details about POSIX paths:
+    http://cygwin.com/cygwin-ug-net/using.html#using-pathnames
+ OK
+  Running 'testPrefit.R' [21s]
+  Comparing 'testPrefit.Rout' to 'testPrefit.Rout.save' ...cygwin warning:
+  MS-DOS style path detected: C:\Users\Mark\AppData\Local\Temp\RtmpK0biLE\Rdiffa4505cba2fc7
+  Preferred POSIX equivalent is: /cygdrive/c/Users/Mark/AppData/Local/Temp/RtmpK0biLE/Rdiffa4505cba2fc7
+  CYGWIN environment variable option "nodosfilewarning" turns off this warning.
+  Consult the user's guide for more details about POSIX paths:
+    http://cygwin.com/cygwin-ug-net/using.html#using-pathnames
+ OK
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in 'inst/doc' ... OK
+* checking running R code from vignettes ... OK
+* checking re-building of vignette outputs ... OK
+* checking PDF version of manual ... OK
+WARNING: There were 3 warnings.
+NOTE: There were 2 notes.
