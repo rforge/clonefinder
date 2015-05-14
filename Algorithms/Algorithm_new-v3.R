@@ -84,7 +84,8 @@ clonegen <- function(v){
   blank
 }
 Zs <- lapply(guess, clonegen)
-list(Zs, sapply(1:length(guess), function(j){1-sum(zeds[[j]]!=Zs[[j]])/(2*1000)}), truepsis, guess)
+list(Zs, "accuracy"=sapply(1:length(guess), function(j){1-sum(zeds[[j]]!=Zs[[j]])/(2*1000)}), 
+     "true psis"=truepsis, "estimates"=guess)
 }
 
 obj <- f(115)
