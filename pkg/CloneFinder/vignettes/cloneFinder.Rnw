@@ -140,7 +140,7 @@ with the obvious constraints that every parameter satisfies $ 0 \le
 \varphi_{s,k} \le 1$ and
 $$\forall s, \sum_{k=1}^K \varphi_{s,k} = 1. $$
 
-\subsubsection{Preliminary Estimate of Compartmen tFrequencies ($\varphi$)}
+\subsubsection{Preliminary Estimate of Compartment Frequencies ($\varphi$)}
 In spite of having only one observed data point per segment, we can
 still get an estimate of the vector $\bar\varphi_s = (\varphi_{s,1},
 \ldots, \varphi_{s,k})$ by using the following Bayesian procedure.
