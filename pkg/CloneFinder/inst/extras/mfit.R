@@ -69,6 +69,31 @@ if (FALSE) {
   phinew <- apply(y, 1:2, sum)
 }
 
+# simulate a sample data set
+library(CloneFinder)
+set.seed(539121)
+# pure centers
+xy <- data.frame(x = log10(c(2, 2, 1, 3, 4)/2),
+                 y = c(1/2, 0, 0, 1/3, 1/4))
+# number of SNP markers per segment
+nSeg <- 1000
+markers <- round(runif(nSeg, 25, 1000))
+compModel <- CompartmentModel(markers, xy, 0.25)
+# probability of a pure cloncal segment in each compartment
+wts <- rev(5^(1:5))
+wts <- wts/sum(wts)
+# percentage of cells in each (of three) clone(s)
+psis <- c(0.6, 0.3, 0.1)
+
+tumor <- Tumor(compModel, psis, wts)
+dataset <- generateData(tumor)
+
+# prefit the model
+pcm <- PrefitCloneModel(dataset)
+# update it
+upd <- updatePhiVectors(pcm)
+
+
 # precompute all possible compartment-clone assignments
 precomputeZed <- function(nComp, nClone) {
   base <- matrix(0, nrow=nComp, ncol=nComp)
