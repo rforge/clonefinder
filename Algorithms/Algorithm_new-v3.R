@@ -17,75 +17,81 @@ f <- function(sim){
   phiset <- set[[2]]
   zeds <- set[[3]]  
   lengths <- sapply(1:1000, function(i){length(which(phiset[i,]>=.05))})
-  subsets <-list(which(lengths==1),which(lengths==2),which(lengths==3),which(lengths==4),which(lengths==5))
+  subsets <-list(which(lengths==1),
+                 which(lengths==2),
+                 which(lengths==3),
+                 which(lengths==4),
+                 which(lengths==5))
   nclones <- length(truepsis)
   nonones <- phiset[sort(unique(c(subsets[[2]], subsets[[3]], subsets[[4]], subsets[[5]]))),]
   i.non <- sort(c(subsets[[2]], subsets[[3]], subsets[[4]], subsets[[5]]))
   i.one <- subsets[[1]]
-foo <- function(v){
-  combos <- sort(unique(unlist(sapply(1:length(v), function(i){combn(v, i, sum)}))))
-  m <- t(sapply(1:length(v), function(i){sort(c(v[i], 1-v[i]), decreasing=TRUE)}))
-  rowmatch <- function(row){
-    l <- which(sapply(1:length(subsets), function(i){(row %in% subsets[[i]])}))
-    resfun <- function(j){
+  foo <- function(v){
+    combos <- sort(unique(unlist(sapply(1:length(v), function(i){combn(v, i, sum)}))))
+    m <- t(sapply(1:length(v), function(i){sort(c(v[i], 1-v[i]), decreasing=TRUE)}))
+    rowmatch <- function(row){
+      l <- which(sapply(1:length(subsets), function(i){(row %in% subsets[[i]])}))
+      resfun <- function(j){
+        if(l>=3){
+          vec <- sort(v, decreasing=TRUE)
+        }else{
+          vec <- m[j,]
+        }
+        
+        res <- sum((sort(phiset[row,], decreasing=TRUE)[1:length(vec)] - vec)^2)
+        if(l>length(vec)){
+          res <- res + sum((sort(phiset[row,], decreasing=TRUE)[(length(vec)+1):l])^2)
+        }
+        res
+      }
+      mat <- NULL
       if(l>=3){
-        vec <- sort(v, decreasing=TRUE)
+        pick <- sort(v, decreasing=TRUE)
+        mat <- match(sort(phiset[row,], decreasing=TRUE)[1:length(v)], phiset[row,])
       }else{
-        vec <- m[j,]
+        pick <- m[which.min(sapply(1:nrow(m), resfun)),]
+        mat <- match(sort(phiset[row,], decreasing=TRUE)[1:l], phiset[row,])
       }
-      
-      res <- sum((sort(phiset[row,], decreasing=TRUE)[1:length(vec)] - vec)^2)
-      if(l>length(vec)){
-        res <- res + sum((sort(phiset[row,], decreasing=TRUE)[(length(vec)+1):l])^2)
+      blank <- rep(0, 5)
+      blank[mat] <- pick
+      blank
+    }
+    trial <- t(sapply(i.non, rowmatch))
+  }
+  q <- which.min(sapply(1:nrow(start), function(k){
+                          prod((5*rowMeans((foo(start[k,]) - nonones)^2))^.01)
+                        }))
+  phiest <- foo(start[q,])
+  guess <- sort(start[q,])
+  combos <- unique(unlist(sapply(1:length(guess), function(i){combn(guess, i, sum)})))
+  sums <- unique(unlist(sapply(2:length(guess), function(i){combn(guess, i, sum)})))
+  onefun <- function(i){
+    zeroes <- rep(0, 5)
+    zeroes[which.max(phiset[i,])] <- 1
+    zeroes
+  }
+  ones <- t(sapply(i.one, onefun))
+  clonegen <- function(v){
+    psi <- v
+    innerfun <- function(i){
+      combo <- which(!phiest[i,] %in% guess & phiest[i,]!=0)
+      i1 <- which(phiest[i,]==psi)
+      if (length(i1)==0){
+        i1 <- combo
       }
-      res
+      zeroes <- rep(0, 5)
+      zeroes[i1] <- 1
+      zeroes
     }
-    mat <- NULL
-    if(l>=3){
-      pick <- sort(v, decreasing=TRUE)
-      mat <- match(sort(phiset[row,], decreasing=TRUE)[1:length(v)], phiset[row,])
-    }else{
-      pick <- m[which.min(sapply(1:nrow(m), resfun)),]
-      mat <- match(sort(phiset[row,], decreasing=TRUE)[1:l], phiset[row,])
-    }
-    blank <- rep(0, 5)
-    blank[mat] <- pick
+    imat <- t(sapply(1:nrow(phiest), innerfun))
+    blank <- matrix(rep(0, 5000), nrow=1000, ncol=5)
+    blank[i.non,] <- imat
+    blank[i.one,] <- ones
     blank
   }
-  trial <- t(sapply(i.non, rowmatch))
-}
-q <- which.min(sapply(1:nrow(start), function(k){prod((5*rowMeans((foo(start[k,]) - nonones)^2))^.01)}))
-phiest <- foo(start[q,])
-guess <- sort(start[q,])
-combos <- unique(unlist(sapply(1:length(guess), function(i){combn(guess, i, sum)})))
-sums <- unique(unlist(sapply(2:length(guess), function(i){combn(guess, i, sum)})))
-onefun <- function(i){
-  zeroes <- rep(0, 5)
-  zeroes[which.max(phiset[i,])] <- 1
-  zeroes
-}
-ones <- t(sapply(i.one, onefun))
-clonegen <- function(v){
-  psi <- v
-  innerfun <- function(i){
-   combo <- which(!phiest[i,] %in% guess & phiest[i,]!=0)
-   i1 <- which(phiest[i,]==psi)
-   if (length(i1)==0){
-    i1 <- combo
-   }
-   zeroes <- rep(0, 5)
-   zeroes[i1] <- 1
-   zeroes
-  }
-  imat <- t(sapply(1:nrow(phiest), innerfun))
-  blank <- matrix(rep(0, 5000), nrow=1000, ncol=5)
-  blank[i.non,] <- imat
-  blank[i.one,] <- ones
-  blank
-}
-Zs <- lapply(guess, clonegen)
-list(Zs, "accuracy"=sapply(1:length(guess), function(j){1-sum(zeds[[j]]!=Zs[[j]])/(2*1000)}), 
-     "true psis"=truepsis, "estimates"=guess)
+  Zs <- lapply(guess, clonegen)
+  list(Zs, "accuracy"=sapply(1:length(guess), function(j){1-sum(zeds[[j]]!=Zs[[j]])/(2*1000)}), 
+       "true psis"=truepsis, "estimates"=guess)
 }
 
 obj <- f(115)
