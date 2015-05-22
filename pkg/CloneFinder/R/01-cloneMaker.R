@@ -66,7 +66,7 @@ likely <- function(dataset, phi, compartmentModel, log=FALSE) {
 sampleSimplex <- function(n, d=5) {
     result <- matrix(NA, nrow=n, ncol=d)
     for (i in 1:n) {
-        result[i,] <- diff(sort( c(0, 1, runif(4, 0, 1)) ))
+        result[i,] <- diff(sort( c(0, 1, runif(d-1, 0, 1)) ))
     }
     result
 }
