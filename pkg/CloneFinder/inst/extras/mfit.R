@@ -69,14 +69,30 @@ if (FALSE) {
   phinew <- apply(y, 1:2, sum)
 }
 
+
+# precompute all possible compartment-clone assignments
+precomputeZed <- function(nComp, nClone) {
+  base <- matrix(0, nrow=nComp, ncol=nComp)
+  diag(base) <- 1
+  ary <- array(NA, dim=c(nComp^nClone, nComp, nClone))
+  dex <- 1:nComp
+  for (i in 1:nClone) {
+    edex <- rep(rep(dex, each=nComp^(i-1)), times=nComp^(nClone-i))
+    ary[,,i] <- base[edex,]
+  }
+  ary
+}
+
+#############################
 # simulate a sample data set
 library(CloneFinder)
 set.seed(539121)
 # pure centers
 xy <- data.frame(x = log10(c(2, 2, 1, 3, 4)/2),
                  y = c(1/2, 0, 0, 1/3, 1/4))
-# number of SNP markers per segment
+# number of segments
 nSeg <- 1000
+# number of SNP markers per segment
 markers <- round(runif(nSeg, 25, 1000))
 compModel <- CompartmentModel(markers, xy, 0.25)
 # probability of a pure cloncal segment in each compartment
@@ -92,22 +108,84 @@ dataset <- generateData(tumor)
 pcm <- PrefitCloneModel(dataset)
 # update it
 upd <- updatePhiVectors(pcm)
+slotNames(upd)
 
+nClones <- 3 # we know this because we're omniscient
+zedary <- precomputeZed(5, nClones)
 
-# precompute all possible compartment-clone assignments
-precomputeZed <- function(nComp, nClone) {
-  base <- matrix(0, nrow=nComp, ncol=nComp)
-  diag(base) <- 1
-  ary <- array(NA, dim=c(nComp^nClone, nComp, nClone))
-  dex <- 1:nComp
-  for (i in 1:nClone) {
-    edex <- rep(rep(dex, each=nComp^(i-1)), times=nComp^(nClone-i))
-    ary[,,i] <- base[edex,]
-  }
-  ary
+#########################
+# need to make a not-stupid initial guess at the psi-values.
+# the following is adapted from Mark's "Algorithm_New-v3".
+
+library(combinat)
+# pad a vector with trailing zeros to the desired length
+# while loop is probably not very efficient, but who cares
+pad <- function(v, d) {
+  while(length(v) < d) v <- c(v, 0)
+  v
 }
-zedary <- precomputeZed(5, 2)
 
+# can view this as likelihood of estimated phi-values given psi
+computeSSE <- function(psi, sphi) {
+  ssfun <- function(x) sum(x^2)
+  # check the three-way model
+  res <- sweep(sphi, 2, psi, '-')
+  ss <- apply(res, 1, ssfun) # per-segment sum-of-square errors
+  # find all sums (of combinations) of psi's
+  combos <- sort(unique(unlist(sapply(1:length(psi), function(i){combn(psi, i, sum)}))))
+  # the rows of m are all the two-way models
+  m <- t(sapply(1:length(psi), function(i){sort(c(psi[i], 1-psi[i]), decreasing=TRUE)}))
+  padm <- t(apply(m, 1, pad, d=5)) # pad with zeros to number of compartments
+  ss2 <- data.frame(ss, apply(padm, 1, function(mod2) {
+                                res2 <- sweep(sphi, 2, mod2, '-')
+                                apply(res2, 1, function(x) sum(x^2))
+                              })) # SSE for two-way models
+  sstotal <- sum(apply(ss2, 1, min)) # use the best model for each segment
+  sstotal
+}
+
+guessPsi <- function(upd, nClones) {
+  phiset <- upd@phipick # previously estimated percent of cells in each compartment
+  # sort the phi-vectors with largest first
+  sortedphi <- t(apply(phiset, 1, sort, decreasing=TRUE)) 
+  # sample te space of possible psi-vectors ...
+  field <- sampleSimplex(200, nClones)
+  # ... and put them in decreasing order
+  sfield <- t(apply(field, 1, sort, decreasing=TRUE))
+  # pad them each out to the corect lenggth for the number of compartments
+  padfield <- t(apply(sfield, 1, pad, d=5))
+  # for each "padded field vector" of psi values, find the total SS for each segment
+  sse <- apply(padfield, 1, computeSSE, sphi=sortedphi)
+  pick <- which(sse == min(sse))
+  sfield[pick,]
+}
+
+estpsi <- guessPsi(upd, 3)
+
+setZs <- function(psi, zedary, simdata, tumor) {
+  sigma0 <- 0.25
+  holdme <- matrix(NA, ncol=nrow(zedary), nrow=nrow(simdata))
+  # rows = segments. For columns,  need to consider 5*nClone possible
+  # assignments of pure compartments to segments.
+  for (dex in 1:dim(zedary)[1]) { 
+    # given compartment assignments, compute the weighted center
+    wts <- zedary[dex,,] %*% matrix(psi, ncol=1)
+    xy <- as.data.frame(t(wts) %*% as.matrix(tumor@pureCenters))
+    # then get the independent likelihoods
+    dx <- dnorm(simdata$x, xy$x, sigma0/sqrt(tumor@markers))
+    dy <- dnorm(simdata$y, xy$y, sigma0/sqrt(tumor@markers))
+    # take the product, but use a log transform
+    pp <- log(dx)+log(dy)
+    holdme[, dex] <- pp
+  }
+  # find the best assignments
+  picker <- apply(holdme, 1, which.max)
+  zedary[picker, ,]
+}
+
+Zmats <- setZs(estpsi, zedary, dataset, tumor)
+
+########################
 # parameters that control the EM loop
 currlike <- 0
 lastlike <- -10^5
@@ -121,23 +199,26 @@ while(abs(lastlike - currlike) > epsilon) {
   currlike <- -runner$objective
   cat("Log likelihood: ", currlike, "\n", file=stderr())
 # E-step: Given psi, get values for Z-matrices
-  sigma0 <- 0.25
-  holdme <- matrix(NA, ncol=nrow(zedary), nrow=nrow(simdata))
-  # rows = segments. For columns,  need to consider 5*nClone possible
-  # assignments of pure compartments to segments.
-  for (dex in 1:dim(zedary)[1]) { 
-    # given compartment assignments, compute the weighted center (FIX THIS!)
-        xy <- psi*tumor@pureCenters[i,] + (1-psi)*tumor@pureCenters[j,]
-    # then get the independent likelihoods
-    dx <- dnorm(simdata$x, xy$x, sigma0/sqrt(tumor@markers))
-    dy <- dnorm(simdata$y, xy$y, sigma0/sqrt(tumor@markers))
-    # take the product, but use a log transform
-    pp <- log(dx)+log(dy)
-    holdme[, dex] <- pp
-  }
-  # find the best assignments
-  picker <- apply(holdme, 1, which.max)
-  Zs <- zedary[picker, ,]
-  if (any(apply(Zs, 3, sum) != 1)) stop("bad Z")
+  Zmats <- setZs(psi, zedary, dataset, tumor)
+  if (any(apply(Zmats, c(1,3), sum) != 1)) stop("bad Z")
 }
 
+
+
+
+
+#####################
+tempdir <- "C:/ActiveStuff/Mark/Simulations2"
+names <- as.vector(read.table(file.path(tempdir, "namelist.txt"))[,1])
+callfun <- function(i){
+  string <- names[i]
+  dat <- get(
+    load(file.path(tempdir, paste(string, "rda", sep=".")))
+    )
+  list(dat[[1]], dat[[3]], dat[[4]])
+}
+
+set <- callfun(172)
+truepsis <- set[[1]]
+phiset <- set[[2]]
+zeds <- set[[3]]  

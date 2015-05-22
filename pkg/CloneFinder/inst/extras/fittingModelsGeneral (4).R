@@ -162,10 +162,10 @@ symmfun<-function(n){
 psis<-sapply(1:nclones, symmfun)
 # Now we can get the first estimate of the latent-variable z-matrices
 
-zmapfun<-function(clone){
-zmap<-c(rep(0, nclones+1), 1)
-zmap[nclones+1-(clone-1)]<-1
-zmap
+zmapfun <- function(clone){
+  zmap <- c(rep(0, nclones+1), 1)
+  zmap[nclones+1-(clone-1)]<-1
+  zmap
 }
 #arithmetic explanation: there are nclones+2 clusters; if clones are in increasing order, then the '1' for 
 #clone 1 in zmap should be at nclones+2-1-(clone number-1)=nclones+1-0; or nclones+1-(clone-1)
