@@ -205,20 +205,3 @@ while(abs(lastlike - currlike) > epsilon) {
 
 
 
-
-
-#####################
-tempdir <- "C:/ActiveStuff/Mark/Simulations2"
-names <- as.vector(read.table(file.path(tempdir, "namelist.txt"))[,1])
-callfun <- function(i){
-  string <- names[i]
-  dat <- get(
-    load(file.path(tempdir, paste(string, "rda", sep=".")))
-    )
-  list(dat[[1]], dat[[3]], dat[[4]])
-}
-
-set <- callfun(172)
-truepsis <- set[[1]]
-phiset <- set[[2]]
-zeds <- set[[3]]  
