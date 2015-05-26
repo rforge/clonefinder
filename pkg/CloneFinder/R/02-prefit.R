@@ -1,5 +1,6 @@
 # first pass at fitting the model
 
+# KRC: Do we actually need all of the pieces we carry along here?
 setClass("PrefitCloneModel",
          representation=list(
            data="data.frame",

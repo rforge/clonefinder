@@ -215,6 +215,8 @@ sizeplot <- function(simdata, tumor) {
 
 ####################################################
 # from GlobalMaxLike
+#  KRC: DO we ened these any more? Or are they part of an
+# old approach that didn't generalize?
 
 makeLatent <- function(vector){
   clone <- matrix(0, ncol=5, nrow=length(vector))
