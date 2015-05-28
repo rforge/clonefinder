@@ -174,6 +174,19 @@ Tumor <- function(object, fracs, weights) {
       )
 }
 
+trueZ <- function(tumor) {
+  Zmat <- array(0, dim=c(nrow(tumor@centers), # segments
+                     nrow(tumor@pureCenters), # compartments
+                     ncol(tumor@data)))       # clones
+  for (wclone in 1:ncol(tumor@data)) {
+    for(wseg in 1:nrow(tumor@centers)) {
+      wcomp <- tumor@data[wseg, wclone]
+      Zmat[wseg,wcomp,wclone] <- 1
+    }
+  }
+  Zmat
+}
+
 setMethod("summary", signature("Tumor"), function(object, ...) {
     tdata <- object@data
     table(A=tdata[,1], B=tdata[,2])

@@ -1,3 +1,4 @@
+##################
 # Want to avoid a constrained optimization.  But the parameters of he model
 # are given by a vector psi=(psi_1, .., psi_N) that satisifies \sum psi_i = 1
 #
@@ -5,7 +6,7 @@
 # independent variables.  Here the idea is to give preference to the first entries
 # so that: 0 < x1 < 1,   0 < x2 < 1-x1,    0 < x3 < 1-x1-x2, etc.
 # and rewrite  Vi = xi/(1 - (x1+x2+x{i-1}))
-# to reverse, xi = v1(1-v{i-1})(...(1-v2)(1-v1)
+# to reverse,  xi = v1(1-v{i-1})(...(1-v2)(1-v1)
 #
 # These are computed by the "forward" and "backward" transformations.
 
@@ -14,62 +15,97 @@ lp <- function(p) log(p/(1-p))
 
 # given an N-tuple of nonnegative values that sum to 1, convert it to
 # an (N-1)-tuple of arbitrary real numbers
-forward <- function(F) {
-  L <- ncol(F)-1
-  bonk <- 1 - t(apply(F, 1, cumsum))
-  b <- as.matrix(data.frame(1, bonk[, 1:L]))
-  lp(F/b)[, 1:L]
+forward <- function(Phi) {
+  if (is.vector(Phi)) Phi <- matrix(Phi, nrow=1)
+  L <- ncol(Phi)-1
+  bonk <- 1 - t(apply(Phi, 1, cumsum))
+  b <- as.matrix(data.frame(1, bonk[, 1:L, drop=FALSE]))
+  lp(Phi/b)[, 1:L]
+}
+
+# check that 'forward' works for both vectors and matrices
+# and that it returns a value of the same type
+if (FALSE) {
+  mat <- matrix(c(0.6, 0.3, 0.1, 0.2, 0.3, 0.5), byrow=TRUE, ncol=3)
+  vec <- mat[1,]
+  forward(mat)
+  forward(vec)
+  class(forward(vec))
+  rm(mat, vec)
 }
 
 # Given an L-tuple of arbitrary real numbers, convert it to an
 # (L+1)-tuple of non-negative reals that sum to 1
 backward <- function(w) {
+  if (vec <- is.vector(w)) {
+    w <- matrix(w, nrow=1)
+  }
   w <- ea(w)
   weird <- as.matrix(data.frame(1, t(apply(1-w, 1, cumprod))))
-  as.matrix(data.frame(w,1))*weird
+  res <- as.matrix(data.frame(w,1))*weird
+  if(vec) res <- as.vector(res)
+  res
 }
 
-# check forward and backward
+# check forward and backward for both vectors and matrices
 if(FALSE) {
+  # matrix input
+  mat <- matrix(c(0.6, 0.3, 0.1, 0.2, 0.3, 0.5), byrow=TRUE, ncol=3)
+  fm <- forward(mat)
+  bm <- backward(fm)
+  all(round(mat - bm, 15)==0) # round-trip agrees to 15 decimal places
+
+  # vector input
+  vec <- mat[1,]
+  fv <- forward(vec)
+  bv <- backward(fv)
+  class(bv)
+  all(round(vec - bv, 15)==0) # round-trip agrees to 15 decimal places
+
+  # bigger matrix
   x <- runif(10000, 0, 1)
-  V <- matrix(lp(x), ncol=5)
-  F <- t(apply(V, 1, forward)) # nonneg and sum to 1
+  V <- matrix(lp(x), ncol=4)
+  F <- backward(V) # nonneg and sum to 1
   temp <- apply(F, 1, sum)
+  summary(temp)
 
   w <- forward(F)
   flap <- backward(w)
   summary(as.vector(F - flap))
+  rm(mat, fm, bm, vec, fv, bv, x, V, F, temp, w, flap)
 }
 
-
-
+##################
 # Computes the NEGATIVE log-likelihood for some value of psi,
 # assuming that we already have the Z matrices.
 # Note that the input is assumed to be given by
 #      x = forward(psi)   (so psi=backward(x))
 # and Zs = 3D array of z-matrices, so should have dimension
 #     nSegments x nCompartments x nClones
-#     where nClones equals length(x)
-myTarget <- function(x, Zs, data, tumor) {
-  if (length(x) != dim(Zs)[3]) stop('mismatched argmuent sizes')
+#     where nClones equals length(x)+1
+myTarget <- function(x, Zs, data, compartments) {
   psi <- backward(x)
+  if (length(psi) != dim(Zs)[3]) stop('mismatched argmuent sizes')
   # next formula is vectorization of " phi = sum_i (psi_i * Z_i) "
   phinew <- apply(sweep(Zs, 3, psi, "*"), 1:2, sum)
   loglikes <- sum(tock <- sapply(1:nrow(phinew), function(i, phi) {
-    sum(log(likely(data[i,], phi[i,], tumor, sigma0=0.25)))
+    sum(log(likely(data[i,], phi[i,], compartments)))
   }, phi=phinew))
   - loglikes  # negate
 }
 
-# check algorithm
+# check vectorization formula
 if (FALSE) {
   Zs <- array(1:60, dim=c(4, 5, 3))
   psi <- 1:3
   y <- sweep(Zs, 3, psi, "*")
   phinew <- apply(y, 1:2, sum)
+  phinew
+  rm(Zs, psi, y, phinew)
 }
 
 
+##################
 # precompute all possible compartment-clone assignments
 precomputeZed <- function(nComp, nClone) {
   base <- matrix(0, nrow=nComp, ncol=nComp)
@@ -82,36 +118,6 @@ precomputeZed <- function(nComp, nClone) {
   }
   ary
 }
-
-#############################
-# simulate a sample data set
-library(CloneFinder)
-set.seed(539121)
-# pure centers
-xy <- data.frame(x = log10(c(2, 2, 1, 3, 4)/2),
-                 y = c(1/2, 0, 0, 1/3, 1/4))
-# number of segments
-nSeg <- 1000
-# number of SNP markers per segment
-markers <- round(runif(nSeg, 25, 1000))
-compModel <- CompartmentModel(markers, xy, 0.25)
-# probability of a pure cloncal segment in each compartment
-wts <- rev(5^(1:5))
-wts <- wts/sum(wts)
-# percentage of cells in each (of three) clone(s)
-psis <- c(0.6, 0.3, 0.1)
-
-tumor <- Tumor(compModel, psis, wts)
-dataset <- generateData(tumor)
-
-# prefit the model
-pcm <- PrefitCloneModel(dataset)
-# update it
-upd <- updatePhiVectors(pcm)
-slotNames(upd)
-
-nClones <- 3 # we know this because we're omniscient
-zedary <- precomputeZed(5, nClones)
 
 #########################
 # need to make a not-stupid initial guess at the psi-values.
@@ -160,9 +166,7 @@ guessPsi <- function(upd, nClones) {
   sfield[pick,]
 }
 
-estpsi <- guessPsi(upd, 3)
-
-setZs <- function(psi, zedary, simdata, tumor) {
+setZs <- function(psi, zedary, simdata, compartments) {
   sigma0 <- 0.25
   holdme <- matrix(NA, ncol=nrow(zedary), nrow=nrow(simdata))
   # rows = segments. For columns,  need to consider 5*nClone possible
@@ -170,10 +174,10 @@ setZs <- function(psi, zedary, simdata, tumor) {
   for (dex in 1:dim(zedary)[1]) { 
     # given compartment assignments, compute the weighted center
     wts <- zedary[dex,,] %*% matrix(psi, ncol=1)
-    xy <- as.data.frame(t(wts) %*% as.matrix(tumor@pureCenters))
+    xy <- as.data.frame(t(wts) %*% as.matrix(compartments@pureCenters))
     # then get the independent likelihoods
-    dx <- dnorm(simdata$x, xy$x, sigma0/sqrt(tumor@markers))
-    dy <- dnorm(simdata$y, xy$y, sigma0/sqrt(tumor@markers))
+    dx <- dnorm(simdata$x, xy$x, sigma0/sqrt(compartments@markers))
+    dy <- dnorm(simdata$y, xy$y, sigma0/sqrt(compartments@markers))
     # take the product, but use a log transform
     pp <- log(dx)+log(dy)
     holdme[, dex] <- pp
@@ -183,25 +187,79 @@ setZs <- function(psi, zedary, simdata, tumor) {
   zedary[picker, ,]
 }
 
-Zmats <- setZs(estpsi, zedary, dataset, tumor)
-
-########################
-# parameters that control the EM loop
-currlike <- 0
-lastlike <- -10^5
-epsilon <- 100 # only small compared to the size of the likelihood
-
-while(abs(lastlike - currlike) > epsilon) {
+runEMalg <- function(estpsi, dataset, compartments,
+                     epsilon=100, # only small compared to the size of the likelihood
+                     ctrl=list(trace=1)) {
+  nclone <- length(estpsi)
+  zedary <- precomputeZed(5, nclone)
+  Zmats <- setZs(estpsi, zedary, dataset, compartments) # initialize Z's
+  currlike <- 0
+  lastlike <- -10^5
+  while(abs(lastlike - currlike) > epsilon) {
 # M-step: Given Z-matrices, use MLE to find optimal psi
-  runner <- optim(rep(0, dim(Zmats)[3]), myTarget, Zs=Zmats, data=simdata, tumor=tumor)
-  psi <- backward(runner$minimum)
-  lastlike <- currlike
-  currlike <- -runner$objective
-  cat("Log likelihood: ", currlike, "\n", file=stderr())
+    runner <- optim(rep(0, nclone - 1), myTarget, Zs=Zmats, data=dataset, compartments=compartments,
+                    control=ctrl)
+    psi <- backward(runner$par)
+    lastlike <- currlike
+    currlike <- -runner$value
+    cat("Log likelihood: ", currlike, "\n", file=stderr())
 # E-step: Given psi, get values for Z-matrices
-  Zmats <- setZs(psi, zedary, dataset, tumor)
-  if (any(apply(Zmats, c(1,3), sum) != 1)) stop("bad Z")
+    Zmats <- setZs(psi, zedary, dataset, compartments)
+    if (any(apply(Zmats, c(1,3), sum) != 1)) stop("bad Z")
+  }
+  list(psi=psi, Zmats=Zmats, loglike=currlike)
+}
+
+trueZ <- function(tumor) {
+  Zmat <- array(0, dim=c(nrow(tumor@centers), # segments
+                     nrow(tumor@pureCenters), # compartments
+                     ncol(tumor@data)))       # clones
+  for (wclone in 1:ncol(tumor@data)) {
+    for(wseg in 1:nrow(tumor@centers)) {
+      wcomp <- tumor@data[wseg, wclone]
+      Zmat[wseg,wcomp,wclone] <- 1
+    }
+  }
+  Zmat
 }
 
 
+#############################
+# simulate a sample data set
+library(CloneFinder)
+set.seed(539121)
+# pure centers
+xy <- data.frame(x = log10(c(2, 2, 1, 3, 4)/2),
+                 y = c(1/2, 0, 0, 1/3, 1/4))
+plot(xy, pch=16)
+# number of segments
+nSeg <- 1000
+# number of SNP markers per segment
+markers <- round(runif(nSeg, 25, 1000))
+compModel <- CompartmentModel(markers, xy, 0.25)
+# probability of a pure clonal segment in each compartment
+wts <- rev(5^(1:5))
+wts <- wts/sum(wts)
+# percentage of cells in each (of three) clone(s)
+psis <- c(0.6, 0.3, 0.1)
 
+tumor <- Tumor(compModel, psis, wts)
+dataset <- generateData(tumor)
+
+# prefit the model
+pcm <- PrefitCloneModel(dataset)
+# update it
+upd <- updatePhiVectors(pcm)
+# good guess at psi-vector
+estpsi <- guessPsi(upd, 3) # 3 is number of clones we aqre trying to fit
+estpsi
+# refine with EM-algorithm
+final <- runEMalg(estpsi, dataset, tumor)
+final$psi
+final$loglike
+
+Zed <- trueZ(tumor)
+align <- Zed - final$Zmats
+
+gotit <- apply(align, 1, function(x) all(x==0))
+mean(gotit)
