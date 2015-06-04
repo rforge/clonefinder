@@ -50,7 +50,9 @@ myTarget <- function(x, Zs, data, compartments) {
   # next formula is vectorization of " phi = sum_i (psi_i * Z_i) "
   phinew <- apply(sweep(Zs, 3, psi, "*"), 1:2, sum)
   loglikes <- sum(tock <- sapply(1:nrow(phinew), function(i, phi) {
-    sum(log(likely(data[i,], phi[i,], compartments)))
+    ci <- compartments
+    ci@markers <- compartments@markers[i]
+    sum(log(likely(data[i,], phi[i,], ci)))
   }, phi=phinew))
   - loglikes  # negate
 }
