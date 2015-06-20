@@ -16,8 +16,6 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 Type 'q()' to quit R.
 
 > library(CloneFinder)
-Warning message:
-replacing previous import by 'combinat::rmultinomial' when loading 'CloneFinder' 
 > 
 > set.seed(363453)
 > 
@@ -64,4 +62,4 @@ There were 50 or more warnings (use warnings() to see the first 50)
 > 
 > proc.time()
    user  system elapsed 
-  10.79    0.21   11.12 
+  10.71    0.23   10.98 

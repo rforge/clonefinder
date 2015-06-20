@@ -19,8 +19,6 @@ Type 'q()' to quit R.
 > # Clone, Tunmor, and generateData
 > 
 > library(CloneFinder)
-Warning message:
-replacing previous import by 'combinat::rmultinomial' when loading 'CloneFinder' 
 > set.seed(523476)  # for reproducible tests
 > 
 > ######### CLONE #########
@@ -221,4 +219,4 @@ Segment6 0.575 0.275
 > 
 > proc.time()
    user  system elapsed 
-   0.18    0.03    0.25 
+   0.18    0.04    0.24 
