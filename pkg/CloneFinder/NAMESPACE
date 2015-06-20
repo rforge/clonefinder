@@ -8,8 +8,8 @@ import(methods)
 importFrom(graphics, "plot", "hist")
 exportMethods("plot", "hist")
 
-import(mc2d)     # used for Dirichlet - Multinomial distributions
-importFrom(combinat, "combn") # used for combinations of psi-values
+importFrom(mc2d, "rdirichlet") # used for Dirichlet - Multinomial distributions
+importFrom(combinat, "combn")  # used for combinations of psi-values
 
 ### needed for simulations
 exportClasses("Clone", "Tumor")
