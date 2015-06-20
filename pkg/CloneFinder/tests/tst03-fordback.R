@@ -45,3 +45,32 @@ phinew <- apply(y, 1:2, sum)
 phinew
 rm(Zs, psi, y, phinew)
 
+
+#############
+# check array dimensions in edge case
+#
+# precomputeZed works okay
+zary2 <- CloneFinder:::precomputeZed(5, 2)
+dim(zary2)
+zary1 <- CloneFinder:::precomputeZed(5, 1)
+dim(zary1)
+
+#############
+# simulate a sample data set
+set.seed(8644458)
+xy <- data.frame(x = log10(c(2, 2, 1, 3, 4)/2),
+                 y = c(1/2, 0, 0, 1/3, 1/4))
+markers <- round(runif(1000, 25, 1000))
+compModel <- CompartmentModel(markers, xy, 0.25)
+wts <- rev(5^(1:5))
+wts <- wts/sum(wts)
+psis <- c(0.6, 0.3, 0.1)
+tumor <- Tumor(compModel, psis, wts)
+dataset <- generateData(tumor)
+
+Z2 <- CloneFinder:::setZs(c(0.5, 0.5), zary2, dataset, compModel)
+dim(Z2)
+
+Z1 <- CloneFinder:::setZs(1, zary1, dataset, compModel)
+dim(Z1)
+

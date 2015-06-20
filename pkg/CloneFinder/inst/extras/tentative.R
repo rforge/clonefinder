@@ -19,6 +19,9 @@ f2 <- runEMalg(e2, dataset, tumor)
 f2$psi
 f2$loglike
 
+e1 <- 1
+f1 <- runEMalg(e1, dataset, tumor)
+
 park <- 0*upd@phipick
 for (i in 1:nrow(park)) {
   w <- which.max(upd@phipick[i,])

@@ -136,7 +136,7 @@ setZs <- function(psi, zedary, simdata, compartments) {
   }
   # find the best assignments
   picker <- apply(holdme, 1, which.max)
-  zedary[picker, ,]
+  zedary[picker, , ,drop=FALSE]
 }
 
 runEMalg <- function(estpsi, dataset, compartments,
