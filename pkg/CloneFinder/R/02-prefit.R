@@ -1,6 +1,7 @@
 # first pass at fitting the model
 
 # KRC: Do we actually need all of the pieces we carry along here?
+# KRC: Should we carry along the compartment model to reuse when we update phi vectors?
 setClass("PrefitCloneModel",
          representation=list(
            data="data.frame",
@@ -20,16 +21,16 @@ setClass("PrefitCloneModel",
   phiset[order(euclid),]
 }
 
-.computeLikelihoods <- function(phiset, segmentdata, tumor, log=TRUE) {
+.computeLikelihoods <- function(phiset, segmentdata, compartments, log=TRUE) {
   apply(phiset, 1, function(phi) {
-    likely(segmentdata, phi, tumor, log)
+    likely(segmentdata, phi, compartments, log)
   })
 }
 
-PrefitCloneModel <- function(segmentdata, nPhi = 10000) {
+PrefitCloneModel <- function(segmentdata, compartments, nPhi = 10000) {
 # simulate a uniform set of phi-vectors
   phiset <- .reorderVectors(sampleSimplex(nPhi, 5))
-  likelihoods <- .computeLikelihoods(phiset, segmentdata, tumor, TRUE)
+  likelihoods <- .computeLikelihoods(phiset, segmentdata, compartments, TRUE)
 # locate the maximum likelihood for each phi-vector
   maxLikeIndex <- apply(likelihoods, 1, which.max)
   phipick <- phiset[maxLikeIndex,]
@@ -43,7 +44,7 @@ PrefitCloneModel <- function(segmentdata, nPhi = 10000) {
       phiv=as.vector(phipick))
 }
 
-updatePhiVectors <- function(object, nPhi=10000) {
+updatePhiVectors <- function(object, compartments, nPhi=10000) {
   if (!inherits(object, "PrefitCloneModel")) {
     object <- PrefitCloneModel(object, nPhi)
   }
@@ -58,7 +59,7 @@ updatePhiVectors <- function(object, nPhi=10000) {
   }
   newphiset <- .reorderVectors(newphiset)
 # get the likelihoods for the new phis
-  likelihoods <- .computeLikelihoods(newphiset, object@data, tumor, TRUE)
+  likelihoods <- .computeLikelihoods(newphiset, object@data, compartments, TRUE)
   maxLikeIndex <- apply(likelihoods, 1, which.max)
   phipick <- newphiset[maxLikeIndex,]
   new("PrefitCloneModel",

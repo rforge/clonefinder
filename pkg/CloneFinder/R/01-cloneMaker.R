@@ -228,7 +228,7 @@ sizeplot <- function(simdata, tumor) {
 
 ####################################################
 # from GlobalMaxLike
-#  KRC: DO we ened these any more? Or are they part of an
+#  KRC: DO we need these any more? Or are they part of an
 # old approach that didn't generalize?
 
 makeLatent <- function(vector){
@@ -248,8 +248,9 @@ estBetaParams <- function(vec) {
   c(alpha = alpha, beta = beta)
 }
 
-
-maxfun <- function(segment){
+# this depended on lots of global variables.
+# I hope we don't really use it or need it.
+maxfun <- function(segment, newphiset, paramtable, temp){
   d <- temp[segment,]
   range <- 1:1000
   range <- range[!range == segment]

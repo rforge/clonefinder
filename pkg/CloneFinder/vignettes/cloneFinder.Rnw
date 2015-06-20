@@ -163,7 +163,7 @@ the maximum posterior probability.
 This step of the algorithm is implemented in the function
 \texttt{PrefitCloneModel}.
 <<pcm>>=
-pcm <- PrefitCloneModel(simdata)
+pcm <- PrefitCloneModel(simdata, tumor)
 summary(pcm)
 @ 
 \begin{figure}
@@ -205,7 +205,7 @@ any reason to do so.  This step is implemented in the function
 
 \paragraph{Code Example}
 <<upv>>=
-upv <- updatePhiVectors(pcm)
+upv <- updatePhiVectors(pcm, tumor)
 @ 
 \begin{figure}
 <<fig=TRUE,echo=FALSE>>=

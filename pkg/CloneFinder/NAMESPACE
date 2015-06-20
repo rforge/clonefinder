@@ -8,15 +8,13 @@ import(methods)
 importFrom(graphics, "plot", "hist")
 exportMethods("plot", "hist")
 
-# used for Dirichlet - Multinomial distributions
-import(mc2d)
-# used for combinations of psi-values
-import(combinat)
+import(mc2d)     # used for Dirichlet - Multinomial distributions
+importFrom(combinat, "combn") # used for combinations of psi-values
 
 ### needed for simulations
 exportClasses("Clone", "Tumor")
 export("Clone", "Tumor")
-export("generateData")
+export("generateData", "trueZ", "sizeplot")
 
 ### needed for analysis
 exportClasses("CompartmentModel")
@@ -25,7 +23,10 @@ export("likely", "sampleSimplex")
 
 ### prefit (phi vectors per segment)
 exportClasses("PrefitCloneModel")
-export("PrefitCloneModel", "updatePhiVectors", "sizeplot")
+export("PrefitCloneModel", "updatePhiVectors")
 
-# psi
-export(guessPsi, runEMalg, trueZ)
+### not needed externally?
+#export("myTarget", "precomputeZed", "computeSSE", "setZs")
+
+### fitting psi vectors
+export("guessPsi", "runEMalg")

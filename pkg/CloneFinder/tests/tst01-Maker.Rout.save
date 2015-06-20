@@ -1,6 +1,6 @@
 
-R version 3.1.1 (2014-07-10) -- "Sock it to Me"
-Copyright (C) 2014 The R Foundation for Statistical Computing
+R version 3.2.0 (2015-04-16) -- "Full of Ingredients"
+Copyright (C) 2015 The R Foundation for Statistical Computing
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -19,6 +19,8 @@ Type 'q()' to quit R.
 > # Clone, Tunmor, and generateData
 > 
 > library(CloneFinder)
+Warning message:
+replacing previous import by 'combinat::rmultinomial' when loading 'CloneFinder' 
 > set.seed(523476)  # for reproducible tests
 > 
 > ######### CLONE #########
@@ -219,4 +221,4 @@ Segment6 0.575 0.275
 > 
 > proc.time()
    user  system elapsed 
-   0.21    0.10    0.31 
+   0.18    0.03    0.25 

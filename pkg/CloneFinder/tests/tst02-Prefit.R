@@ -19,19 +19,19 @@ fracs <- c(5, 3, 1)
 TrueNclones <- length(fracs)
 # now simulate a tumor; length of 'fracs' in first argument is number of clones
 tumor <- Tumor(baseModel, fracs, wts)
-rm(wts, fracs, baseModel)
+rm(wts, fracs)
 ls()
 
 # simulate data by selecting the weighted means with appropriate
 # standard error of the mean
 simdata <- generateData(tumor)
 
-firstPass <- PrefitCloneModel(simdata)
+firstPass <- PrefitCloneModel(simdata, baseModel)
 plot(firstPass)
 hist(firstPass, breaks=123)
 summary(firstPass)
 
-secondPass <- updatePhiVectors(firstPass)
+secondPass <- updatePhiVectors(firstPass, baseModel)
 plot(secondPass)
 hist(secondPass, breaks=56)
 summary(secondPass)
