@@ -141,16 +141,22 @@ setZs <- function(psi, zedary, simdata, compartments) {
 
 runEMalg <- function(estpsi, dataset, compartments,
                      epsilon=100, # only small compared to the size of the likelihood
-                     ctrl=list(trace=1)) {
+                     ctrl=list(trace=1, reltol=1e-4)) {
   nclone <- length(estpsi)
+  meth <- ifelse(nclone==2, "Brent", "Nelder-Mead")
   zedary <- precomputeZed(5, nclone)
   Zmats <- setZs(estpsi, zedary, dataset, compartments) # initialize Z's
   currlike <- 0
   lastlike <- -10^5
   while(abs(lastlike - currlike) > epsilon) {
 # M-step: Given Z-matrices, use MLE to find optimal psi
-    runner <- optim(rep(0, nclone - 1), myTarget, Zs=Zmats, data=dataset, compartments=compartments,
-                    control=ctrl)
+    if (nclone == 2) {
+      runner <- optim(rep(0, nclone - 1), myTarget, Zs=Zmats, data=dataset, compartments=compartments,
+                      method=meth, lower=-50, upper=50, control=ctrl)
+    } else {
+      runner <- optim(rep(0, nclone - 1), myTarget, Zs=Zmats, data=dataset, compartments=compartments,
+                      method=meth, control=ctrl)
+    }
     psi <- backward(runner$par)
     lastlike <- currlike
     currlike <- -runner$value
