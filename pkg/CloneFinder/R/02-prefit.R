@@ -53,11 +53,12 @@ updatePhiVectors <- function(object, compartments) {
     object <- PrefitCloneModel(object, nPhi)
   }
   nPhi <- nrow(object@phiset)
-  multiplier <- round(nPhi/nrow(object@data))
+  L <- nrow(object@data)
+  multiplier <- round(nPhi/L)
 # resample the phi vectors to be near the ones selected as
 # optimal in the first pass
   newphiset <- matrix(NA, ncol=5, nrow=nPhi)
-  for (i in 1:1000) {
+  for (i in 1:L) {
     index <- 1 + multiplier*(i-1)
     iset <- index:(index+multiplier-1)
     newphiset[iset,] <- rdirichlet(multiplier, 2*object@phiset[object@maxLikeIndex[i],])
