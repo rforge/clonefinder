@@ -28,6 +28,10 @@ setClass("PrefitCloneModel",
 }
 
 PrefitCloneModel <- function(segmentdata, compartments, nPhi = 10000) {
+# recalibrate nPhi base don actuaol number of segments
+  L <- length(compartments@markers)
+  mult <- round(nPhi/L)
+  nPhi <- L*mult
 # simulate a uniform set of phi-vectors
   phiset <- .reorderVectors(sampleSimplex(nPhi, 5))
   likelihoods <- .computeLikelihoods(phiset, segmentdata, compartments, TRUE)
@@ -44,11 +48,12 @@ PrefitCloneModel <- function(segmentdata, compartments, nPhi = 10000) {
       phiv=as.vector(phipick))
 }
 
-updatePhiVectors <- function(object, compartments, nPhi=10000) {
+updatePhiVectors <- function(object, compartments) {
   if (!inherits(object, "PrefitCloneModel")) {
     object <- PrefitCloneModel(object, nPhi)
   }
-  multiplier <- round(nPhi/1000)
+  nPhi <- nrow(object@phiset)
+  multiplier <- round(nPhi/nrow(object@data))
 # resample the phi vectors to be near the ones selected as
 # optimal in the first pass
   newphiset <- matrix(NA, ncol=5, nrow=nPhi)
