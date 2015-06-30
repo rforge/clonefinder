@@ -52,7 +52,8 @@ likely <- function(dataset, phi, compartmentModel, log=FALSE) {
   phi <- matrix(phi/sum(phi), nrow=1) # make sure they add up to 1
   center <- as.data.frame(phi %*% as.matrix(xy))
   secondMoment <- phi %*% (xy^2 + sigma0^2)
-  sigma <- sqrt(sweep(secondMoment - center^2, 1, markers, '/'))
+  adjust <- as.vector(secondMoment - center^2)
+  sigma <- t(sqrt(outer(adjust, markers, '/')))
   px <- dnorm(dataset$x, center$x, sigma[,1], log)
   py <- dnorm(dataset$y, center$y, sigma[,2], log)
   if(log) {
