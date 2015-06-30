@@ -52,7 +52,7 @@ myTarget <- function(x, Zs, data, compartments) {
   loglikes <- sum(tock <- sapply(1:nrow(phinew), function(i, phi) {
     ci <- compartments
     ci@markers <- compartments@markers[i]
-    sum(log(likely(data[i,], phi[i,], ci)))
+    sum(likely(data[i,], phi[i,], ci, log=TRUE))
   }, phi=phinew))
   - loglikes  # negate
 }
@@ -103,6 +103,7 @@ computeSSE <- function(psi, sphi) {
 }
 
 guessPsi <- function(upd, nClones) {
+  if (nClones == 1) return(1)
   phiset <- upd@phipick # previously estimated percent of cells in each compartment
   # sort the phi-vectors with largest first
   sortedphi <- t(apply(phiset, 1, sort, decreasing=TRUE)) 

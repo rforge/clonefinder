@@ -94,3 +94,6 @@ rm(baseModel, tdata, xy, wts)
 
 # use the last example to generate data
 simdata <- generateData(tumor)
+
+phi <- sampleSimplex(1, 5)
+likely(simdata, phi, tumor)
