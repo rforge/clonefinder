@@ -28,12 +28,26 @@ setClass("PrefitCloneModel",
 }
 
 PrefitCloneModel <- function(segmentdata, compartments, nPhi = 10000) {
-# recalibrate nPhi base don actuaol number of segments
+# recalibrate nPhi based on actual number of segments
   L <- length(compartments@markers)
   mult <- round(nPhi/L)
   nPhi <- L*mult
+# force some phi-candidates to live near each vertex
+  oneper <- max(round(nPhi/100), 10)
+  point <- rep(0.02, 5)  # magic numbers: c(0.92, 0.02, 0.02, 0.02, 0.02)
+  for (i in 1:5) { # do this for each compartment
+    params <- point
+    params[i] <- 0.92
+    temp <- rdirichlet(oneper, params)
+    if (exists('base')) {
+      base <- rbind(base, temp)
+    } else {
+      base <- temp
+    }
+  }
 # simulate a uniform set of phi-vectors
-  phiset <- .reorderVectors(sampleSimplex(nPhi, 5))
+  phiset <- .reorderVectors(sampleSimplex(nPhi-5*oneper, 5))
+  phiset <- rbind(base, phiset)
   likelihoods <- .computeLikelihoods(phiset, segmentdata, compartments, TRUE)
 # locate the maximum likelihood for each phi-vector
   maxLikeIndex <- apply(likelihoods, 1, which.max)
