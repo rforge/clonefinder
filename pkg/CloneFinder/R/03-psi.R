@@ -149,7 +149,8 @@ runEMalg <- function(estpsi, dataset, compartments,
   Zmats <- setZs(estpsi, zedary, dataset, compartments) # initialize Z's
   currlike <- 0
   lastlike <- -10^5
-  while(abs(lastlike - currlike) > epsilon) {
+    while (abs(lastlike - currlike) > epsilon &&
+             abs((lastlike - currlike)/lastlike) > 0.01 ) {
 # M-step: Given Z-matrices, use MLE to find optimal psi
     if (nclone == 2) {
       runner <- optim(rep(0, nclone - 1), myTarget, Zs=Zmats, data=dataset, compartments=compartments,
