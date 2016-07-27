@@ -1,6 +1,8 @@
 library(gtools)
 library(CloneFinder)
 
+#KRC: Why does this have a different interface than the one in the package?
+#KRC: apparently only used to make simulations
 estBetaParams <- function(mu, s2) {
   temp <- mu*(1-mu)/s2 - 1
   alpha <- mu*temp
@@ -8,6 +10,8 @@ estBetaParams <- function(mu, s2) {
   abs(c(alpha = alpha, beta = beta))
 }
 
+#KRC: What does this function do? It appears to only be used by AuerGervini...
+#KRC: Oh, I guess it computes the mode of some distribution.
 Mode <- function(x) {
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
@@ -15,7 +19,7 @@ Mode <- function(x) {
 
 ##Loading CLL data
 cll <- read.table('D:\\SNP Array Data\\Data_CLL.txt', header=T)
-cids <- unique(cll$SamID)
+cids <- unique(cll$SamID) #KRC: why not use 'levels'?
 
 #'Analyze' computes the most likely sets of psi values and Z matrices for 
 #each value of 'k' (number of subclones)
@@ -32,7 +36,7 @@ analyze <- function(n, sigma2, data){
   pcm <- PrefitCloneModel(dataset, compModel)
   upd <- updatePhiVectors(pcm, compModel)
   mfun <- function(m){
-    set.seed(n+3)
+    set.seed(n+3) # KRC: I can almost certainly guarantee that this is a bad idea
     # temp <- upd@phipick
     # for(i in 1:nrow(temp)){
     #   inds <- which(temp[i,] %in% sort(temp[i,], decreasing=TRUE)[1:n])
@@ -56,7 +60,23 @@ analyze <- function(n, sigma2, data){
   output
 }
 
-temp <- analyze(1, sigma2=1, cll, cids)
+xy <- data.frame(x = log10(c(2, 2, 1, 3,   4)/2),
+                 y =     c(1/2, 0, 0, 1/3, 1/4))
+rownames(xy) <- c("Normal", "LOH", "Minus1", "Plus1", "Plus2")
+
+
+#KRC: removed this since it doesn't match the function call: temp <- analyze(1, sigma2=1, cll, cids)
+#KRC: but the next line fails inside CompartmentModel. Problem is the lack of an "xy" object.
+#KRC: So, I added an xy definition above
+temp <- analyze(1, sigma2=1, cll)
+#KRC: That looked like it weas stuck in an infinite loop, which is very very not good.
+#kRC: Seemed to happen because when k=2 it swaps back and forth betweeen two possible
+#KRC: solutions, where the difference in log-likehoods is about 197, while the defaul
+#KRC: termination condition is 100. 
+#KRC: So, I modified the runEMalg part of the CloneFInder package by adding a "relative
+#KRC: change" loop termination condition.
+#KRC: Better might be to stop if the log-likelihood changes in the wrong direction.
+
 results <- lapply(1:length(cids), analyze, sigma2=1, data=cll)
 #results2 <- results
 #save(results2, file='G:\\results-cll2.rda')
@@ -68,11 +88,15 @@ results <- lapply(1:length(cids), analyze, sigma2=1, data=cll)
 
 ###Now, we apply the prior on k, the number of subclones, and take the value
 #resulting from the plurality of thetas considered:
-thetas <- seq(from=1, to=500, length=500)
+thetas <- seq(from=1, to=500, length=500) #KRC: Why is this range relevant?
+#KRC: We need to have a long talk about global variables...
+#KRC: Real inputs should be the list of log-likelihoods, since then we could
+#KRC: re-use this function elsewhere. Also, the plot function shoudl be
+#KRC: separate fromt he computations, ideally by making a new object/class.
 AuerGervini <- function(i){
   loglikes <- unlist(results[[i]][[1]][3,])
   thetafun <- function(theta){
-    which.max(log(dexp(1:6, theta)) + loglikes)
+    which.max(dexp(1:6, theta, log=TRUE) + loglikes)
   }
   picks <- sapply(thetas, thetafun)
   bin <- sapply(2:length(picks), function(j){picks[j]!=picks[j-1]})
@@ -86,6 +110,7 @@ AuerGervini <- function(i){
 Ks <- sapply(1:length(results), AuerGervini)
 length(which(Ks==1))
 
+#KRC: Again, we need better inputs to make this function reusable.
 #Plotting the LRR-BAF graphs:
 plotfun <- function(i){
  sizes <- cll[cll$SamID==cids[i],]$num.mark
