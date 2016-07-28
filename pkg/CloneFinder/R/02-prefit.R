@@ -64,7 +64,7 @@ PrefitCloneModel <- function(segmentdata, compartments, nPhi = 10000) {
 
 updatePhiVectors <- function(object, compartments) {
   if (!inherits(object, "PrefitCloneModel")) {
-    object <- PrefitCloneModel(object, nPhi)
+    object <- PrefitCloneModel(object, nPhi) # obviously cannot work and hasn't been called
   }
   nPhi <- nrow(object@phiset)
   L <- nrow(object@data)
