@@ -23,7 +23,8 @@ cids <- unique(cll$SamID) #KRC: why not use 'levels'?
 
 #'Analyze' computes the most likely sets of psi values and Z matrices for 
 #each value of 'k' (number of subclones)
-analyze <- function(n, sigma2, data){
+#KRC: added te extra argument that is clearly used below...
+analyze <- function(n, sigma2, data, cids){
   cid <- cids[n]
   #sub <- cll[cll$SamID==cid,]
   sub <- as.data.frame(data[which(data[,1]==cid),])
@@ -64,12 +65,30 @@ xy <- data.frame(x = log10(c(2, 2, 1, 3,   4)/2),
                  y =     c(1/2, 0, 0, 1/3, 1/4))
 rownames(xy) <- c("Normal", "LOH", "Minus1", "Plus1", "Plus2")
 
+foo <- apply(upd@likelihoods, 1, function(x) {
+  m <- max(x)
+  sum(exp(x - m))
+})
 
-#KRC: removed this since it doesn't match the function call: temp <- analyze(1, sigma2=1, cll, cids)
-#KRC: but the next line fails inside CompartmentModel. Problem is the lack of an "xy" object.
+targets <-  t(sapply(1:length(upd@maxLikeIndex), function(i) {
+  delta <- sqrt(apply(sweep(upd@phiset, 2,
+                            upd@phiset[upd@maxLikeIndex[i],],
+                            "-")^2, 1, sum))
+  od <- order(delta)
+  x <- upd@likelihoods[i,]
+  m <- max(x)
+  cs <- cumsum(exp(x[od]-m))/foo[i]
+  pp <- c(0.7, 0.8, 0.9, 0.95,0.99)
+  sapply(pp, function(post) {
+    delta[od][which(cs > post)[1]]
+  })
+}))
+colnames(targets) <- paste("Q", c(0.7, 0.8, 0.9, 0.95,0.99), sep='')
+
+#KRC: The next line failed inside CompartmentModel. Problem is the lack of an "xy" object.
 #KRC: So, I added an xy definition above
-temp <- analyze(1, sigma2=1, cll)
-#KRC: That looked like it weas stuck in an infinite loop, which is very very not good.
+temp <- analyze(1, sigma2=1, cll, cids)
+#KRC: That looked like it was stuck in an infinite loop, which is very very not good.
 #kRC: Seemed to happen because when k=2 it swaps back and forth betweeen two possible
 #KRC: solutions, where the difference in log-likehoods is about 197, while the defaul
 #KRC: termination condition is 100. 
@@ -89,10 +108,11 @@ results <- lapply(1:length(cids), analyze, sigma2=1, data=cll)
 ###Now, we apply the prior on k, the number of subclones, and take the value
 #resulting from the plurality of thetas considered:
 thetas <- seq(from=1, to=500, length=500) #KRC: Why is this range relevant?
+
 #KRC: We need to have a long talk about global variables...
 #KRC: Real inputs should be the list of log-likelihoods, since then we could
-#KRC: re-use this function elsewhere. Also, the plot function shoudl be
-#KRC: separate fromt he computations, ideally by making a new object/class.
+#KRC: re-use this function elsewhere. Also, the plot function should be
+#KRC: separate from the computations, ideally by making a new object/class.
 AuerGervini <- function(i){
   loglikes <- unlist(results[[i]][[1]][3,])
   thetafun <- function(theta){
@@ -139,6 +159,9 @@ plotfun(11)
 hist(Ks, breaks=5, xlab='K = number of subclones', main='Histogram of number of clones per patient')
 plotfun(1)
 
+#################################################
+#KRC: Looks like a change of topics in part
+#################################################
 ##Alterations and clonality: do alterations in particular chrom arms 
 ##correlate with clonal heterogeneity?
 #Chlens is a file with chromosome lengths
@@ -244,6 +267,9 @@ g <- function(arm){
 
 temp <- g('13q')
 
+#################################################
+#KRC: Looks like a change of topics in part
+#################################################
 ###Generating simulations:
 psiList <- unlist(lapply(1:5, function(i){lapply(1:30, function(j){
   as.vector(rdirichlet(1, rep(1, i)))})}), recursive=FALSE)
@@ -292,6 +318,7 @@ sim <- function(i){
 sims <- lapply(1:length(psiList), sim)
 cids.sim <- sapply(1:length(sims), function(i){paste('sim-', i, sep='')})
 stuff <- sims
+#KRC: Ick. Yuck. What is this?
 simtab <- data.frame('SamID'=unlist(lapply(1:length(cids.sim),function(j){rep(cids.sim[j], 
   nrow(stuff[[j]][[1]][[2]][[1]]))})), 'seg.median'=unlist(lapply(1:length(cids.sim), 
   function(j){stuff[[j]][[2]][[1]][,1]})), 'AvgBAF'=unlist(lapply(1:length(cids.sim),
@@ -299,6 +326,7 @@ simtab <- data.frame('SamID'=unlist(lapply(1:length(cids.sim),function(j){rep(ci
       function(j){stuff[[j]][[2]][[2]]}))
 )
 stuff <- simtab
+tempsim <- analyze(1, sigma2=0.05, data=stuff, cids=cids.sim)
 res <- lapply(1:length(cids.sim) ,analyze, sigma2=.05, data=stuff, cids=cids.sim)
 
 ###Checking simulatiosn:
