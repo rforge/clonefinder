@@ -65,26 +65,6 @@ xy <- data.frame(x = log10(c(2, 2, 1, 3,   4)/2),
                  y =     c(1/2, 0, 0, 1/3, 1/4))
 rownames(xy) <- c("Normal", "LOH", "Minus1", "Plus1", "Plus2")
 
-foo <- apply(upd@likelihoods, 1, function(x) {
-  m <- max(x)
-  sum(exp(x - m))
-})
-
-targets <-  t(sapply(1:length(upd@maxLikeIndex), function(i) {
-  delta <- sqrt(apply(sweep(upd@phiset, 2,
-                            upd@phiset[upd@maxLikeIndex[i],],
-                            "-")^2, 1, sum))
-  od <- order(delta)
-  x <- upd@likelihoods[i,]
-  m <- max(x)
-  cs <- cumsum(exp(x[od]-m))/foo[i]
-  pp <- c(0.7, 0.8, 0.9, 0.95,0.99)
-  sapply(pp, function(post) {
-    delta[od][which(cs > post)[1]]
-  })
-}))
-colnames(targets) <- paste("Q", c(0.7, 0.8, 0.9, 0.95,0.99), sep='')
-
 #KRC: The next line failed inside CompartmentModel. Problem is the lack of an "xy" object.
 #KRC: So, I added an xy definition above
 temp <- analyze(1, sigma2=1, cll, cids)
@@ -341,3 +321,80 @@ thetas <- seq(from=1, to=10, length=500)
 Ks <- sapply(1:length(results), AuerGervini)
 true <- sapply(1:5, function(i){rep(i, 30)})
 length(which(Ks==true))/length(Ks)
+
+#####################################
+# KRC: Single example
+
+# potential replacement for PrefitCloneModel 
+PCM <- function(segmentdata, compartments, nPhi = 20000) {
+# use the Jeffreys (Dirichlet) prior on phi
+  N <- nrow(compartments@pureCenters)
+  phiset <- rdirichlet(nPhi, rep(1/2, N))
+  likelihoods <- CloneFinder:::.computeLikelihoods(phiset, segmentdata, compartments, TRUE)
+# locate the maximum likelihood for each phi-vector
+  maxLikeIndex <- apply(likelihoods, 1, which.max)
+  phipick <- phiset[maxLikeIndex,]
+# return the results, bundled in an S4 class
+  new("PrefitCloneModel",
+      data=segmentdata,
+      phiset=phiset,
+      likelihoods=likelihoods,
+      maxLikeIndex = maxLikeIndex,
+      phipick = phipick,
+      phiv=as.vector(phipick))
+}
+
+{
+  cid <- cids[25]
+  sub <- as.data.frame(cll[which(cll[,1]==cid),])
+  markers <- sub$num.mark
+  dataset <- data.frame('lrr'=sub$seg.median, 'baf'=sub$AvgBAF)
+  colnames(dataset) <- c("x", "y")
+  dataset <- as.data.frame(dataset)
+  compModel <- CompartmentModel(markers, xy, 1)  
+  # good guess at psi-vector
+  pcm <- PCM(dataset, compModel, nPhi=20000)
+
+  plot(pcm@phiset[,1:2])
+
+  post <- posterior(pcm)
+  delta <- ed(pcm, c(1,0,0,0,0))
+  ir <- 10
+  plot(delta, post[ir,])
+  cs <- cumsum(post[ir,order(delta)])
+  plot(sort(delta), cs)
+
+  postnormal <- posteriorQuantile(pcm, phi0=c(1,0,0,0,0))
+  postloh    <- posteriorQuantile(pcm, phi0=c(0,1,0,0,0))
+  postminus1 <- posteriorQuantile(pcm, phi0=c(0,0,1,0,0))
+  postplus1  <- posteriorQuantile(pcm, phi0=c(0,0,0,1,0))
+  postplus2  <- posteriorQuantile(pcm, phi0=c(0,0,0,0,1))
+
+
+  
+  pairs(cbgb <- cbind(dataset, postnormal[, c(1,4)]))
+  postq <- posteriorQuantile(pcm)
+  hist(postq[,"Q0.9"]/sqrt(2), breaks=33)
+  plot(sort(postq[,"Q0.9"])/sqrt(2))
+
+  postRnormal <- posteriorRegion(pcm, 0.1, phi0=c(1,0,0,0,0))
+  postRloh    <- posteriorRegion(pcm, 0.1, phi0=c(0,1,0,0,0))
+  postRminus1 <- posteriorRegion(pcm, 0.1, phi0=c(0,0,1,0,0))
+  postRplus1  <- posteriorRegion(pcm, 0.1, phi0=c(0,0,0,1,0))
+  postRplus2  <- posteriorRegion(pcm, 0.1, phi0=c(0,0,0,0,1))
+  postr <- data.frame(Normal=postRnormal,
+                      LOH=postRloh,
+                      Minus1=postRminus1,
+                      Plus1=postRplus1,
+                      Plus2=postRplus2)
+
+  plot(dataset, pch=16, col=c("purple", "orange")[1 + 1*(postr>0.5)])
+  
+  upd <- updatePhiVectors(pcm, compModel)
+  mfun <- function(m){
+    set.seed(n+3) # KRC: I can almost certainly guarantee that this is a bad idea
+    estpsi <- guessPsi(upd, m) # 3 is number of clones we are trying to fit
+    final <- runEMalg(estpsi, dataset, compModel)
+    list(final, upd@phipick)
+  }
+
