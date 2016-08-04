@@ -12,7 +12,7 @@
 
 setClass("CompartmentModel",
          representation=list(
-             markers = "numeric",             
+             markers = "numeric",
              pureCenters = "data.frame",
              sigma0="numeric"))
 
