@@ -30,8 +30,3 @@ firstPass <- PrefitCloneModel(simdata, baseModel)
 plot(firstPass)
 hist(firstPass, breaks=123)
 summary(firstPass)
-
-secondPass <- updatePhiVectors(firstPass, baseModel)
-plot(secondPass)
-hist(secondPass, breaks=56)
-summary(secondPass)

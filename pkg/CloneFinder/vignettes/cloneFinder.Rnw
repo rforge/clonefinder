@@ -194,23 +194,20 @@ cells in each pure compartment must be given by a sum of a subset of
 the $\psi_i$ values, and so there is a finite (and reasonably small)
 number of true vectors $\bar\varphi_s$.
 
-So, we use the posterior distribution of the ``maximum likelihood''
-$\bar\varphi$ vactors as a new prior distribution.  We sample vectors
-from this distribution (therefore ensuring that we sample more vectors
-in a neighborhood of the most common vectors from the first pass), and
-repeat the computation of likelihoods and the idenitification for each
-segment of the maximum likelihood vector.  In principle, this step
-could be repeated more than once; in practice, we have not yet seen
-any reason to do so.  This step is implemented in the function
-\texttt{updatePhiVectors}.
+\textbf{OBSOLETE!} So, we use the posterior distribution of the
+``maximum likelihood'' $\bar\varphi$ vactors as a new prior
+distribution.  We sample vectors from this distribution (therefore
+ensuring that we sample more vectors in a neighborhood of the most
+common vectors from the first pass), and repeat the computation of
+likelihoods and the idenitification for each segment of the maximum
+likelihood vector.  In principle, this step could be repeated more
+than once; in practice, we have not yet seen any reason to do so.
+This step is implemented in the function \texttt{updatePhiVectors}.
 
 \paragraph{Code Example}
-<<upv>>=
-upv <- updatePhiVectors(pcm, tumor)
-@ 
 \begin{figure}
 <<fig=TRUE,echo=FALSE>>=
-hist(upv, breaks=55)
+hist(pcm, breaks=55)
 
 lp <- function(p) log(p/(1-p))
 ea <- function(a) {
@@ -218,14 +215,14 @@ ea <- function(a) {
   temp/(1+temp)
 }
 
-dang <- lp(upv@phipick)
+dang <- lp(pcm@phipick)
 L <- 25
 dang[dang < -L] <- NA
 dang[dang > L] <- NA
 hist(dang, breaks=55)
 
 @ 
-\caption{Histogram of components of phi-vectors from second pass at
+\caption{Histogram of components of phi-vectors from first pass at
   modeling the simulated data.}
 \label{hist.second}
 \end{figure}

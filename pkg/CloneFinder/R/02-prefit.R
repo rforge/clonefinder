@@ -27,27 +27,10 @@ setClass("PrefitCloneModel",
   })
 }
 
-PrefitCloneModel <- function(segmentdata, compartments, nPhi = 10000) {
-# recalibrate nPhi based on actual number of segments
-  L <- length(compartments@markers)
-  mult <- round(nPhi/L)
-  nPhi <- L*mult
-# force some phi-candidates to live near each vertex
-  oneper <- max(round(nPhi/100), 10)
-  point <- rep(0.02, 5)  # magic numbers: c(0.92, 0.02, 0.02, 0.02, 0.02)
-  for (i in 1:5) { # do this for each compartment
-    params <- point
-    params[i] <- 0.92
-    temp <- rdirichlet(oneper, params)
-    if (exists('base')) {
-      base <- rbind(base, temp)
-    } else {
-      base <- temp
-    }
-  }
-# simulate a uniform set of phi-vectors
-  phiset <- .reorderVectors(sampleSimplex(nPhi-5*oneper, 5))
-  phiset <- rbind(base, phiset)
+PrefitCloneModel <- function(segmentdata, compartments, nPhi = 20000) {
+# use the Jeffreys (Dirichlet) prior on phi
+  N <- nrow(compartments@pureCenters)
+  phiset <- rdirichlet(nPhi, rep(1/2, N))
   likelihoods <- .computeLikelihoods(phiset, segmentdata, compartments, TRUE)
 # locate the maximum likelihood for each phi-vector
   maxLikeIndex <- apply(likelihoods, 1, which.max)
@@ -60,35 +43,6 @@ PrefitCloneModel <- function(segmentdata, compartments, nPhi = 10000) {
       maxLikeIndex = maxLikeIndex,
       phipick = phipick,
       phiv=as.vector(phipick))
-}
-
-updatePhiVectors <- function(object, compartments) {
-  if (!inherits(object, "PrefitCloneModel")) {
-    object <- PrefitCloneModel(object, nPhi) # obviously cannot work and hasn't been called
-  }
-  nPhi <- nrow(object@phiset)
-  L <- nrow(object@data)
-  multiplier <- round(nPhi/L)
-# resample the phi vectors to be near the ones selected as
-# optimal in the first pass
-  newphiset <- matrix(NA, ncol=5, nrow=nPhi)
-  for (i in 1:L) {
-    index <- 1 + multiplier*(i-1)
-    iset <- index:(index+multiplier-1)
-    newphiset[iset,] <- rdirichlet(multiplier, 2*object@phiset[object@maxLikeIndex[i],])
-  }
-  newphiset <- .reorderVectors(newphiset)
-# get the likelihoods for the new phis
-  likelihoods <- .computeLikelihoods(newphiset, object@data, compartments, TRUE)
-  maxLikeIndex <- apply(likelihoods, 1, which.max)
-  phipick <- newphiset[maxLikeIndex,]
-  new("PrefitCloneModel",
-      data=object@data,
-      phiset=newphiset,
-      likelihoods=likelihoods,
-      maxLikeIndex = maxLikeIndex,
-      phipick = phipick,
-      phiv = as.vector(phipick))
 }
 
 setMethod('plot', signature(x='PrefitCloneModel', y='missing'),

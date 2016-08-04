@@ -23,10 +23,8 @@ dataset <- generateData(tumor)
 
 # prefit the model
 pcm <- PrefitCloneModel(dataset, tumor)
-# update it
-upd <- updatePhiVectors(pcm, tumor)
 # good guess at psi-vector
-estpsi <- guessPsi(upd, 3) # 3 is number of clones we aqre trying to fit
+estpsi <- guessPsi(pcm, 3) # 3 is number of clones we aqre trying to fit
 estpsi
 # refine with EM-algorithm
 final <- runEMalg(estpsi, dataset, tumor)
