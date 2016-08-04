@@ -59,3 +59,55 @@ function(x, xlab="Cell Fraction (Phi)", main="", ...) {
 setMethod('summary', signature('PrefitCloneModel'), function(object, ...) {
   summary(apply(object@phiset, 1, sum))
 })
+
+# posterior distributions on phi
+posteriorPhi <- function(pcm) {
+  t(apply(pcm@likelihoods, 1, function(x) {
+    maxx <- max(x)
+    total <- sum(ptwise <- exp(x - maxx))
+    ptwise/total
+  }))
+}
+#  euclidean distance in phi-space
+ed <- function(pcm, phi0) {
+  sqrt(apply(sweep(pcm@phiset, 2, phi0, "-")^2, 1, sum))
+}
+
+plotPosteriorCDF <- function(pcm, phi0, irow, post=NULL, ...) {
+  if(is.null(post)) post <- posteriorPhi(pcm)
+  delta <- ed(pcm, phi0)
+  od <- order(delta)
+  cdf <- cumsum(post[irow, od]) # cumulative distribution by radius
+  plot(sort(delta), cdf, xlab="Radius", ylab="CDF", ...)
+  invisible(pcm)
+}
+
+posteriorRegion <- function(pcm, radius=0.05, phi0=NULL, post=NULL) {
+  if(is.null(post)) post <- posteriorPhi(pcm)
+  targets <- t(sapply(1:nrow(post), function(i, phi0, rset) {
+    if(is.null(phi0)) phi0 <- pcm@phiset[pcm@maxLikeIndex[i],]
+    delta <- ed(pcm, phi0)
+    od <- order(delta)
+    sapply(rset, function(r) {
+      n <- which(delta[od] >= r)[1] - 1
+      sum(post[i,od[1:n]])
+    })
+  }, phi0=phi0, rset=radius))
+  colnames(targets) <- paste("R", radius, sep='')
+  targets
+}
+
+posteriorQuantile <- function(pcm, q=c(0.7, 0.8, 0.9, 0.95, 0.99), phi0=NULL, post=NULL) {
+  if(is.null(post)) post <- posteriorPhi(pcm)
+  targets <- t(sapply(1:nrow(post), function(i, phi0, qset) {
+    if(is.null(phi0)) phi0 <- pcm@phiset[pcm@maxLikeIndex[i],]
+    delta <- ed(pcm, phi0)
+    od <- order(delta)
+    cs <- cumsum(post[i,od])
+    sapply(qset, function(q) {
+      delta[od][which(cs>q)][1]
+    })
+  }, phi0=phi0, qset=q))
+  colnames(targets) <- paste("Q", q, sep='')
+  targets
+}

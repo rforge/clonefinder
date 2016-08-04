@@ -25,5 +25,8 @@ export("likely", "sampleSimplex")
 exportClasses("PrefitCloneModel")
 export("PrefitCloneModel")
 
+### posterior phi
+export("posteriorPhi", "posteriorRegion", "posteriorQuantile", "plotPosteriorCDF")
+
 ### fitting psi vectors
 export("guessPsi", "runEMalg")
