@@ -234,8 +234,8 @@ while(iter <= iters) {
   }
 }
 
-res <- list()
-save(res, file='C:\\Users\\Mark\\Dropbox\\R Files\\cll\\res.rda')
+#res <- list()
+#save(res, file='C:\\Users\\Mark\\Dropbox\\R Files\\cll\\res.rda')
 #res <- sapply(1:nrow(pardf), foo)
 
 #Looking at results:
