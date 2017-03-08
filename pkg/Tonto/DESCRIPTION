@@ -1,0 +1,12 @@
+Package: Tonto
+Version: 0.0.1
+Date: 2017-03-06
+Title: Testing Viral Integration in 10X Sequencing Data
+Author: Kevin R. Coombes, Mark Zucker
+Maintainer: Kevin R. Coombes <krc@silicovore.com>
+Description: Implements a model to decide if 10X linked-read
+  sequencing data comes from human DNA with an integrated virus or
+  from episomal fragmented copies of DNA.
+Imports: methods, graphics
+License: Apache License (== 2.0)
+URL: http://oompa.r-forge.r-project.org/
