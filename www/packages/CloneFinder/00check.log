@@ -1,0 +1,187 @@
+* using log directory 'C:/Users/Kevin/Desktop/RForge/clonefinder/pkg/CloneFinder.Rcheck'
+* using R version 3.4.0 (2017-04-21)
+* using platform: x86_64-w64-mingw32 (64-bit)
+* using session charset: ISO8859-1
+* using option '--as-cran'
+* checking for file 'CloneFinder/DESCRIPTION' ... OK
+* this is package 'CloneFinder' version '0.7.1'
+* checking CRAN incoming feasibility ... NOTE
+Maintainer: 'Kevin R. Coombes <krc@silicovore.com>'
+
+New submission
+
+The Date field is over a month old.
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... WARNING
+Found the following files with non-portable file names:
+  inst/extras/fittingModels2 (v2).R
+  inst/extras/fittingModelsGeneral (3).R
+  inst/extras/fittingModelsGeneral (4).R
+These are not fully portable file names.
+See section 'Package structure' in the 'Writing R Extensions' manual.
+* checking whether package 'CloneFinder' can be installed ... OK
+* checking installed package size ... OK
+* checking package directory ... OK
+* checking 'build' directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking R files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking use of S3 registration ... OK
+* checking dependencies in R code ... OK
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+CompartmentModel: no visible global function definition for 'runif'
+estBetaParams: no visible global function definition for 'var'
+generateData: no visible global function definition for 'rnorm'
+likely: no visible global function definition for 'dnorm'
+maxfun : optimfun : distfun: no visible global function definition for
+  'dbeta'
+runEMalg: no visible global function definition for 'optim'
+sampleSimplex: no visible global function definition for 'runif'
+setZs: no visible global function definition for 'dnorm'
+sizeplot: no visible global function definition for 'text'
+sizeplot: no visible global function definition for 'points'
+Undefined global functions or variables:
+  dbeta dnorm optim points rnorm runif text var
+Consider adding
+  importFrom("graphics", "points", "text")
+  importFrom("stats", "dbeta", "dnorm", "optim", "rnorm", "runif", "var")
+to your NAMESPACE file.
+* checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  'Clone' 'CompartmentModel' 'PrefitCloneModel' 'Tumor' 'generateData'
+  'guessPsi' 'likely' 'plotPosteriorCDF' 'posteriorPhi'
+  'posteriorQuantile' 'posteriorRegion' 'runEMalg' 'sampleSimplex'
+  'sizeplot' 'trueZ'
+Undocumented data sets:
+  'params_CLL' 'params_control'
+Undocumented S4 classes:
+  'PrefitCloneModel' 'CompartmentModel' 'Tumor' 'Clone'
+Undocumented S4 methods:
+  generic 'hist' and siglist 'PrefitCloneModel'
+  generic 'plot' and siglist 'PrefitCloneModel,missing'
+  generic 'summary' and siglist 'PrefitCloneModel'
+  generic 'summary' and siglist 'Tumor'
+All user-level objects in a package (including S4 classes and methods)
+should have documentation entries.
+See chapter 'Writing R documentation files' in the 'Writing R
+Extensions' manual.
+* checking contents of 'data' directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking sizes of PDF files under 'inst/doc' ... OK
+* checking installed files from 'inst/doc' ... OK
+* checking files in 'vignettes' ... OK
+* checking examples ... NONE
+* checking for unstated dependencies in 'tests' ... OK
+* checking tests ... OK
+  Running 'tst01-Maker.R'
+  Comparing 'tst01-Maker.Rout' to 'tst01-Maker.Rout.save' ...87c87
+<    26.0   412.5   822.0   921.8  1483.2  1996.0 
+---
+>    26.0   412.5   822.0   921.8  1483.0  1996.0 
+146c146
+<   24.97  687.87 1384.04 1410.81 2151.76 2988.47 
+---
+>   24.97  687.90 1384.00 1411.00 2152.00 2988.00 
+204,266d203
+< > 
+< > phi <- sampleSimplex(1, 5)
+< > likely(simdata, phi, tumor)
+<   [1]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+<   [6] 4.103312e-151  0.000000e+00 2.351087e-129  0.000000e+00 4.303426e-135
+<  [11]  0.000000e+00 2.218857e-287  0.000000e+00 2.047579e-163 3.442637e-307
+<  [16]  0.000000e+00  0.000000e+00  0.000000e+00 8.420834e-256  1.070457e-99
+<  [21]  0.000000e+00  0.000000e+00  0.000000e+00 4.731429e-227 3.412851e-212
+<  [26]  0.000000e+00 3.022494e-123  0.000000e+00  2.005633e-33  0.000000e+00
+<  [31]  0.000000e+00  0.000000e+00  5.846163e-40  0.000000e+00 2.210450e-320
+<  [36] 7.970477e-232 2.483745e-198  0.000000e+00  0.000000e+00  0.000000e+00
+<  [41]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  4.917533e-70
+<  [46] 8.572472e-159  0.000000e+00  0.000000e+00  8.004809e-02 2.211529e-181
+<  [51]  0.000000e+00  0.000000e+00  0.000000e+00 1.360814e-102  5.352298e-86
+<  [56]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  1.152577e-80
+<  [61]  0.000000e+00  0.000000e+00 1.353673e-155  2.738767e-14  0.000000e+00
+<  [66]  9.995561e-31  0.000000e+00  0.000000e+00 7.791078e-126  0.000000e+00
+<  [71]  0.000000e+00  0.000000e+00 1.469308e-173  0.000000e+00 9.206064e-254
+<  [76]  0.000000e+00 2.553082e-116 3.097821e-179 2.451928e-288 9.030038e-319
+<  [81] 8.499598e-197  0.000000e+00  3.949550e-93  0.000000e+00  7.877539e-45
+<  [86]  0.000000e+00  0.000000e+00  2.922370e-73 6.883369e-274  0.000000e+00
+<  [91]  0.000000e+00 5.032293e-170  0.000000e+00 6.488928e-316  1.365322e-36
+<  [96] 1.612538e-243  0.000000e+00 6.827420e-309  2.320009e-41  0.000000e+00
+< [101]  0.000000e+00 6.929066e-219  0.000000e+00  0.000000e+00  0.000000e+00
+< [106]  0.000000e+00  4.113820e-99  0.000000e+00 3.060004e-292 2.787180e-195
+< [111]  0.000000e+00  1.646137e-49  0.000000e+00 1.264016e-278  0.000000e+00
+< [116]  4.762814e-73  3.879426e-75  3.035934e-40  0.000000e+00  2.972267e-89
+< [121]  0.000000e+00  0.000000e+00 5.469975e-273  0.000000e+00  0.000000e+00
+< [126]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  4.969556e-11
+< [131]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  7.697911e-90
+< [136] 2.830238e-169  0.000000e+00 8.746808e-228  0.000000e+00  0.000000e+00
+< [141] 1.395598e-249  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+< [146] 1.520242e-280  2.803215e-81 3.792580e-239  0.000000e+00  0.000000e+00
+< [151] 2.095177e-179  0.000000e+00  0.000000e+00 8.936229e-121  0.000000e+00
+< [156] 4.643321e-222 1.796418e-107  0.000000e+00  0.000000e+00  0.000000e+00
+< [161]  2.975811e-87  0.000000e+00 1.186852e-219  0.000000e+00  0.000000e+00
+< [166]  2.131745e-42 2.597769e-131  0.000000e+00  0.000000e+00  0.000000e+00
+< [171]  0.000000e+00 1.422552e-163 6.352806e-204 5.882106e-179  0.000000e+00
+< [176]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00 7.068986e-267
+< [181]  9.346002e-66  0.000000e+00  0.000000e+00 4.908766e-243  0.000000e+00
+< [186]  0.000000e+00  0.000000e+00  0.000000e+00 3.298124e-295  0.000000e+00
+< [191]  3.373523e-75  0.000000e+00 5.918035e-286  0.000000e+00  0.000000e+00
+< [196]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+< [201] 1.739277e-270 1.474528e-303 6.154680e-316 4.627388e-303  0.000000e+00
+< [206]  3.438977e-38  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+< [211] 2.881317e-173  0.000000e+00 5.379408e-142  0.000000e+00  0.000000e+00
+< [216]  0.000000e+00  0.000000e+00  3.362698e-52 6.895324e-154  0.000000e+00
+< [221] 8.310185e-293  0.000000e+00 2.967961e-174  0.000000e+00  0.000000e+00
+< [226]  0.000000e+00 2.524559e-195  0.000000e+00  0.000000e+00  0.000000e+00
+< [231] 2.496500e-166  0.000000e+00 7.712779e-149  0.000000e+00  5.151287e-17
+< [236]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+< [241]  0.000000e+00  0.000000e+00  0.000000e+00 6.114512e-146  0.000000e+00
+< [246]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+< [251]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  5.238935e-40
+< [256] 3.550136e-138  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+< [261]  4.376242e-31  0.000000e+00 1.159052e-197  0.000000e+00  4.202914e-54
+< [266]  0.000000e+00  0.000000e+00 2.894752e-153 1.931165e-280  2.232015e-23
+< [271] 3.141179e-265  1.075370e-19  0.000000e+00  0.000000e+00  0.000000e+00
+< [276]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+< [281]  0.000000e+00  2.463818e-64 3.043922e-183  0.000000e+00  0.000000e+00
+< [286] 3.044449e-206 3.779214e-267  0.000000e+00  0.000000e+00  0.000000e+00
+< [291]  0.000000e+00 9.252488e-242  0.000000e+00  0.000000e+00  0.000000e+00
+< [296]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
+  Running 'tst02-Prefit.R' [12s]
+  Comparing 'tst02-Prefit.Rout' to 'tst02-Prefit.Rout.save' ...32a33
+> There were 50 or more warnings (use warnings() to see the first 50)
+35a37,44
+>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+>       1       1       1       1       1       1 
+> > 
+> > secondPass <- updatePhiVectors(firstPass, baseModel)
+> There were 50 or more warnings (use warnings() to see the first 50)
+> > plot(secondPass)
+> > hist(secondPass, breaks=56)
+> > summary(secondPass)
+  Running 'tst03-fordback.R'
+  Running 'tst04-Psi.R' [45s]
+  Running 'tst05-posterior.R'
+* checking for unstated dependencies in vignettes ... OK
+* checking package vignettes in 'inst/doc' ... OK
+* checking re-building of vignette outputs ... OK
+* checking PDF version of manual ... OK
+* DONE
+Status: 2 WARNINGs, 2 NOTEs
