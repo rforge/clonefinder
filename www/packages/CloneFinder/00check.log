@@ -1,4 +1,4 @@
-* using log directory 'C:/Users/Kevin/Desktop/RForge/clonefinder/pkg/CloneFinder.Rcheck'
+* using log directory 'C:/Users/coom05/Desktop/rforge/clonefinder/pkg/CloneFinder.Rcheck'
 * using R version 3.4.0 (2017-04-21)
 * using platform: x86_64-w64-mingw32 (64-bit)
 * using session charset: ISO8859-1
@@ -164,7 +164,7 @@ Extensions' manual.
 < [286] 3.044449e-206 3.779214e-267  0.000000e+00  0.000000e+00  0.000000e+00
 < [291]  0.000000e+00 9.252488e-242  0.000000e+00  0.000000e+00  0.000000e+00
 < [296]  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00  0.000000e+00
-  Running 'tst02-Prefit.R' [12s]
+  Running 'tst02-Prefit.R' [20s]
   Comparing 'tst02-Prefit.Rout' to 'tst02-Prefit.Rout.save' ...32a33
 > There were 50 or more warnings (use warnings() to see the first 50)
 35a37,44
@@ -177,8 +177,8 @@ Extensions' manual.
 > > hist(secondPass, breaks=56)
 > > summary(secondPass)
   Running 'tst03-fordback.R'
-  Running 'tst04-Psi.R' [45s]
-  Running 'tst05-posterior.R'
+  Running 'tst04-Psi.R' [74s]
+  Running 'tst05-posterior.R' [13s]
 * checking for unstated dependencies in vignettes ... OK
 * checking package vignettes in 'inst/doc' ... OK
 * checking re-building of vignette outputs ... OK
