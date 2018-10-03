@@ -5,11 +5,20 @@
 # converting base functions or S3 methods into S4 methods
 exportMethods("summary") # comes from 'base'
 import(methods)
-importFrom(graphics, "plot", "hist")
+importFrom("graphics", "plot", "hist",
+           "abline", "lines", "par", "points", "segments", "text")
 exportMethods("plot", "hist")
 
 importFrom(mc2d, "rdirichlet") # used for Dirichlet - Multinomial distributions
 importFrom(combinat, "combn")  # used for combinations of psi-values
+
+importFrom("grDevices", "colorRampPalette", "dev.off", "pdf")
+importFrom("stats", "cov", "cutree", "dbeta", "dbinom", "density",
+           "dgamma", "dgeom", "dist", "dnorm", "hclust", "median",
+           "na.omit", "optim", "pnorm", "rbeta", "rect.hclust",
+           "rgamma", "rgeom", "rmultinom", "rnbinom", "rnorm", "runif",
+           "sd", "var")
+importFrom("utils", "data")
 
 ### needed for simulations
 exportClasses("Clone", "Tumor")
