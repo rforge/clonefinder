@@ -1,0 +1,105 @@
+functions.R:estBetaParams <- function(mu, var) {
+functions.R:estBetaBinomParams <- function(mu, var){
+functions.R:logLike <- function(resids, nmarks, sigma0){
+functions.R:psiPrior <- function(psi, alpha=.5, kmax=5, minim=.001){
+functions.R:psiPrior2 <- function(psi, alpha, kmax=5, minim=.001){
+functions.R:cnPrior <- function(cnmat, psi, theta){
+functions.R:cnPrior.vec <- function(cnvec, psi, theta){
+functions.R:kPrior <- function(k, ktheta){
+functions.R:sPrior <- function(cnmat, stheta){
+functions.R:priorGen <- function(psis, cnmodels, pars, cnmax=5){
+functions.R:crossover <- function(parents1, parents2, O){
+functions.R:crossover2 <- function(parents1, parents2, O){
+functions.R:findPsi <- function(datavec, AB){
+functions.R:convert <- function(log.probs, log=TRUE){
+functions.R:filter <- function(data, threshold, cutoff=0){
+functions.R:filter.mut <- function(mutdata, mu, threshold){
+functions.R:cndata.merge <- function(cndata.filt, k=50){
+functions.R:mut.cluster <- function(muts, kmax, theta, sigma0){
+functions.R:filter2 <- function(psipool, vecpool, datavec){
+functions.R:filter2 <- function(psipool, vecpool, datavec){
+functions.R:resample.grid <- function(base.grid, posts, N){
+functions.R:resample.psi <- function(base.psimat, posts, N){
+functions.R:resample.grid2 <- function(cnmat, posts, N){
+functions.R:resample.grid3 <- function(cnmat, posts, N){
+functions.R:mutate.grid <- function(mat){
+functions.R:mutate.grid2 <- function(mat, n){
+functions.R:mutate.grid3 <- function(mat, n){
+functions.R:mutate.grid4 <- function(mat, i, dir){
+functions.R:scramble <- function(mat, psi, z){
+functions.R:mutate.psi <- function(psivec, delta){
+functions.R:mutate.psi2 <- function(psi, index, delta, dir){
+functions.R:mutate.psi3 <- function(psivec, deltarange){
+functions.R:findBest.mat <- function(matpop, truemat){
+functions.R:findBest.psi <- function(psipop, truepsi){
+functions.R:compute.post <- function(mat, psivec, datavec, markers, theta, sigma0, ktheta, alpha, kmax, transposed=FALSE){
+functions.R:abs.acc <- function(finalmat, truemat){
+functions.R:computeRsquared <- function(finalmat, finalpsi, datavec){
+functions.R:computePval <- function(finalmat, finalpsi, datavec, markers, sigma.cn, sigma.psi){
+functions.R:smooth.grid <- function(vecs, posts, range){
+functions.R:smooth.vec <- function(vec, posts, range){
+functions.R:smooth.psi <- function(psis, posts){
+functions.R:compDist2 <- function(subj.vec, ref.vec, subj.psi, ref.psi, markers, scale=1, x0=1){
+functions.R:compDist3 <- function(subj.vec, ref.vec, subj.psi, ref.psi, markers, scale=1){
+functions.R:compEditDist <- function(truth, imputed, grain, criteria='absolute'){
+functions.R:success <- function(mat, truemat, psi, truepsi, psi.con, mat.con){
+functions.R:compMatDist <- function(mat, truemat, markers=NULL){
+functions.R:compPsiDist <- function(psi, truepsi){
+functions.R:findNeighbors <- function(mat, dist, markers, inclusive=TRUE, mindist=0, max.cn=5){
+functions.R:findNeighbors2 <- function(mat, D, markers, inclusive=TRUE, max.cn=5){
+functions.R:findNeighbors.psi <- function(psi, dist){
+functions.R:compDir <- function(subj.vec, ref.vec, subj.psi, ref.psi){
+functions.R:compAngle <- function(start.psi, start.cn, changed.psi, changed.cn, true.psi, true.cn){
+functions.R:compTrace <- function(arguments){
+functions.R:#runAlg <- function(FUN, params){
+functions.R:assess <- function(FUN, arguments){
+functions.R:rgeom2 <- function(N, mu.dev){
+functions.R:dgeom2 <- function(x, mu.dev, log=FALSE){
+functions.R:rbeta2 <- function(n, mu, sigma){
+functions.R:dbeta2 <- function(x, mu, sigma, log=FALSE){
+functions.R:rsb <- function(n, alpha, beta, scalar, minim){
+functions.R:dsb <- function(x, alpha, beta, scalar, minim, log=FALSE){
+functions.R:rgamma2 <- function(n, mu, sigma){
+functions.R:dgamma2 <- function(x, mu, sigma, log=FALSE){
+functions.R:testpost <- function(pars, n, q, r, bestpost, mainlab, truemat, truepsi){
+functions.R:eval1 <- function(res, alg, pars, alone=TRUE, truepsi, truemat){
+functions.R:eval2 <- function(truth, data, res, pars, tcn, thresh, z=FALSE){
+functions.R:visualize <- function(res){
+functions.R:newpopGen <- function(cn, psis, posts, n, include){
+functions.R:plotfun <- function(cndat, cn.imputed, markers, alone=TRUE, mainlab=NULL){
+functions.R:cnplotfun <- function(data, chr, mainlab){
+functions.R:mixplotfun <- function(mixturedata, data1, data2, chr){
+functions.R:compPost <- function(mat, psi, datavec, nmarks, pars){
+functions.R:compPost2 <- function(ary, psi, data, nmarks, pars){
+functions.R:zero <- function(post, mat, psi, datavec, markers, pars){
+functions.R:visualize <- function(res){
+functions.R:ptgen <- function(truepsi, truemat, min.dist, max.dist){
+functions.R:convertSim <- function(cnmat, max.cn, comps=6){
+functions.R:logLike2 <- function(psi, zarray, data, sigma0.lrr, sigma0.baf, lrrs, bafs){
+functions.R:editZ <- function(zarray, N, probs){
+functions.R:zPrior <- function(zarray, probs){
+functions.R:compNormDist <- function(truepars, inferred, markers){
+functions.R:pfun <- function(truepars, inferred, markers){
+functions.R:genSimplex <- function(N, k, min=0, reps=1){
+functions.R:resample <- function(parsets, probs, pars, select, generate, subsample, subsample.psi,
+functions.R:likely1 <- function(model, data, markers, sigma0, log=TRUE){
+functions.R:likely2 <- function(model, data, sigma, mu, log=TRUE){
+functions.R:likely3 <- function(model, cndata, mutdata, sigma0.seg, sigma.m, mu, log=TRUE){
+functions.R:prior1 <- function(model, theta, ktheta, stheta, thresh){
+functions.R:prior2 <- function(model, theta, ktheta, thresh){
+functions.R:prior3 <- function(model, theta, ktheta, stheta, thresh){
+functions.R:postComp1 <- function(model, data, markers, pars, log=TRUE){
+functions.R:postComp2 <- function(model, data, pars, log=TRUE){
+functions.R:postComp3 <- function(model, cndata, mutdata, markers, pars, log=TRUE){
+functions.R:mutLike <- function(muts, cndata, mutmodel, cnmodel, psi, pars){
+functions.R:rowLike <- function(cndata, mutdata, cnmodel, psi, pars){
+functions.R:rowMax <- function(data) sapply(1:nrow(data),function(i){max(data[i,])})
+functions.R:colMax <- function(data) sapply(1:ncol(data),function(i){max(data[,i])})
+functions.R:rowMin <- function(data) sapply(1:nrow(data),function(i){min(data[i,])})
+functions.R:colMin <- function(data) sapply(1:ncol(data),function(i){min(data[,i])})
+functions.R:runif.uniq <- function(n, a, b){
+functions.R:findGeneMuts <- function(gene, genetab, mutdata){
+functions.R:ClusterNum<-function(X, maxh,d="euclidean",method="ward.D",hclust=NULL){
+functions.R:seqSegment <- function(seqdata, cutoff=.1){
+functions.R:seqSeg <- function(seqsnps, len, thresh){
+functions.R:findPars <- function(cndata.filt, mutdata.filt, psi, pars, cnPriors, kPrior, cnmodels){
