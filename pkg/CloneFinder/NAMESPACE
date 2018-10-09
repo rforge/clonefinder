@@ -39,3 +39,10 @@ export("posteriorPhi", "posteriorRegion", "posteriorQuantile", "plotPosteriorCDF
 
 ### fitting psi vectors
 export("guessPsi", "runEMalg")
+
+### algorithm.R
+importFrom("gtools", "ddirichlet")
+importFrom("sirt", "dirichlet.mle")
+export("psiOptim", "runAlg", "psiFilter")
+### functions.R
+export()

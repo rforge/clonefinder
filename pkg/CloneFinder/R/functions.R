@@ -1,22 +1,8 @@
-library(gtools)
-library(combinat)
-library(quantmod)
-
 #Method of moments to reparametrize beta distribution.
 estBetaParams <- function(mu, var) {
   alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
   beta <- alpha * (1 / mu - 1)
-  if(length(alpha)==1 & length(beta==1)){
-    pars <- c('alpha' = abs(alpha), 'beta' = abs(beta))
-  }else{
-    pars <- data.frame('alpha' = abs(alpha), 'beta' = abs(beta))
-  }
-  pars
-}
-
-estBetaBinomParams <- function(mu, var){
-  betaPars <- estBetaParams(mu, var)
-  c('m'=mu,'s'=sum(betaPars))
+  c('alpha' = abs(alpha), 'beta' = abs(beta))
 }
 
 logLike <- function(resids, nmarks, sigma0){
@@ -183,10 +169,8 @@ convert <- function(log.probs, log=TRUE){
   probs
 }
 
-filter <- function(data, threshold, cutoff=0){
+filter <- function(data, threshold){
   indices <- which(abs(data$X - 1)>=threshold | abs(data$Y - 1)>=threshold)
-  indices2 <- which(data$markers>=cutoff)
-  indices <- intersect(indices,indices2)
   list('mat'=data[indices,], 'indices'=indices)
 }
 
@@ -194,20 +178,6 @@ filter.mut <- function(mutdata, mu, threshold){
   indices <- which(abs(mutdata$refCounts - mu)>=threshold | abs(mutdata$varCounts - mu)>=threshold)
   ids <- mutdata$mut.id[indices]
   list('mat'=mutdata[indices,], 'ids'=ids)
-}
-
-cndata.merge <- function(cndata.filt, k=50){
-  cn.indices <- which(colnames(cndata.filt)=='X' | colnames(cndata.filt)=='Y')
-  hc <- hclust(dist(cndata.filt[,c(cn.indices)]))
-  clusters <- cutree(hc,k)
-  #plot(cndata.filt$X, cndata.filt$Y,col=hc$cluster,pch=16)
-  #abline(v=c(0,1))
-  #abline(h=c(0,1))
-  clusters.X <- sapply(1:k,function(z){sum(cndata.filt$X[which(clusters==z)]*cndata.filt$markers[which(clusters==z)])/k})
-  clusters.Y <- sapply(1:k,function(z){sum(cndata.filt$Y[which(clusters==z)]*cndata.filt$markers[which(clusters==z)])/k})
-  clusters.marks <- sapply(1:k,function(z){sum(cndata.filt$markers[which(clusters==z)])})
-  df <- data.frame('X'=clusters.X,'Y'=clusters.Y,'markers'=clusters.marks)
-  list('df'=df,'clusters'=clusters)
 }
 
 mut.cluster <- function(muts, kmax, theta, sigma0){
@@ -714,10 +684,10 @@ compTrace <- function(arguments){
   sum(eigenvals)
 }
 
-#runAlg <- function(FUN, params){
-#  #FUN(params)
-#  do.call(FUN, params)
-#}
+oldRunAlg <- function(FUN, params){
+  #FUN(params)
+  do.call(FUN, params)
+}
 
 assess <- function(FUN, arguments){
   FUN(arguments)
@@ -736,26 +706,12 @@ dgeom2 <- function(x, mu.dev, log=FALSE){
 
 rbeta2 <- function(n, mu, sigma){
   params <- estBetaParams(mu, sigma^2)
-  if(class(params)=='numeric'){
-    alphas <- params[1]
-    betas <- params[2]
-  }else{
-    alphas <- params$alpha
-    betas <- params$beta
-  }
-  rbeta(n, alphas, betas)
+  rbeta(n, params[1], params[2])
 }
 
 dbeta2 <- function(x, mu, sigma, log=FALSE){
   params <- estBetaParams(mu, sigma^2)
-  if(class(params)=='numeric'){
-    alphas <- params[1]
-    betas <- params[2]
-  }else{
-    alphas <- params$alpha
-    betas <- params$beta
-  }
-  dbeta(x, alphas, betas, log=log)
+  dbeta(x, params[1], params[2], log=log)
 }
 
 #scaled beta
@@ -1255,7 +1211,7 @@ pfun <- function(truepars, inferred, markers){
   psi <- inferred$psi
 }
 
-genSimplex <- function(N, k, min=0, reps=1){
+genSimplex <- function(N, k, reps=1){
   simplex <- t(xsimplex(k, N))
   for(i in 1:nrow(simplex)){
     simplex[i,] <- sort(simplex[i,], decreasing=TRUE)
@@ -1681,68 +1637,4 @@ seqSeg <- function(seqsnps, len, thresh){
   df <- Reduce(rbind, dflist)
   df$seg <- 1:nrow(df)
   df
-}
-
-findPars <- function(cndata.filt, mutdata.filt, psi, pars, cnPriors, kPrior, cnmodels){
-  etas <- colSums(psi*t(cnmodels))
-  markers <- cndata.filt$markers
-  ixvec <- iyvec <- postvec <-  rep(NA, nrow(cndata.filt))
-  postvec.mut <- rep(NA, nrow(mutdata.filt))
-  psiPrior <- log(ddirichlet(psi[which(psis>0)], rep(pars$alpha, length(which(psis>0)))))
-  if(nrow(cndata.filt)>0){
-    for(j in 1:nrow(cndata.filt)){
-      xposts <- dnorm(etas - cndata.filt$X[j], 0, sd=pars$sigma0/(markers[j]^.5), log=TRUE) + cnPriors
-      yposts <- dnorm(etas - cndata.filt$Y[j], 0, sd=pars$sigma0/(markers[j]^.5), log=TRUE) + cnPriors
-      postvec[j] <- max(xposts)+max(yposts)  + psiPrior + kPrior
-      ixvec[j] <- which.max(xposts)
-      iyvec[j] <- which.max(yposts) 
-    }
-    A.segs <- unname(cnmodels[ixvec,])
-    B.segs <- unname(cnmodels[iyvec,])
-    etaA <- colSums(psi*t(A.segs))
-    etaB <- colSums(psi*t(B.segs))
-    maxpost <- max(postvec)
-  }else{
-    A.segs <- B.segs <- postvec <- etaA <- etaB <- NULL
-    maxpost <- 0
-  }
-  if(nrow(mutdata.filt)>0){
-    mut.mat <- matrix(NA,nrow=nrow(mutdata.filt),ncol=ncol(cnmodels))
-    etaM <- rep(NA, nrow(mutdata.filt))
-    for(q in 1:nrow(mutdata.filt)){
-      cn.index <- which(rownames(cndata.filt)==mutdata.filt$seg[q])
-      if(length(cn.index)>0){
-        A <- unname(cnmodels[ixvec[cn.index],])
-        B <- unname(cnmodels[iyvec[cn.index],])
-      }else{
-        A <- rep(1, ncol(cnmodels))
-        B <- rep(1, ncol(cnmodels))
-      }
-      mut.models <- as.matrix(expand.grid(lapply(1:K,function(k){0:max(c(A[k],B[k]))})))
-      unmut.models <- sapply(1:K, function(k){A[k]+B[k]}) - mut.models
-      zposts <- sapply(1:nrow(mut.models), function(k){dnorm(sum(mut.models[k,]*psi)*pars$mu - 
-        mutdata.filt$varCounts[q], 0, pars$sigma.counts, log=TRUE) + dnorm(sum(unmut.models[k,]*psi)*pars$mu - 
-              mutdata.filt$refCounts[q], 0, pars$sigma.counts, log=TRUE) + dgeom(length(unique(mut.models[k,])), 
-              prob=pars$mtheta, log=TRUE)})
-      index <- which.max(zposts)
-      mutated <- mut.models[index,]
-      mut.mat[q,] <- mutated
-      postvec.mut[q] <- max(zposts)
-      etaM[q] <- sum((psi*mutated)/(A+B))/ncol(cnmodels)
-    }
-    etaM <- colSums(psi*t(mutated))/(A+B)
-    maxpost <- maxpost + max(postvec.mut)
-  }else{
-    mut.mat <- postvec.mut <- etaM <- NULL
-    maxpost <- max(postvec)
-  }
-  if(nrow(cndata.filt)==1){
-    A.segs <- t(as.matrix(A.segs))
-    B.segs <- t(as.matrix(B.segs))
-  }
-  if(nrow(mutdata.filt)==1){
-    mut.mat <- t(as.matrix(mut.mat))
-  }
-  list('psi'=psi,'A'=A.segs,'B'=B.segs,'mutated'=mut.mat,'posts.mut'=postvec.mut,'posts.cn'=postvec,
-       'maxpost'=maxpost,'etaA'=etaA,'etaB'=etaB,'etaM'=etaM)
 }

@@ -1,6 +1,6 @@
 Package: CloneFinder
-Version: 0.7.3
-Date: 2018-10-03
+Version: 0.8.0
+Date: 2018-10-09
 Title: Finding Subclones in SNP and Sequencing Data
 Author: Kevin R. Coombes, Mark Zucker
 Maintainer: Kevin R. Coombes <krc@silicovore.com>
@@ -9,6 +9,6 @@ Description: The ClonmeFinder package defines the classes used to identify
   components and number of clusters (reaping) in a joint application
   of PCA and hierarchical clustering.
 Depends: R (>= 3.0)
-Imports: methods, graphics, mc2d, combinat, gtools, quantmod
+Imports: methods, graphics, mc2d, combinat, gtools, quantmod, cluster, sirt
 License: Apache License (== 2.0)
 URL: http://oompa.r-forge.r-project.org/

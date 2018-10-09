@@ -1,6 +1,3 @@
-#source('C:\\Users\\Mark\\OneDrive - The Ohio State University\\clonetools\\clonefinder\\functions.R')
-#library(gtools)
-library(combinat)
 #load('C:\\Users\\Mark\\OneDrive - The Ohio State University\\clonetools\\clonefinder\\cnmodels.rda')
 #load('C:\\Users\\Mark\\OneDrive - The Ohio State University\\clonetools\\clonefinder\\psis.10.rda')
 #load('C:\\Users\\Mark\\OneDrive - The Ohio State University\\clonetools\\clonefinder\\psis.20.rda')
