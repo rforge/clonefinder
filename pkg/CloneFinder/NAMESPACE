@@ -44,5 +44,7 @@ export("guessPsi", "runEMalg")
 importFrom("gtools", "ddirichlet")
 importFrom("sirt", "dirichlet.mle")
 export("psiOptim", "runAlg", "psiFilter")
+### simgen.R
+export("tumorGen", "dataGen", "plot.data")
 ### functions.R
-export()
+
