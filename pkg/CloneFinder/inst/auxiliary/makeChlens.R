@@ -4,4 +4,4 @@ chdata$Chrom <- factor(chnames[chdata$V1], levels = chnames)
 chlens <- as.vector(tapply(chdata$V2, list(chdata$Chrom), max))
 names(chlens) <- chnames
 
-save(chlens, file = "../../Data/chlens.rda")
+save(chlens, file = "../../Data/sysdata.rda")

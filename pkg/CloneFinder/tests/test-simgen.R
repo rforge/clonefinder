@@ -12,37 +12,37 @@ psis <- c(0.6, 0.3, 0.1)
 set.seed(412634)
 ### Mutations only? without contamination
 tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
-clone <- tumor$clones[[1]]
+clone <- getClone(tumor, 1)
 summary(clone$cn)  # why is the parent index constant?
 summary(clone$seq)
 
 ### Mutations only? with normal contamination
 tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = TRUE)
-clone <- tumor$clones[[1]]
+clone <- getClone(tumor, 1)
 summary(clone$cn)  # why is the parent index missing?
 summary(clone$seq) # this looks like a bug to me.
 
 ### CNV and Mutations, without normal contamination
 tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = FALSE)
-clone <- tumor$clones[[1]]
+clone <- getClone(tumor, 1)
 summary(clone$cn)
 summary(clone$seq)
 
 ### CNV and Mutations, with normal contamination
 tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = TRUE)
-clone <- tumor$clones[[1]]
+clone <- getClone(tumor, 1)
 summary(clone$cn)
 summary(clone$seq) # this looks like a bug to me.
 
 ### CNV-only, with normal contamination
 tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = TRUE) 
-clone <- tumor$clones[[1]]
+clone <- getClone(tumor, 1)
 summary(clone$cn)
 summary(clone$seq) # this is correct
 
 ### CNV-only, without normal contamination
 tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = FALSE)
-clone <- tumor$clones[[1]]
+clone <- getClone(tumor, 1)
 summary(clone$cn)
 summary(clone$seq) # this is correct
 

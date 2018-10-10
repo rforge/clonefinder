@@ -1,8 +1,7 @@
 #library(CloneFinder)
 
-
 tumorGen <- function(psi, rounds, nu=100, pcnv=.5, norm.contam=FALSE, cnmax=4){
-  data("chlens", package="CloneFinder")
+#  data("chlens", package="CloneFinder")
   K <- length(which(psi>0))
   total.segs <- round(runif(1, 250, 500))
   segsperchr <- as.vector(rdirichlet(1, chlens/1000000))
@@ -122,6 +121,10 @@ tumorGen <- function(psi, rounds, nu=100, pcnv=.5, norm.contam=FALSE, cnmax=4){
     output
   })
   list('clones'=clones.final, 'psi'=psi)
+}
+
+getClone <- function(tumor, i) {
+  tumor$clones[[i]] # should we do error checking on 'i'?
 }
 
 snpDataGen <- function(tumor, snps.cgh=600000, sigma0.lrr=.01, sigma0.baf=.01, density.sigma=.1){

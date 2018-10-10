@@ -29,7 +29,7 @@ Type 'q()' to quit R.
 > set.seed(412634)
 > ### Mutations only? without contamination
 > tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
-> clone <- tumor$clones[[1]]
+> clone <- getClone(tumor, 1)
 > summary(clone$cn)  # why is the parent index constant?
       chr             start                end                  A    
  Min.   : 1.000   Min.   :        1   Min.   :   321330   Min.   :1  
@@ -63,7 +63,7 @@ Type 'q()' to quit R.
 > 
 > ### Mutations only? with normal contamination
 > tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = TRUE)
-> clone <- tumor$clones[[1]]
+> clone <- getClone(tumor, 1)
 > summary(clone$cn)  # why is the parent index missing?
       chr             start                end                  A    
  Min.   : 1.000   Min.   :        1   Min.   :   735239   Min.   :1  
@@ -87,7 +87,7 @@ logical       1
 > 
 > ### CNV and Mutations, without normal contamination
 > tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = FALSE)
-> clone <- tumor$clones[[1]]
+> clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr             start                end                  A        
  Min.   : 1.000   Min.   :        1   Min.   :  1169759   Min.   :1.000  
@@ -121,7 +121,7 @@ logical       1
 > 
 > ### CNV and Mutations, with normal contamination
 > tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = TRUE)
-> clone <- tumor$clones[[1]]
+> clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr            start                end                  A    
  Min.   : 1.00   Min.   :        1   Min.   :  1993994   Min.   :1  
@@ -145,7 +145,7 @@ logical       1
 > 
 > ### CNV-only, with normal contamination
 > tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = TRUE) 
-> clone <- tumor$clones[[1]]
+> clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr             start                end                  A    
  Min.   : 1.000   Min.   :        1   Min.   :   967296   Min.   :1  
@@ -169,7 +169,7 @@ Length  Class   Mode
 > 
 > ### CNV-only, without normal contamination
 > tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = FALSE)
-> clone <- tumor$clones[[1]]
+> clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr             start                end                  A        
  Min.   : 1.000   Min.   :        1   Min.   :   138132   Min.   :0.000  
@@ -251,4 +251,4 @@ $seq.data
 > 
 > proc.time()
    user  system elapsed 
-  37.19    0.71   38.12 
+  36.78    0.74   37.58 
