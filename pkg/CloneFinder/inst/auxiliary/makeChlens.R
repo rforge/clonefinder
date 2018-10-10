@@ -1,5 +1,7 @@
-idiogram <- read.table("cytoband.txt", sep="\t") # chr, start, end, band, gstain
-idiogram$V1 <- factor(idiogram$V1, levels=paste("chr", c(1:22, "X", "Y"), sep=''))
-chlens <- as.vector(tapply(idiogram$V3, list(idiogram$V1), max))
+chdata <- read.table("chlens.txt", sep="\t") # chromnumber, length
+chnames <- paste("chr", c(1:22, "X", "Y"), sep="")
+chdata$Chrom <- factor(chnames[chdata$V1], levels = chnames)
+chlens <- as.vector(tapply(chdata$V2, list(chdata$Chrom), max))
+names(chlens) <- chnames
 
 save(chlens, file = "../../Data/chlens.rda")

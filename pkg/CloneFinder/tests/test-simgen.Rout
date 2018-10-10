@@ -1,0 +1,254 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(CloneFinder)
+> 
+> dataPars <- list(snps.seq = 1000000,
++                  snps.cgh = 600000,
++                  mu = 70,
++                  sigma.reads = 25,
++                  sigma0.lrr = 0.15, 
++                  sigma0.baf = 0.03,
++                  density.sigma = 0.1)
+> psis <- c(0.6, 0.3, 0.1)
+> 
+> set.seed(412634)
+> ### Mutations only? without contamination
+> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
+> clone <- tumor$clones[[1]]
+> summary(clone$cn)  # why is the parent index constant?
+      chr             start                end                  A    
+ Min.   : 1.000   Min.   :        1   Min.   :   321330   Min.   :1  
+ 1st Qu.: 4.000   1st Qu.: 41677134   1st Qu.: 62620640   1st Qu.:1  
+ Median : 9.000   Median :121340754   Median :136090569   Median :1  
+ Mean   : 9.797   Mean   :114810620   Mean   :134999686   Mean   :1  
+ 3rd Qu.:15.000   3rd Qu.:185143852   3rd Qu.:207375478   3rd Qu.:1  
+ Max.   :24.000   Max.   :248606021   Max.   :249250621   Max.   :1  
+       B          seg          parent.index
+ Min.   :1   Min.   :  1.00   Min.   :84   
+ 1st Qu.:1   1st Qu.: 74.75   1st Qu.:84   
+ Median :1   Median :148.50   Median :84   
+ Mean   :1   Mean   :148.50   Mean   :84   
+ 3rd Qu.:1   3rd Qu.:222.25   3rd Qu.:84   
+ Max.   :1   Max.   :296.00   Max.   :84   
+> summary(clone$seq)
+      chr             start                seg          mut.id     
+ Min.   : 1.000   Min.   :     1878   Min.   :  2   Min.   :   51  
+ 1st Qu.: 4.000   1st Qu.: 32597133   1st Qu.: 70   1st Qu.: 3327  
+ Median : 8.000   Median : 69992560   Median :136   Median : 4778  
+ Mean   : 9.184   Mean   : 78684555   Mean   :139   Mean   : 5535  
+ 3rd Qu.:13.000   3rd Qu.:112177800   3rd Qu.:206   3rd Qu.: 8119  
+ Max.   :24.000   Max.   :246484357   Max.   :291   Max.   :14115  
+ mutated.copies allele  normal.copies
+ Min.   :1      A:287   Min.   :1    
+ 1st Qu.:1      B:267   1st Qu.:1    
+ Median :1              Median :1    
+ Mean   :1              Mean   :1    
+ 3rd Qu.:1              3rd Qu.:1    
+ Max.   :1              Max.   :1    
+> 
+> ### Mutations only? with normal contamination
+> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = TRUE)
+> clone <- tumor$clones[[1]]
+> summary(clone$cn)  # why is the parent index missing?
+      chr             start                end                  A    
+ Min.   : 1.000   Min.   :        1   Min.   :   735239   Min.   :1  
+ 1st Qu.: 4.000   1st Qu.: 50450954   1st Qu.: 62622068   1st Qu.:1  
+ Median : 9.000   Median :119502574   Median :131407920   Median :1  
+ Mean   : 9.932   Mean   :116322448   Mean   :130299118   Mean   :1  
+ 3rd Qu.:15.000   3rd Qu.:182373738   3rd Qu.:195047428   3rd Qu.:1  
+ Max.   :24.000   Max.   :248463057   Max.   :249250621   Max.   :1  
+                                                                     
+       B          seg         parent.index
+ Min.   :1   Min.   :  1.0   Min.   : NA  
+ 1st Qu.:1   1st Qu.:107.8   1st Qu.: NA  
+ Median :1   Median :214.5   Median : NA  
+ Mean   :1   Mean   :214.5   Mean   :NaN  
+ 3rd Qu.:1   3rd Qu.:321.2   3rd Qu.: NA  
+ Max.   :1   Max.   :428.0   Max.   : NA  
+                             NA's   :428  
+> summary(clone$seq) # this looks like a bug to me.
+   Mode    NA's 
+logical       1 
+> 
+> ### CNV and Mutations, without normal contamination
+> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = FALSE)
+> clone <- tumor$clones[[1]]
+> summary(clone$cn)
+      chr             start                end                  A        
+ Min.   : 1.000   Min.   :        1   Min.   :  1169759   Min.   :1.000  
+ 1st Qu.: 4.000   1st Qu.: 47981792   1st Qu.: 57606017   1st Qu.:1.000  
+ Median : 8.000   Median :105475912   Median :116363304   Median :1.000  
+ Mean   : 9.577   Mean   :110576309   Mean   :124049314   Mean   :1.005  
+ 3rd Qu.:14.250   3rd Qu.:176042343   3rd Qu.:192224306   3rd Qu.:1.000  
+ Max.   :24.000   Max.   :248849703   Max.   :249250621   Max.   :2.000  
+       B          seg         parent.index
+ Min.   :1   Min.   :  1.0   Min.   :129  
+ 1st Qu.:1   1st Qu.:111.8   1st Qu.:129  
+ Median :1   Median :222.5   Median :129  
+ Mean   :1   Mean   :222.5   Mean   :129  
+ 3rd Qu.:1   3rd Qu.:333.2   3rd Qu.:129  
+ Max.   :1   Max.   :444.0   Max.   :129  
+> summary(clone$seq)
+      chr             start                seg            mut.id     
+ Min.   : 1.000   Min.   :   238961   Min.   :  1.0   Min.   :  843  
+ 1st Qu.: 4.000   1st Qu.: 30715213   1st Qu.:118.2   1st Qu.: 2243  
+ Median : 8.000   Median : 69051420   Median :217.5   Median :13386  
+ Mean   : 9.395   Mean   : 76810967   Mean   :219.6   Mean   :15462  
+ 3rd Qu.:14.000   3rd Qu.:110514452   3rd Qu.:327.0   3rd Qu.:33403  
+ Max.   :24.000   Max.   :245436242   Max.   :438.0   Max.   :33507  
+ mutated.copies allele  normal.copies  
+ Min.   :1      A:199   Min.   :1.000  
+ 1st Qu.:1      B:219   1st Qu.:1.000  
+ Median :1              Median :1.000  
+ Mean   :1              Mean   :1.005  
+ 3rd Qu.:1              3rd Qu.:1.000  
+ Max.   :1              Max.   :2.000  
+> 
+> ### CNV and Mutations, with normal contamination
+> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = TRUE)
+> clone <- tumor$clones[[1]]
+> summary(clone$cn)
+      chr            start                end                  A    
+ Min.   : 1.00   Min.   :        1   Min.   :  1993994   Min.   :1  
+ 1st Qu.: 4.00   1st Qu.: 44864382   1st Qu.: 65814196   1st Qu.:1  
+ Median : 8.00   Median :107677429   Median :127218534   Median :1  
+ Mean   : 9.83   Mean   :110897887   Mean   :132024871   Mean   :1  
+ 3rd Qu.:15.00   3rd Qu.:176034854   3rd Qu.:205266052   3rd Qu.:1  
+ Max.   :24.00   Max.   :248784714   Max.   :249250621   Max.   :1  
+                                                                    
+       B          seg          parent.index
+ Min.   :1   Min.   :  1.00   Min.   : NA  
+ 1st Qu.:1   1st Qu.: 71.25   1st Qu.: NA  
+ Median :1   Median :141.50   Median : NA  
+ Mean   :1   Mean   :141.50   Mean   :NaN  
+ 3rd Qu.:1   3rd Qu.:211.75   3rd Qu.: NA  
+ Max.   :1   Max.   :282.00   Max.   : NA  
+                              NA's   :282  
+> summary(clone$seq) # this looks like a bug to me.
+   Mode    NA's 
+logical       1 
+> 
+> ### CNV-only, with normal contamination
+> tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = TRUE) 
+> clone <- tumor$clones[[1]]
+> summary(clone$cn)
+      chr             start                end                  A    
+ Min.   : 1.000   Min.   :        1   Min.   :   967296   Min.   :1  
+ 1st Qu.: 4.000   1st Qu.: 51624945   1st Qu.: 67372594   1st Qu.:1  
+ Median : 8.000   Median :116311115   Median :131768014   Median :1  
+ Mean   : 9.797   Mean   :115891630   Mean   :133485790   Mean   :1  
+ 3rd Qu.:15.000   3rd Qu.:173938834   3rd Qu.:200532361   3rd Qu.:1  
+ Max.   :24.000   Max.   :248551840   Max.   :249250621   Max.   :1  
+                                                                     
+       B          seg          parent.index
+ Min.   :1   Min.   :  1.00   Min.   : NA  
+ 1st Qu.:1   1st Qu.: 85.75   1st Qu.: NA  
+ Median :1   Median :170.50   Median : NA  
+ Mean   :1   Mean   :170.50   Mean   :NaN  
+ 3rd Qu.:1   3rd Qu.:255.25   3rd Qu.: NA  
+ Max.   :1   Max.   :340.00   Max.   : NA  
+                              NA's   :340  
+> summary(clone$seq) # this is correct
+Length  Class   Mode 
+     0   NULL   NULL 
+> 
+> ### CNV-only, without normal contamination
+> tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = FALSE)
+> clone <- tumor$clones[[1]]
+> summary(clone$cn)
+      chr             start                end                  A        
+ Min.   : 1.000   Min.   :        1   Min.   :   138132   Min.   :0.000  
+ 1st Qu.: 4.000   1st Qu.: 55591968   1st Qu.: 69264028   1st Qu.:1.000  
+ Median : 9.000   Median :116940858   Median :133942632   Median :1.000  
+ Mean   : 9.672   Mean   :118481804   Mean   :135380150   Mean   :1.006  
+ 3rd Qu.:14.000   3rd Qu.:187725414   3rd Qu.:207668539   3rd Qu.:1.000  
+ Max.   :24.000   Max.   :248140309   Max.   :249250621   Max.   :2.000  
+       B              seg          parent.index
+ Min.   :0.000   Min.   :  1.00   Min.   :248  
+ 1st Qu.:1.000   1st Qu.: 89.25   1st Qu.:248  
+ Median :1.000   Median :177.50   Median :248  
+ Mean   :1.003   Mean   :177.50   Mean   :248  
+ 3rd Qu.:1.000   3rd Qu.:265.75   3rd Qu.:248  
+ Max.   :2.000   Max.   :354.00   Max.   :248  
+> summary(clone$seq) # this is correct
+Length  Class   Mode 
+     0   NULL   NULL 
+> 
+> dataset <- dataGen(tumor,
++                 dataPars$snps.seq, dataPars$snps.cgh, dataPars$mu,
++                 dataPars$sigma.reads, dataPars$sigma0.lrr,
++                 dataPars$sigma0.baf, dataPars$density.sigma)
+> class(dataset)
+[1] "list"
+> length(dataset)
+[1] 2
+> names(dataset)
+[1] "cn.data"  "seq.data"
+> lapply(dataset, class)
+$cn.data
+[1] "data.frame"
+
+$seq.data
+[1] "data.frame"
+
+> lapply(dataset, dim)
+$cn.data
+[1] 354   7
+
+$seq.data
+[1] 1000000       8
+
+> summary(dataset$cn.data)
+      chr              seg              LRR                  BAF        
+ Min.   : 1.000   Min.   :  1.00   Min.   :-0.1553511   Min.   :0.2858  
+ 1st Qu.: 4.000   1st Qu.: 89.25   1st Qu.:-0.0024160   1st Qu.:0.4994  
+ Median : 9.000   Median :177.50   Median : 0.0005532   Median :0.5000  
+ Mean   : 9.672   Mean   :177.50   Mean   : 0.0008677   Mean   :0.4994  
+ 3rd Qu.:14.000   3rd Qu.:265.75   3rd Qu.: 0.0029187   3rd Qu.:0.5005  
+ Max.   :24.000   Max.   :354.00   Max.   : 0.1192170   Max.   :0.7142  
+       X                Y             markers    
+ Min.   :0.3997   Min.   :0.4039   Min.   : 832  
+ 1st Qu.:0.9942   1st Qu.:0.9942   1st Qu.:1459  
+ Median :1.0010   Median :1.0009   Median :1698  
+ Mean   :1.0017   Mean   :1.0044   Mean   :1695  
+ 3rd Qu.:1.0065   3rd Qu.:1.0067   3rd Qu.:1920  
+ Max.   :1.5935   Max.   :1.6204   Max.   :2714  
+> summary(dataset$seq.data) # note that all mut.id are NA's since there were no mutations
+      chr              seg            mut.id        refCounts     
+ Min.   : 1.000   Min.   :  1.0   Min.   : NA     Min.   : 10.00  
+ 1st Qu.: 4.000   1st Qu.: 88.0   1st Qu.: NA     1st Qu.: 60.00  
+ Median : 9.000   Median :177.0   Median : NA     Median : 70.00  
+ Mean   : 9.638   Mean   :177.1   Mean   :NaN     Mean   : 69.71  
+ 3rd Qu.:14.000   3rd Qu.:265.0   3rd Qu.: NA     3rd Qu.: 79.00  
+ Max.   :24.000   Max.   :354.0   Max.   : NA     Max.   :148.00  
+                                  NA's   :1e+06                   
+   varCounts           VAF          totalCounts       status         
+ Min.   : 12.00   Min.   :0.2500   Min.   : 30.0   Length:1000000    
+ 1st Qu.: 61.00   1st Qu.:0.4712   1st Qu.:123.0   Class :character  
+ Median : 70.00   Median :0.5000   Median :140.0   Mode  :character  
+ Mean   : 70.24   Mean   :0.5019   Mean   :139.9                     
+ 3rd Qu.: 80.00   3rd Qu.:0.5304   3rd Qu.:157.0                     
+ Max.   :170.00   Max.   :0.8435   Max.   :254.0                     
+                                                                     
+> 
+> plot.data(tumor, dataset)
+> 
+> 
+> proc.time()
+   user  system elapsed 
+  37.19    0.71   38.12 
