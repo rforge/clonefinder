@@ -1211,17 +1211,6 @@ pfun <- function(truepars, inferred, markers){
   psi <- inferred$psi
 }
 
-genSimplex <- function(N, k, reps=1){
-  simplex <- t(xsimplex(k, N))
-  for(i in 1:nrow(simplex)){
-    simplex[i,] <- sort(simplex[i,], decreasing=TRUE)
-  }
-  simplex <- unique(simplex)
-  psis <- lapply(rep(1:nrow(simplex), reps), function(i){simplex[i,]/N})
-  psis <- Reduce(rbind, psis)
-  unname(psis)
-}
-
 
 #Resampling:
 resample <- function(parsets, probs, pars, select, generate, subsample, subsample.psi,

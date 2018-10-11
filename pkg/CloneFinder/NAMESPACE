@@ -2,23 +2,28 @@
 ### NAMESPACE
 ###
 
-# converting base functions or S3 methods into S4 methods
-exportMethods("summary") # comes from 'base'
+### convert base functions or S3 methods into S4 methods
 import(methods)
 importFrom("graphics", "plot", "hist",
            "abline", "lines", "par", "points", "segments", "text")
-exportMethods("plot", "hist")
+exportMethods("plot", "hist") # come from 'graphics'
+exportMethods("summary")      # comes from 'base'
 
+### other imported methods (to pacify R CMD check)
 importFrom(mc2d, "rdirichlet") # used for Dirichlet - Multinomial distributions
-importFrom(combinat, "combn")  # used for combinations of psi-values
 
-importFrom("grDevices", "colorRampPalette", "dev.off", "pdf")
+importFrom("utils", "data")
+importFrom("grDevices", "colorRampPalette", "dev.off", "pdf") # really???
 importFrom("stats", "cov", "cutree", "dbeta", "dbinom", "density",
            "dgamma", "dgeom", "dist", "dnorm", "hclust", "median",
            "na.omit", "optim", "pnorm", "rbeta", "rect.hclust",
            "rgamma", "rgeom", "rmultinom", "rnbinom", "rnorm", "runif",
            "sd", "var")
-importFrom("utils", "data")
+
+### dealing with simplices
+importFrom(combinat, "combn")    # used for combinations of psi-values
+importFrom(combinat, "xsimplex") # used for genSimplex
+export("sampleSimplex", "generateSimplex")
 
 ### needed for simulations
 exportClasses("Clone", "Tumor")
@@ -28,7 +33,7 @@ export("generateData", "trueZ", "sizeplot")
 ### needed for analysis
 exportClasses("CompartmentModel")
 export("CompartmentModel")
-export("likely", "sampleSimplex")
+export("likely")
 
 ### prefit (phi vectors per segment)
 exportClasses("PrefitCloneModel")

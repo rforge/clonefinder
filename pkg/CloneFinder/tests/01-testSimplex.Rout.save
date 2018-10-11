@@ -1,0 +1,51 @@
+
+R version 3.5.1 (2018-07-02) -- "Feather Spray"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library(CloneFinder)
+> 
+> set.seed(461283)
+> sampleSimplex(4, 3)
+           [,1]      [,2]      [,3]
+[1,] 0.41142650 0.2341796 0.3543939
+[2,] 0.37775202 0.2191589 0.4030891
+[3,] 0.30840307 0.5882078 0.1033891
+[4,] 0.05101856 0.7764820 0.1724994
+> all( apply(sampleSimplex(4, 3), 1, sum) == 1) # assertion
+[1] TRUE
+> 
+> generateSimplex(5, 3)
+     [,1] [,2] [,3]
+[1,]  1.0  0.0  0.0
+[2,]  0.8  0.2  0.0
+[3,]  0.6  0.4  0.0
+[4,]  0.6  0.2  0.2
+[5,]  0.4  0.4  0.2
+> 
+> # These should all fail, for obvious reasons.
+> try( sampleSimplex(0) )
+Error in `[<-`(`*tmp*`, i, , value = diff(sort(c(0, 1, runif(d - 1, 0,  : 
+  subscript out of bounds
+> try( sampleSimplex(-1) )
+Error in matrix(NA, nrow = n, ncol = d) : invalid 'nrow' value (< 0)
+> try( sampleSimplex(4, 0) )
+Error in runif(d - 1, 0, 1) : invalid arguments
+> try( sampleSimplex(4, -1) )
+Error in matrix(NA, nrow = n, ncol = d) : invalid 'ncol' value (< 0)
+> 
+> proc.time()
+   user  system elapsed 
+   1.77    0.21    1.99 

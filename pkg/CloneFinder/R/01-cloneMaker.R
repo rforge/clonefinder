@@ -1,6 +1,34 @@
 ########################################################################
-# Part 1: Bayesian Model Assessment, phi-vectors per segment
+### Simplices
 #
+### The d-dimensional simplex is the set of nonnegative points in R^d
+### that satisfy  x_1 + .. + x_d = 1. These points represent partitions
+### of data into subsets, such as taking the fraction of cells that are
+### part of each clone.
+
+### Sample n points from the d-simplex
+sampleSimplex <- function(n, d=5) {
+    result <- matrix(NA, nrow=n, ncol=d)
+    for (i in 1:n) {
+        result[i,] <- diff(sort( c(0, 1, runif(d-1, 0, 1)) ))
+    }
+    result
+}
+
+### Generate a regularly spaced lattice of points in the d-simplex,
+### with k points along each edge.
+### Use symmetry to reduce the number we need to try.
+generateSimplex <- function(k, d, reps=1){
+  simplex <- t(xsimplex(d, k))
+  for(i in 1:nrow(simplex)){
+    simplex[i,] <- sort(simplex[i,], decreasing=TRUE)
+  }
+  simplex <- unique(simplex)
+  psis <- t(sapply(rep(1:nrow(simplex), reps), function(i){simplex[i,]/k}))
+  psis
+}
+
+
 
 ###### COMPARTMENT MODEL ######
 # The underlying idea is that there is a set of pure "compartments"
@@ -62,14 +90,6 @@ likely <- function(dataset, phi, compartmentModel, log=FALSE) {
       value <- px * py
   }
   value
-}
-
-sampleSimplex <- function(n, d=5) {
-    result <- matrix(NA, nrow=n, ncol=d)
-    for (i in 1:n) {
-        result[i,] <- diff(sort( c(0, 1, runif(d-1, 0, 1)) ))
-    }
-    result
 }
 
 ########################################################################

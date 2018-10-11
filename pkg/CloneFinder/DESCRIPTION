@@ -1,6 +1,6 @@
 Package: CloneFinder
-Version: 0.8.3
-Date: 2018-10-10
+Version: 0.8.4
+Date: 2018-10-11
 Title: Finding Subclones in SNP and Sequencing Data
 Author: Kevin R. Coombes, Mark Zucker
 Maintainer: Kevin R. Coombes <krc@silicovore.com>
