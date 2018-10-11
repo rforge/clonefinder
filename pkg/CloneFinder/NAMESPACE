@@ -14,7 +14,8 @@ importFrom(mc2d, "rdirichlet") # used for Dirichlet - Multinomial distributions
 
 importFrom("utils", "data")
 importFrom("grDevices", "colorRampPalette", "dev.off", "pdf") # really???
-importFrom("stats", "cov", "cutree", "dbeta", "dbinom", "density",
+importFrom("stats",
+           "rbinom", "cov", "cutree", "dbeta", "dbinom", "density",
            "dgamma", "dgeom", "dist", "dnorm", "hclust", "median",
            "na.omit", "optim", "pnorm", "rbeta", "rect.hclust",
            "rgamma", "rgeom", "rmultinom", "rnbinom", "rnorm", "runif",
@@ -24,6 +25,10 @@ importFrom("stats", "cov", "cutree", "dbeta", "dbinom", "density",
 importFrom(combinat, "combn")    # used for combinations of psi-values
 importFrom(combinat, "xsimplex") # used for genSimplex
 export("sampleSimplex", "generateSimplex")
+
+### weight vectors
+exportClasses("WeightVector")
+export("WeightVector")
 
 ### needed for simulations
 exportClasses("Clone", "Tumor")

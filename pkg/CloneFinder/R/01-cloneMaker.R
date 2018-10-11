@@ -1,6 +1,6 @@
 ########################################################################
 ### Simplices
-#
+###
 ### The d-dimensional simplex is the set of nonnegative points in R^d
 ### that satisfy  x_1 + .. + x_d = 1. These points represent partitions
 ### of data into subsets, such as taking the fraction of cells that are
@@ -28,8 +28,50 @@ generateSimplex <- function(k, d, reps=1){
   psis
 }
 
+########################################################################
+### WeightVextors
+###
+### We aloso refer to points in a simplex as "weight vectors" (since
+### "vector of clonal fractions" is both too long and too specialized).
+### We define these as an S4 class so we can build validitiy checking
+### into the constructor, and so we can more reliably use them when we
+### generate "Tumor" objects later.
+
+setClass("WeightVector", slots=c(psi = "numeric"))
+setValidity("WeightVector", function(object) {
+  all( object@psi >= 0 ) & sum(object@psi) == 1
+})
+setMethod("initialize", "WeightVector", function(.Object, psi = 1, ...) {
+  .Object <- callNextMethod(.Object) # in case this gets inherited
+  if (any(is.na(psi))) {
+    stop("Psi should not contain missing values.")
+  }
+  if (any(psi < 0)) {
+    stop("Psi should not contain negative values.")
+  }
+  if (all(psi == 0)) {
+    stop("At least one psi value must be larger than zero.")
+  }
+  .Object@psi = psi/sum(psi)
+  .Object
+})
+WeightVector <- function(phi) {
+  new("WeightVector", psi = phi)
+}
+setAs("WeightVector", "numeric", function(from) from@psi)
 
 
+if(FALSE) {
+setClass("Tumor",
+         slots = c(psi = "WeightVector",
+                   clones = "list"))
+setAs("Tumor", "list", function(from) {
+  list(psi = as(from@psi, "numeric"),
+       clones = from@clones)
+})
+}
+
+########################################################################
 ###### COMPARTMENT MODEL ######
 # The underlying idea is that there is a set of pure "compartments"
 # representing fundamental copy number states.  In the current model,

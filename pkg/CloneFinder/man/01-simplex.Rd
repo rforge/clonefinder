@@ -1,4 +1,5 @@
 \name{Simplices}
+\alias{Simplices}
 \alias{sampleSimplex}
 \alias{generateSimplex}
 
