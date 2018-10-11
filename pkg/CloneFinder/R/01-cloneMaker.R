@@ -1,5 +1,5 @@
 ########################################################################
-### Simplices
+### Part 1: Simplices
 ###
 ### The d-dimensional simplex is the set of nonnegative points in R^d
 ### that satisfy  x_1 + .. + x_d = 1. These points represent partitions
@@ -29,7 +29,7 @@ generateSimplex <- function(k, d, reps=1){
 }
 
 ########################################################################
-### WeightVextors
+### Part 2: WeightVectors
 ###
 ### We aloso refer to points in a simplex as "weight vectors" (since
 ### "vector of clonal fractions" is both too long and too specialized).
@@ -61,81 +61,8 @@ WeightVector <- function(phi) {
 setAs("WeightVector", "numeric", function(from) from@psi)
 
 
-if(FALSE) {
-setClass("Tumor",
-         slots = c(psi = "WeightVector",
-                   clones = "list"))
-setAs("Tumor", "list", function(from) {
-  list(psi = as(from@psi, "numeric"),
-       clones = from@clones)
-})
-}
-
 ########################################################################
-###### COMPARTMENT MODEL ######
-# The underlying idea is that there is a set of pure "compartments"
-# representing fundamental copy number states.  In the current model,
-# these are characterized by their centers.  The variability of the
-# observations, however, depends on (1) the number of markers in each
-# segment and (2) an estimate, sigma0, of the core variability in
-# measurements observed at a single marker.
-
-setClass("CompartmentModel",
-         representation=list(
-             markers = "numeric",
-             pureCenters = "data.frame",
-             sigma0="numeric"))
-
-CompartmentModel <- function(markers, pureCenters, sigma0) {
-  # we allow the user to pass in 'nSegments' instead of the vector
-  # of markers. In that case, we simulate them internally
-  if (length(markers) == 1) {
-    markers <- round(runif(markers, 25, 2000))
-  }
-  nSegments <- length(markers)
-  if(is.null(names(markers))) names(markers) <- paste("Segment", 1:nSegments, sep='')
-
-  new("CompartmentModel",
-    markers=markers,
-    pureCenters=pureCenters,
-    sigma0=sigma0)
-}
-
-###### Likelihoods computations #####
-# Given the compartment model (which contains the centers
-# and the number of markers per segment) and the vector of
-# fraction per compartment, 
-# compute the likelihood for each row in the dataset
-likely <- function(dataset, phi, compartmentModel, log=FALSE) {
-  # dataset = matrix with 'x' and 'y' columns produced by "generateData"
-  # phi = vector of probabilities for each compartment
-  xy <- compartmentModel@pureCenters
-  markers <- compartmentModel@markers
-  sigma0 <- compartmentModel@sigma0
-  if (length(phi) < nrow(xy)-1) stop("You did not supply enough entries in 'phi'")
-  if (length(phi) > nrow(xy)) stop("You supplied too many entries in 'phi'")
-  if (length(phi) < nrow(xy)) {
-    lastphi <- 1 - sum(phi)
-    phi <- c(phi, lastphi)
-  }
-  if (any(phi < 0)) stop("Negative probabilities are not allowed")
-  phi <- matrix(phi/sum(phi), nrow=1) # make sure they add up to 1
-  center <- as.data.frame(phi %*% as.matrix(xy))
-  secondMoment <- phi %*% (xy^2 + sigma0^2)
-  adjust <- as.vector(secondMoment - center^2)
-  sigma <- t(sqrt(outer(adjust, markers, '/')))
-  px <- dnorm(dataset$x, center$x, sigma[,1], log)
-  py <- dnorm(dataset$y, center$y, sigma[,2], log)
-  if(log) {
-      value <- px + py
-  } else {
-      value <- px * py
-  }
-  value
-}
-
-########################################################################
-# Part 2: Simulating Data
+# Part 3: Simulating Data
 
 ############ CLONE ############
 # A clone is a list of segments, where each segment represents exactly
@@ -172,70 +99,178 @@ Clone <- function(nSegments, weights=rep(1/5, 5), segnames=NULL) {
 # A tumor is a set of clones, each of which is associated with a
 # fraction, subject to the constraint that the sum of the fractions
 # equals one.
+
 setClass("Tumor",
-         contains = "CompartmentModel",
-         slots=list(
-             data = "matrix",         # segments x clones
-             fraction = "numeric",
-             weights = "numeric",
-             compartments = "matrix", # segments x compartmentys
-             centers = "data.frame",
-             SEM="matrix"
-             ))
+         slots = c(psi = "WeightVector",
+                   clones = "list"))
+setAs("Tumor", "list", function(from) {
+  list(psi = as(from@psi, "numeric"),
+       clones = from@clones)
+})
+setMethod("summary", signature("Tumor"), function(object, ...) {
+    tdata <- object@data
+    table(A=tdata[,1], B=tdata[,2])
+})
 
-Tumor <- function(object, fracs, weights) {
-  # object = CompartmentModel
-  # fracs   = vector, the fraction of cells represented by each clone
-  # weights = vector, the prevalence of each pure compartment
-
-  # sanity checks on the fractions
-  if(any(is.na(fracs))) stop("Missing clone fraction.")
-  if(any(fracs < 0)) stop("Negative clone fraction.")
-  fracs <- fracs/sum(fracs) # ensure they sum to 1
-  L <- length(fracs)
-  if(is.null(names(fracs))) names(fracs) <- paste("Clone", 1:L, sep="")
-
-  # we could do the same check on the weights, but they are just
-  # being passed on to 'Clone' which already checks them
-  if (is.null(names(weights)))
-    names(weights) <- paste("Compartment", 1:length(weights), sep="")
-
-  nSegments <- length(object@markers)
-  segnames <- names(object@markers)
-
-  # fill in the matrix of compartments, one clone-column at a time
-  dataset <- matrix(NA, nrow=nSegments, ncol=L)
-  for (i in 1:L) {
-    dataset[,i] <- s <- Clone(nSegments, weights, segnames)@segments
+getClone <- function(tumor, i) {
+  if (inherits(tumor, "Tumor")) {
+    tumor <- as(tumor, "list")
   }
-  dimnames(dataset) <- list(names(s), names(fracs))
-
-  # convert from the "segments x clones" representations in 'dataset'
-  # to a "segments x compartments" representation
-  nCompartments <- length(weights)
-  fvec <- matrix(fracs, ncol=1)
-  repr <- matrix(NA, nrow=nSegments, ncol=nCompartments)
-  for (comp in 1:nCompartments) {
-      temp <- 1*(dataset == comp)
-      repr[,comp] <- as.vector(temp %*% fvec)
-  }
-  dimnames(repr) <- list(rownames(dataset), names(weights))
-  # get the averaged centers, over compartments
-  xy <- as.matrix(object@pureCenters)
-  centers <- as.data.frame(repr %*% xy)
-  # get the SEM
-  secondMoment <- repr %*% (xy^2 + object@sigma0^2)
-  sigma <- sqrt(sweep(secondMoment - centers^2, 1, object@markers, '/'))
-  
-  new("Tumor", object,
-      data = dataset,
-      fraction=fracs,
-      weights=weights,
-      compartments=repr,
-      centers=centers,
-      SEM=sigma
-      )
+  tumor$clones[[i]] # should we do error checking on 'i'?
 }
+
+### TODO: Wrap everything except psi into some sort of parameter class.
+Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
+  K <- length(which(psi > 0)) # number of clones
+  ## Choose the number of copy number (CN) segments.
+  total.segs <- round(runif(1, 250, 500))
+  ## Distribute segments across the chromosomes.
+  segsperchr <- as.vector(rdirichlet(1, chlens/1000000))
+  segsperchr <- round(segsperchr*total.segs)
+  segsperchr[segsperchr < 1] <- 1
+  ## Start building a fake DNA copy data frame. Each segments
+  ## needs a chromosome with start and end positions.
+  chr <- unlist(lapply(1:24, function(i) {
+    rep(i, segsperchr[i])
+  }))
+  ends <- lapply(1:24, function(i) {
+    lens <- c(as.vector(rdirichlet(1, rep(1, segsperchr[i]))))
+    sapply(1:length(lens), function(j) {sum(lens[1:j])})
+  })
+  ends <- lapply(1:length(ends), function(i) {
+    round(chlens[chr[i]]*ends[[i]])
+  })
+  starts <- lapply(1:length(ends), function(i) {
+    c(1, ends[[i]][1:(length(ends[[i]])-1)]+1)
+  })
+  ends <- unlist(ends)
+  starts <- unlist(starts)
+  ## Make the data frame.
+  cnmat <- cbind(chr, unlist(starts), unlist(ends), rep(1, length(starts)), 
+                 rep(1, length(starts)), 1:length(starts), rep(NA, length(starts)))
+  colnames(cnmat) <- c('chr', 'start', 'end', 'A', 'B', 'seg', 'parent.index')
+  ## Evolve some clones, starting with the currently normal one.
+  startclone <- list('cn'=cnmat, 'seq'=NA)
+  id.end <- 0
+  clones <- list(startclone)
+  while(length(clones) <= rounds) {
+    parent.index <- sample(1:length(clones), 1)
+    parent <- clones[[parent.index]]
+    if(nu > 0 ) { # Add some mutations. Possibly CNV as well
+      cnv <- sample(c(TRUE, FALSE), 1, prob = c(pcnv, 1 - pcnv))
+    } else {      # Must be a CNV
+      cnv <- TRUE
+    }
+    newclone.cn <- parent$cn
+    newclone.cn[, which(colnames(newclone.cn)=='parent.index')] <- parent.index
+    newclone.seq <- parent$seq
+
+    ## handle copy number variants
+    if(cnv) {
+      allele <- sample(c('A', 'B'), 1)
+      pool <- which(parent$cn[, which(colnames(cnmat)==allele)] > 0 &
+                      parent$cn[, which(colnames(cnmat)==allele)]<cnmax)
+      tochange <- sample(pool, 1)
+      other.clones <- sapply(1:length(clones), function(j) {
+        clones[[j]]$cn[tochange, which(colnames(cnmat)==allele)]
+      })
+      if(max(other.clones) > 1) {
+        delta <- 1
+      } else if(min(other.clones) < 1) {
+        delta <- -1
+      } else {
+        delta <- sample(c(-1, 1), 1)
+      }
+      if(parent.index>1 & length(which(!is.na(unlist(newclone.seq)))) > 0) {
+        muts.tochange <- intersect(which(newclone.seq[, i.seg]==tochange),
+                                   which(newclone.seq[, i.allele]==allele))
+        if(length(muts.tochange) > 0) {
+          newclone.seq[muts.tochange, i.cn] <-
+            as.numeric(newclone.seq[muts.tochange, i.cn]) + delta
+        }
+      }
+      newclone.cn[tochange, which(colnames(cnmat)==allele)] <-
+         as.numeric(newclone.cn[tochange, which(colnames(cnmat)==allele)]) + delta
+    } #END: if(cnv)
+
+    ## handle sequence mutations
+    nmuts <- round(runif(1, nu/2, 1.5*nu))
+    if(nmuts > 0){
+      mutsperchr <- as.vector(rmultinom(1, nmuts, chlens/1000000))
+      starts <- lapply(1:length(mutsperchr), function(i) {
+        unique(round(sort(runif(mutsperchr[i], 1, chlens[i]))))
+      })
+      starts <- unlist(starts)
+      mut.chrs <- unlist(lapply(1:length(mutsperchr), function(i) {
+        rep(i, mutsperchr[i])
+      }))
+      mut.segs <- unlist(sapply(1:length(starts), function(i) {
+        col.index <- which(colnames(cnmat)=='chr')
+        tab <- cnmat[which(cnmat[, col.index]==mut.chrs[i]), ]
+        bin1 <- which(tab[, which(colnames(tab)=='start')]<=starts[[i]])
+        index <- bin1[which(tab[bin1, which(colnames(tab)=='end')]>=starts[[i]])]
+        seg <- unname(tab[index, which(colnames(tab)=='seg')])
+        seg
+      }))
+      alleles <- sample(c('A', 'B'), length(starts), replace=TRUE)
+      mut.ids <- (id.end+1):(id.end+length(starts))
+      seqmat <- cbind(mut.chrs, starts, mut.segs, mut.ids, rep(1, length(starts)), alleles)
+      id.end <- max(mut.ids)
+      colnames(seqmat) <- c('chr', 'start', 'seg', 'mut.id', 'mutated.copies', 'allele')
+      newclone.seq <- rbind(newclone.seq, seqmat)
+      rownames(newclone.seq) <- NULL
+    } else {
+      newclone.seq <- NA # No new mutations
+    } #END: if(nmuts > 0)-else
+    ## Make the new clone, remembewring what changed.
+    if(length(clones) == 1 & nmuts > 0) {
+      i.seg <- which(colnames(seqmat)=='seg')
+      i.cn <- which(colnames(seqmat)=='mutated.copies')
+      i.allele <- which(colnames(seqmat)=='allele')
+    }
+    newclone <- list('cn'=newclone.cn, 'seq'=newclone.seq)
+    clones <- c(clones, list(newclone))
+  } #END: while(length(clones) <= rounds)
+  
+  if(norm.contam==TRUE) { # first "clone" consists of the normal cells.
+    sampled <- c(1, sample(2:length(clones), K-1, replace=FALSE))
+  }else{
+    sampled <- sample(2:length(clones), K, replace=FALSE)
+  }
+  
+  clones.final <- lapply(1:length(sampled), function(i) {
+    cndf <- as.data.frame(clones[[sampled[i]]]$cn)
+    if(length(which(!is.na(unlist(clones[[sampled[i]]]$seq))))){
+      seqdf <- as.data.frame(clones[[sampled[i]]]$seq)
+      for(j in which(colnames(seqdf)!='allele')){
+        seqdf[, j] <- as.numeric(as.character(seqdf[, j]))
+        seqdf <- na.omit(seqdf[with(seqdf, order(seg, start)), ])
+        rownames(seqdf) <- NULL
+        seqdf
+      }
+      seqdf$normal.copies <- na.omit(unlist(lapply(1:nrow(cndf), function(j){
+        total.cn <- cndf$A[j] + cndf$B[j]
+        if(length(which(seqdf$seg==j))>0){
+          normal.cns <- total.cn - seqdf$mutated.copies[which(seqdf$seg==j)]
+        } else {
+          normal.cns <- NA
+        }
+        normal.cns
+      })))
+    } else {
+      seqdf <- NA
+    }
+    if(nu>0){
+      output <- list('cn'=cndf, 'seq'=seqdf)
+    }else{
+      output <- list('cn'=cndf)
+    }
+    output
+  })
+  list('clones'=clones.final, 'psi'=psi)
+  new("Tumor", clones = clones.final, psi = WeightVector(psi))
+}
+
 
 trueZ <- function(tumor) {
   Zmat <- array(0, dim=c(nrow(tumor@centers), # segments
@@ -249,11 +284,6 @@ trueZ <- function(tumor) {
   }
   Zmat
 }
-
-setMethod("summary", signature("Tumor"), function(object, ...) {
-    tdata <- object@data
-    table(A=tdata[,1], B=tdata[,2])
-})
 
 ############ SIMULATING DATASET ############
 

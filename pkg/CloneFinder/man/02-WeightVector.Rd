@@ -12,7 +12,7 @@
 WeightVector(phi)
 }
 \arguments{
-  \item{phi}{ a numeric vector containng non-negative values.}
+  \item{phi}{ a numeric vector containing non-negative values.}
 }
 \details{
   When trying to simulate or model biological data from (sub)clonal
@@ -41,7 +41,7 @@ WeightVector(phi)
 \section{Methods}{
   \describe{
     \item{coerce(from, to, strict = TRUE)}{Convert the
-      \code{WeightVector} object into a simple numeric vector. Nevr
+      \code{WeightVector} object into a simple numeric vector. Never
       actually used in this form, since the preferred method is to write
       \code{as(WV, "numeric")}.}
   }

@@ -10,7 +10,7 @@ exportMethods("plot", "hist") # come from 'graphics'
 exportMethods("summary")      # comes from 'base'
 
 ### other imported methods (to pacify R CMD check)
-importFrom(mc2d, "rdirichlet") # used for Dirichlet - Multinomial distributions
+importFrom("gtools", "rdirichlet", "ddirichlet")
 
 importFrom("utils", "data")
 importFrom("grDevices", "colorRampPalette", "dev.off", "pdf") # really???
@@ -23,22 +23,22 @@ importFrom("stats",
 
 ### dealing with simplices
 importFrom(combinat, "combn")    # used for combinations of psi-values
-importFrom(combinat, "xsimplex") # used for genSimplex
+importFrom(combinat, "xsimplex") # used for generateSimplex
 export("sampleSimplex", "generateSimplex")
 
 ### weight vectors
 exportClasses("WeightVector")
 export("WeightVector")
 
-### needed for simulations
-exportClasses("Clone", "Tumor")
-export("Clone", "Tumor")
-export("generateData", "trueZ", "sizeplot")
+### tumors
+exportClasses("Tumor")
+export("Tumor", "getClone")
+export("tumorGen") # deprecated
 
-### needed for analysis
-exportClasses("CompartmentModel")
-export("CompartmentModel")
-export("likely")
+### needed for simulations
+exportClasses("Clone")
+export("Clone")
+export("generateData", "trueZ", "sizeplot")
 
 ### prefit (phi vectors per segment)
 exportClasses("PrefitCloneModel")
@@ -51,10 +51,9 @@ export("posteriorPhi", "posteriorRegion", "posteriorQuantile", "plotPosteriorCDF
 export("guessPsi", "runEMalg")
 
 ### algorithm.R
-importFrom("gtools", "ddirichlet")
 importFrom("sirt", "dirichlet.mle")
 export("psiOptim", "runAlg", "psiFilter")
 ### simgen.R
-export("tumorGen", "dataGen", "plot.data", "getClone")
+export("dataGen", "plot.data")
 ### functions.R
 
