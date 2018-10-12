@@ -1,13 +1,35 @@
-#library(CloneFinder)
-
+### The first three functions are here for backwards compatibility.
+### They are officially "deprecated", which means (a) you should not
+### use them in new code because (b) at some point theu will simply
+### go away.
 tumorGen <- function(...) {
   tumor <- Tumor(...)
   as(tumor, "list")
 }
 
+dataGen <- function(tumor, ...) {
+  generateTumorData(as(tumor, "Tumor"), ...)
+}
+
+### want to use Tumor objects as input
+generateTumorData <- function(tumor, snps.seq, snps.cgh, mu, sigma.reads, sigma0.lrr, sigma0.baf, density.sigma){
+  if(snps.cgh > 0){
+    cndat <- snpDataGen(tumor, snps.cgh, sigma0.lrr, sigma0.baf, density.sigma)
+  }else{
+    cndat <- NA
+  }
+  if(snps.seq){
+    seqdat <- seqDataGen(tumor, snps.seq, density.sigma, mu, sigma.reads)
+  }else{
+    seqdat <- NA
+  }
+  list('cn.data'=cndat, 'seq.data'=seqdat)
+}
+
+### TODO: Document the algorithm
 snpDataGen <- function(tumor, snps.cgh=600000, sigma0.lrr=.01, sigma0.baf=.01, density.sigma=.1){
-  psi <- tumor$psi
-  cn.clones <- lapply(1:length(tumor$clones), function(i){tumor$clones[[i]]$cn})
+  psi <- as(tumor@psi, "numeric")
+  cn.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$cn})
   chr <- cn.clones[[1]]$chr
   eta <- data.frame('A'=Reduce('+', lapply(1:length(which(psi>0)), function(j){psi[j]*cn.clones[[j]]$A})), 
                     'B'=Reduce('+', lapply(1:length(which(psi>0)), function(j){psi[j]*cn.clones[[j]]$B})))
@@ -32,10 +54,9 @@ snpDataGen <- function(tumor, snps.cgh=600000, sigma0.lrr=.01, sigma0.baf=.01, d
 #snp.info is an option for an already made snp df (like from snpDataGen) to generate
 #read counts from those in addition to generating new ones.
 seqDataGen <- function(tumor, snps.seq=1000000, density.sigma, mu, sigma.reads){
-  psi <- tumor$psi
-  cn.clones <- lapply(1:length(tumor$clones), function(i){tumor$clones[[i]]$cn})
+  cn.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$cn})
   chrs <- cn.clones[[1]]$chr
-  psi <- tumor$psi
+  psi <- as(tumor@psi, "numeric")
   eta <- data.frame('A'=Reduce('+', lapply(1:length(which(psi>0)), function(j){psi[j]*cn.clones[[j]]$A})), 
                     'B'=Reduce('+', lapply(1:length(which(psi>0)), function(j){psi[j]*cn.clones[[j]]$B})))
   eta.total <- eta$A + eta$B
@@ -61,8 +82,8 @@ seqDataGen <- function(tumor, snps.seq=1000000, density.sigma, mu, sigma.reads){
   }
   snpdf <- as.data.frame(snpdf)
   snpdf$status <- rep('germline', nrow(snpdf))
-  seq.clones <- lapply(1:length(tumor$clones), function(i){tumor$clones[[i]]$seq})
-  cn.clones <- lapply(1:length(tumor$clones), function(i){tumor$clones[[i]]$cn})
+  seq.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$seq})
+  cn.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$cn})
   mutids <- unique(unlist(lapply(1:length(which(psi>0)), function(j){seq.clones[[j]]$mut.id})))
   mutdf <- matrix(NA, nrow=length(mutids), ncol=7)
   colnames(mutdf) <- c('chr', 'seg', 'mut.id', 'refCounts', 'varCounts', 'VAF', 'totalCounts')
@@ -99,27 +120,13 @@ seqDataGen <- function(tumor, snps.seq=1000000, density.sigma, mu, sigma.reads){
   vardf
 }
 
-dataGen <- function(tumor, snps.seq, snps.cgh, mu, sigma.reads, sigma0.lrr, sigma0.baf, density.sigma){
-  if(snps.cgh>0){
-    cndat <- snpDataGen(tumor, snps.cgh, sigma0.lrr, sigma0.baf, density.sigma)
-  }else{
-    cndat <- NA
-  }
-  if(snps.seq){
-    seqdat <- seqDataGen(tumor, snps.seq, density.sigma, mu, sigma.reads)
-  }else{
-    seqdat <- NA
-  }
-  list('cn.data'=cndat, 'seq.data'=seqdat)
-}
 
 #A plot function to visualize data and verify that the simulation is working.
-plot.data <- function(tumor, data, snp=TRUE, somatic=TRUE, germline=FALSE){
+plotTumorData <- function(tumor, data, snp=TRUE, somatic=TRUE, germline=FALSE){
   snpdata <- data$cn.data
   seqdata <- data$seq.data
-  psi <- tumor$psi
-  cn.clones <- lapply(1:length(tumor$clones), function(i){tumor$clones[[i]]$cn})
-  psi <- tumor$psi
+  cn.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$cn})
+  psi <- as(tumor@psi, "numeric")
   markers <- snpdata$markers
   starts <- sapply(1:length(markers), function(j){sum(markers[1:j])-markers[j]})
   ends <- sapply(1:length(markers), function(j){sum(markers[1:j])})
@@ -130,7 +137,8 @@ plot.data <- function(tumor, data, snp=TRUE, somatic=TRUE, germline=FALSE){
   greater <- sapply(1:nrow(eta), function(j){max(eta$A[j], eta$B[j])})
   greater.data <- sapply(1:nrow(eta), function(j){max(snpdata$X[j], snpdata$Y[j])})
   errors <- c(lesser.data - lesser, greater.data - greater)
-  par(mfrow=c(3, 1))
+  opar <- par(mfrow=c(3, 1))
+  on.exit(par(opar))
   plot(0, type='n', xlim=c(0, sum(markers)), ylim=c(0, 5), main='Number of Lesser Allele Copies', 
        xlab='Marker Index', ylab='Expected Copy Number')
   sapply(1:nrow(eta), function(j){

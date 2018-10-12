@@ -107,6 +107,11 @@ setAs("Tumor", "list", function(from) {
   list(psi = as(from@psi, "numeric"),
        clones = from@clones)
 })
+setAs("list", "Tumor", function(from) {
+  new("Tumor",
+      psi = WeightVector(from$psi),
+      clones = from$clones)
+})
 setMethod("summary", signature("Tumor"), function(object, ...) {
     tdata <- object@data
     table(A=tdata[,1], B=tdata[,2])
@@ -286,21 +291,6 @@ trueZ <- function(tumor) {
 }
 
 ############ SIMULATING DATASET ############
-
-# input:
-#   'centers; is the result of calling "findCenters"
-#   'markers' is the vector with the number of markers per segment
-generateData <- function(object) {
-  if (!inherits(object, "Tumor"))
-    stop(paste("Incorrect class of 'object':", class(object)))
-  centers <- object@centers
-  markers <- object@markers
-  xy <- object@pureCenters
-  # now we can genrate the data
-  xvec <- rnorm(length(markers), centers$x, object@SEM[,1])
-  yvec <- rnorm(length(markers), centers$y, object@SEM[,2])
-  data.frame(x=xvec, y=yvec)
-}
 
 sizeplot <- function(simdata, tumor) {
     size <- 1 + round(sqrt(tumor@markers)/15)/2

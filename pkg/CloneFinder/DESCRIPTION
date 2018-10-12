@@ -1,13 +1,12 @@
 Package: CloneFinder
-Version: 0.8.6
-Date: 2018-10-11
+Version: 0.8.7
+Date: 2018-10-12
 Title: Finding Subclones in SNP and Sequencing Data
 Author: Kevin R. Coombes, Mark Zucker
 Maintainer: Kevin R. Coombes <krc@silicovore.com>
-Description: The ClonmeFinder package defines the classes used to identify
-  outliers (threshing) and compute the number of significant principal
-  components and number of clusters (reaping) in a joint application
-  of PCA and hierarchical clustering.
+Description: Defines the classes and functions used to simulate and
+  to analyze data sets describing copy number variants and,
+  optionally, sequencing mutations in order to detect clonal subsets.
 Depends: R (>= 3.0)
 Imports: methods, graphics, combinat, gtools, quantmod, cluster, sirt
 License: Apache License (== 2.0)

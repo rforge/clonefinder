@@ -4,13 +4,13 @@
 
 ### convert base functions or S3 methods into S4 methods
 import(methods)
-importFrom("graphics", "plot", "hist",
-           "abline", "lines", "par", "points", "segments", "text")
+importFrom("graphics", "plot", "hist")
 exportMethods("plot", "hist") # come from 'graphics'
 exportMethods("summary")      # comes from 'base'
 
-### other imported methods (to pacify R CMD check)
+### other imported functions (to pacify R CMD check)
 importFrom("gtools", "rdirichlet", "ddirichlet")
+importFrom("graphics", "abline", "lines", "par", "points", "segments", "text")
 
 importFrom("utils", "data")
 importFrom("grDevices", "colorRampPalette", "dev.off", "pdf") # really???
@@ -33,12 +33,14 @@ export("WeightVector")
 ### tumors
 exportClasses("Tumor")
 export("Tumor", "getClone")
-export("tumorGen") # deprecated
+export("generateTumorData", "plotTumorData")
+export("tumorGen", "dataGen") # deprecated
 
+####################### IN PROGRESS ######################
 ### needed for simulations
 exportClasses("Clone")
 export("Clone")
-export("generateData", "trueZ", "sizeplot")
+export("trueZ", "sizeplot")
 
 ### prefit (phi vectors per segment)
 exportClasses("PrefitCloneModel")
@@ -54,6 +56,6 @@ export("guessPsi", "runEMalg")
 importFrom("sirt", "dirichlet.mle")
 export("psiOptim", "runAlg", "psiFilter")
 ### simgen.R
-export("dataGen", "plot.data")
+
 ### functions.R
 

@@ -26,6 +26,8 @@ getClone(tumor, i)
   \item{norm.contam}{a logiocal value; should we treast one of tre cell
     populations as normal cells that are "contaminating" the tumor
     specimen?}
+  \item{cnmax}{an integer, the maximum copy number allowed in the
+    simulated data.}
   \item{tumor}{ an object of the \code{Tumor} class.}
   \item{i}{a integer; which clone to extract}.
 }

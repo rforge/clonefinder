@@ -28,7 +28,7 @@ Type 'q()' to quit R.
 > 
 > set.seed(412634)
 > ### Mutations only? without contamination
-> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
+> tumor <- Tumor(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
 > clone <- getClone(tumor, 1)
 > summary(clone$cn)  # why is the parent index constant?
       chr             start                end                  A    
@@ -62,7 +62,7 @@ Type 'q()' to quit R.
  Max.   :1              Max.   :1    
 > 
 > ### Mutations only? with normal contamination
-> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = TRUE)
+> tumor <- Tumor(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = TRUE)
 > clone <- getClone(tumor, 1)
 > summary(clone$cn)  # why is the parent index missing?
       chr             start                end                  A    
@@ -86,7 +86,7 @@ Type 'q()' to quit R.
 logical       1 
 > 
 > ### CNV and Mutations, without normal contamination
-> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = FALSE)
+> tumor <- Tumor(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = FALSE)
 > clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr             start                end                  A        
@@ -120,7 +120,7 @@ logical       1
  Max.   :1              Max.   :2.000  
 > 
 > ### CNV and Mutations, with normal contamination
-> tumor <- tumorGen(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = TRUE)
+> tumor <- Tumor(psis, rounds = 400, nu = 100, pcnv = 0.5, norm.contam = TRUE)
 > clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr            start                end                  A    
@@ -144,7 +144,7 @@ logical       1
 logical       1 
 > 
 > ### CNV-only, with normal contamination
-> tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = TRUE) 
+> tumor <- Tumor(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = TRUE) 
 > clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr             start                end                  A    
@@ -168,7 +168,7 @@ Length  Class   Mode
      0   NULL   NULL 
 > 
 > ### CNV-only, without normal contamination
-> tumor <- tumorGen(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = FALSE)
+> tumor <- Tumor(psis, rounds = 400, nu = 0, pcnv = 1, norm.contam = FALSE)
 > clone <- getClone(tumor, 1)
 > summary(clone$cn)
       chr             start                end                  A        
@@ -189,6 +189,11 @@ Length  Class   Mode
 Length  Class   Mode 
      0   NULL   NULL 
 > 
+> ### Test coercion routines
+> tumor <- as(tumor, "list")
+> object <- as(tumor, "Tumor")
+> 
+> ### Test data generation (i.e., simulation)
 > dataset <- dataGen(tumor,
 +                 dataPars$snps.seq, dataPars$snps.cgh, dataPars$mu,
 +                 dataPars$sigma.reads, dataPars$sigma0.lrr,
@@ -251,4 +256,4 @@ $seq.data
 > 
 > proc.time()
    user  system elapsed 
-  36.78    0.74   37.58 
+  33.22    0.76   34.00 

@@ -1,3 +1,7 @@
+if (packageVersion("CloneFinder") < "0.8.6") {
+  stop("You need to update 'CloneFinder'.")
+}
+library("CloneFinder")
 
 ###Generate a sample simulation population:
 #set: 1 (pcnv=0, nu=30, sigma.lrr=.15, sigma.baf=.03, sigma.reads=25); k = 1:5
