@@ -19,6 +19,9 @@ some of the analyses described in our manuscript.
    can be used by the package. In particular, it is used by functions
    that simulate `Tumor` objects to create  realistic segmentation
    data.
+3. `makeTestExamples.R` is a script that simulates copy number and
+   mutation data used for regression testing of the algorithms during
+   package development. 
 
 ## Analyses
 

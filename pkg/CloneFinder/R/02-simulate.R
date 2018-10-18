@@ -84,7 +84,10 @@ seqDataGen <- function(tumor, snps.seq=1000000, density.sigma, mu, sigma.reads){
   snpdf$status <- rep('germline', nrow(snpdf))
   seq.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$seq})
   cn.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$cn})
-  mutids <- unique(unlist(lapply(1:length(which(psi>0)), function(j){seq.clones[[j]]$mut.id})))
+  ## Here be monsters. Next part fails if norm.contam was set to TRUE earlier.
+  mutids <- unique(unlist(lapply(1:length(which(psi > 0)), function(j) {
+    seq.clones[[j]]$mut.id
+  })))
   mutdf <- matrix(NA, nrow=length(mutids), ncol=7)
   colnames(mutdf) <- c('chr', 'seg', 'mut.id', 'refCounts', 'varCounts', 'VAF', 'totalCounts')
   if(length(mutids)>0){

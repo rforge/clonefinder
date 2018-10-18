@@ -83,7 +83,7 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
         if(is.na(etaM)){
           etaM <- 0
         }
-        unname(c(mut.models[which.max(mposts),],mposts[maxind],etam))
+        unname(c(mut.models[which.max(mposts),],mposts[maxind],etaM))
       }))
       mutPosts <- sum(mutmat[,ncol(mutmat)-1])
       psiPost <- psiPost + sum(mutPosts)
@@ -148,7 +148,8 @@ runAlg <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL){
       pars$sigma.counts <- sd(vardata$refCounts)
     }
   }
-  cn.filt <- filter(snpdata, threshold=pars$thresh, cutoff=pars$cutoff)
+#was:  cn.filt <- filter(snpdata, threshold=pars$thresh, cutoff=pars$cutoff)
+  cn.filt <- filter(snpdata, threshold=pars$thresh)
   cndata.filt <- cn.filt$mat
   indices.cn <- cn.filt$indices
   mutdata <- seqdata[seqdata$status=='somatic',]

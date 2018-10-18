@@ -251,9 +251,9 @@ $seq.data
  Max.   :170.00   Max.   :0.8435   Max.   :254.0                     
                                                                      
 > 
-> plot.data(tumor, dataset)
+> plotTumorData(object, dataset)
 > 
 > 
 > proc.time()
    user  system elapsed 
-  33.22    0.76   34.00 
+  34.13    0.71   34.97 

@@ -9,10 +9,11 @@
   for tumors composed of multiple clones.
 }
 \usage{
-generateTumorData(tumor, snps.seq, snps.cgh, mu, sigma.reads, sigma0.lrr, sigma0.baf, density.sigma)
-plotTumorData(tumor, data, snp=TRUE, somatic=TRUE, germline=FALSE)
+generateTumorData(tumor, snps.seq, snps.cgh, mu, sigma.reads,
+                  sigma0.lrr, sigma0.baf, density.sigma)
+plotTumorData(tumor, data, snp = TRUE, somatic = TRUE, germline = FALSE)
 tumorGen(...)
-dataGen(...)
+dataGen(tumor, ...)
 }
 \arguments{
   \item{tumor}{ an object of the \code{Tumor} class. }
@@ -20,13 +21,14 @@ dataGen(...)
   \item{snps.cgh}{TODO}
   \item{mu}{TODO}
   \item{sigma.reads}{TODO}
+  \item{sigma0.lrr}{TODO}
   \item{sigma0.baf}{TODO}
   \item{density.sigma}{TODO}
   \item{data}{TODO}
   \item{snp}{logical}
   \item{somatic}{logical}
   \item{germline}{logical}
-  \item{dots}{additional variables}
+  \item{...}{additional variables}
 }
 \details{
   TODO
