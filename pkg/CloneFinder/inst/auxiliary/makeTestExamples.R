@@ -41,17 +41,15 @@ for (psi in psiSets) {
   }
 }
 length(simData)
-save(simData, file="simData.Rda")
 
 #########################################
 ### Restart here
-library(CloneFinder)
-load("simData.Rda")
-
 psis.20 <- generateSimplex(20,5)
 cnmodels <- as.matrix(expand.grid(lapply(1:5, function(i){ 0:5 })))
 pars <- list(sigma0=5, theta = 0.9, ktheta = 0.3, mtheta = 0.9,
              alpha = 0.5, thresh = 0.04, cutoff = 100, Q = 100, iters = 4)
+
+K <- 5
 
 for (J in 1:length(simData)) {
   cat("Dataset", J, "\n", file=stdout())
@@ -60,7 +58,7 @@ for (J in 1:length(simData)) {
                     cnmodels, psis.20,
                     pars = pars, imputedCN = NULL) )
   if (inherits(ra, "try-error")) {
-    cat(ra, "\n"stdout())
+    cat(ra, "\n", stdout())
   } else {
     print(ra$psi)
     print(ra$indices)

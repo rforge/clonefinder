@@ -12,8 +12,7 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
     kPriors <- dgeom((1:5)-1,prob=pars$ktheta, log=TRUE)
   }
   kPriorset <- sapply(1:nrow(psis),function(k){kPriors[length(which(psis[k,]>pars$thresh))]})
-  res <- lapply(1:nrow(psis),function(k){
-    nonzero <- which(psis[k,]>0)
+  res <- lapply(1:nrow(psis),function(k){    nonzero <- which(psis[k,]>0)
     models <- cnmodels[,nonzero]
     if(length(nonzero)==1){
       models <- as.matrix(models)
@@ -59,8 +58,10 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
       mutmat <- t(sapply(1:nrow(mutdata.filt),function(l){
         cn.index <- which(cndata.filt$seg==mutdata.filt$seg[l])
         if(length(cn.index)>0){
-          A <- A.array[cn.index,]
-          B <- B.array[cn.index,]
+#was:          A <- A.array[cn.index,]
+#was:          B <- B.array[cn.index,]
+          A <- cnRes$A[cn.index,]
+          B <- cnRes$B[cn.index,]
         }else{
           A <- B <- rep(1,K)
         }
@@ -74,7 +75,8 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
           }else{
             p <- .0001
           }
-          log(sum(dbinom(mutdata.filt$varCounts[l],mutdata.filt$totalCounts[l],pvec)*dbeta2(pvec,p,pars$sigmaM)))
+#Was:          log(sum(dbinom(mutdata.filt$varCounts[l],mutdata.filt$totalCounts[l],pvec)*dbeta2(pvec,p,pars$sigmaM)))
+          log(sum(dbinom(mutdata.filt$varCounts[l], mutdata.filt$totalCounts[l], p)*dbeta2(p, p, pars$sigmaM)))
         })
         mprior <- sapply(1:nrow(mut.models),function(l){dgeom(length(unique(mut.models[l,which(psis[k,]>pars$thresh)]))-1,prob=pars$mtheta, log=TRUE)})
         mposts <- mll + mprior
