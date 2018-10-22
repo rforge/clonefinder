@@ -8,20 +8,19 @@ importFrom("graphics", "plot", "hist")
 #exportMethods("plot", "hist") # come from 'graphics'
 #exportMethods("summary")      # comes from 'base'
 
-### other imported functions (to pacify R CMD check)
+### other imported functions
+importFrom("quantmod", "findPeaks")  # used in "seqSeg" in 'functions.R'
+
 importFrom("gtools", "rdirichlet", "ddirichlet")
-importFrom("graphics", "abline", "lines", "par", "points", "segments", "text")
 
-importFrom("utils", "data")
-importFrom("grDevices", "colorRampPalette", "dev.off", "pdf") # really???
+# obsolete: importFrom("sirt", "dirichlet.mle")
+
+importFrom("graphics", "par", "segments")  # used in "plotTumorData",
+
 importFrom("stats",
-           "rbinom", "cov", "cutree", "dbeta", "dbinom", "density",
-           "dgamma", "dgeom", "dist", "dnorm", "hclust", "median",
-           "na.omit", "optim", "pnorm", "rbeta", "rect.hclust",
-           "rgamma", "rgeom", "rmultinom", "rnbinom", "rnorm", "runif",
-           "sd", "var")
-
-importFrom("quantmod", "findPeaks")
+           "rbeta", "dbeta", "rbinom", "dbinom", "rnorm", "dnorm",
+           "rmultinom", "runif", "dgeom",
+           "density", "median", "sd", "na.omit")
 
 ### dealing with simplices
 importFrom(combinat, "combn")    # used for combinations of psi-values
@@ -36,28 +35,15 @@ export("WeightVector")
 exportClasses("Tumor")
 export("Tumor", "getClone")
 export("generateTumorData", "plotTumorData")
-export("tumorGen", "dataGen") # deprecated
+export("tumorGen", "dataGen", "runAlg") # deprecated
+
+### algorithm.R
+export("findClones")
 
 ####################### IN PROGRESS ######################
 ### needed for simulations
 exportClasses("Clone")
 export("Clone")
-# export("trueZ", "sizeplot")
 
-### prefit (phi vectors per segment)
-#exportClasses("PrefitCloneModel")
-#export("PrefitCloneModel")
 
-### posterior phi
-#export("posteriorPhi", "posteriorRegion", "posteriorQuantile", "plotPosteriorCDF")
-
-### fitting psi vectors
-#export("guessPsi", "runEMalg")
-
-### algorithm.R
-importFrom("sirt", "dirichlet.mle")
-export("psiOptim", "runAlg", "psiFilter")
-### simgen.R
-
-### functions.R
 

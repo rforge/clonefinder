@@ -11,3 +11,4 @@ dataGen <- function(tumor, ...) {
   generateTumorData(as(tumor, "Tumor"), ...)
 }
 
+runAlg <- function(...) findClones(...)
