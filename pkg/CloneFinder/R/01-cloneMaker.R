@@ -31,7 +31,7 @@ generateSimplex <- function(k, d, reps=1){
 ########################################################################
 ### Part 2: WeightVectors
 ###
-### We aloso refer to points in a simplex as "weight vectors" (since
+### We also refer to points in a simplex as "weight vectors" (since
 ### "vector of clonal fractions" is both too long and too specialized).
 ### We define these as an S4 class so we can build validitiy checking
 ### into the constructor, and so we can more reliably use them when we
@@ -276,74 +276,3 @@ Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
   new("Tumor", clones = clones.final, psi = WeightVector(psi))
 }
 
-
-trueZ <- function(tumor) {
-  Zmat <- array(0, dim=c(nrow(tumor@centers), # segments
-                     nrow(tumor@pureCenters), # compartments
-                     ncol(tumor@data)))       # clones
-  for (wclone in 1:ncol(tumor@data)) {
-    for(wseg in 1:nrow(tumor@centers)) {
-      wcomp <- tumor@data[wseg, wclone]
-      Zmat[wseg,wcomp,wclone] <- 1
-    }
-  }
-  Zmat
-}
-
-############ SIMULATING DATASET ############
-
-sizeplot <- function(simdata, tumor) {
-    size <- 1 + round(sqrt(tumor@markers)/15)/2
-    filt <- size > log(128)/3
-    x <- tumor@pureCenters$x
-    y <- tumor@pureCenters$y
-    eps <- 0.1*diff(range(x))
-    plot(x, y, type='n',
-         xlim=c(min(x)-eps, max(x)+eps),
-         ylim=c(min(y)-eps, max(y)+eps))
-    text(x, y, 1:nrow(tumor@pureCenters))
-    points(tumor@pureCenters, cex=15, col='gray25')
-    points(simdata$x[filt], simdata$y[filt],
-           cex=size[filt], col="gray35", pch=16)
-    invisible(simdata)
-}
-
-
-####################################################
-# from GlobalMaxLike
-#  KRC: DO we need these any more? Or are they part of an
-# old approach that didn't generalize?
-
-makeLatent <- function(vector){
-  clone <- matrix(0, ncol=5, nrow=length(vector))
-  for (i in 1:length(vector)){
-    clone[i, vector[i]] <- 1
-  }
-  clone
-}
-
-estBetaParams <- function(vec) {
-  mu <- mean(vec)
-  s2 <- var(vec)
-  temp <- mu*(1-mu)/s2 - 1
-  alpha <- mu*temp
-  beta <- (1 - mu)*temp
-  c(alpha = alpha, beta = beta)
-}
-
-# this depended on lots of global variables.
-# I hope we don't really use it or need it.
-maxfun <- function(segment, newphiset, paramtable, temp){
-  d <- temp[segment,]
-  range <- 1:1000
-  range <- range[!range == segment]
-  optimfun <- function(n){
-    distfun <- function(segment){
-      log(dbeta(d[n], paramtable[segment, 1], paramtable[segment, 2]))
-    }
-    sum(sapply(range, distfun))+log(d[n]/sum(d))
-  }
-  d <- sapply(1:10000, optimfun)
-  i <- which.max(d)
-  newphiset[i,]
-}

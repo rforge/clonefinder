@@ -4,7 +4,7 @@
 
 ### convert base functions or S3 methods into S4 methods
 import(methods)
-#importFrom("graphics", "plot", "hist")
+importFrom("graphics", "plot", "hist")
 #exportMethods("plot", "hist") # come from 'graphics'
 #exportMethods("summary")      # comes from 'base'
 
@@ -40,7 +40,7 @@ export("tumorGen", "dataGen") # deprecated
 ### needed for simulations
 exportClasses("Clone")
 export("Clone")
-export("trueZ", "sizeplot")
+# export("trueZ", "sizeplot")
 
 ### prefit (phi vectors per segment)
 #exportClasses("PrefitCloneModel")
