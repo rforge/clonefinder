@@ -4,9 +4,9 @@
 
 ### convert base functions or S3 methods into S4 methods
 import(methods)
-importFrom("graphics", "plot", "hist")
-exportMethods("plot", "hist") # come from 'graphics'
-exportMethods("summary")      # comes from 'base'
+#importFrom("graphics", "plot", "hist")
+#exportMethods("plot", "hist") # come from 'graphics'
+#exportMethods("summary")      # comes from 'base'
 
 ### other imported functions (to pacify R CMD check)
 importFrom("gtools", "rdirichlet", "ddirichlet")
@@ -43,14 +43,14 @@ export("Clone")
 export("trueZ", "sizeplot")
 
 ### prefit (phi vectors per segment)
-exportClasses("PrefitCloneModel")
-export("PrefitCloneModel")
+#exportClasses("PrefitCloneModel")
+#export("PrefitCloneModel")
 
 ### posterior phi
-export("posteriorPhi", "posteriorRegion", "posteriorQuantile", "plotPosteriorCDF")
+#export("posteriorPhi", "posteriorRegion", "posteriorQuantile", "plotPosteriorCDF")
 
 ### fitting psi vectors
-export("guessPsi", "runEMalg")
+#export("guessPsi", "runEMalg")
 
 ### algorithm.R
 importFrom("sirt", "dirichlet.mle")

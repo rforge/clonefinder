@@ -1,0 +1,50 @@
+1. A and B should not be defined as subsets of A.array and B.array (which are residual from earlier versions); instead we should do:
+	A <- cnRes$A[cn.index,]
+          
+	B <- cnRes$B[cn.index,]
+What difference will this make? This code only becomes relevant in the eventuality where there is both CNV and mutation data, and where a 
+point mutation occurs on a segment that also has a copy number alteration.
+
+2. etam is a type, supposed to be etaM, which is defined; this shouldn't have any implications for the rest of the code. The typo just effects
+what's reported in the output as 'etaM.' We may not even want to have etaM (or etaA or etaB) reported in the output; this was just when I was
+saving as much information as I could in case I wanted to see it in the results. 
+
+3. pvec should be changed to p
+
+4. I think we can also get rid of the term, "dbeta2(pvec,p,pars$sigmaM)))" in the max log likelihood computation (mll <- ...) for somatic 
+mutations. This is supposed to be a likelihood computation, so there shouldn't a beta prior in there. Not sure why I left it there.
+
+5. I added a short script showing the generation of cnmodels and psis.20 (using genSimplex). I think the etamats are redundant; originally
+they existed to save time; basically, so you didn't have to compute all possible 'etas' by multiplying cnmodels by the matrix of all the possible
+psi vectors; you could just load the premade one. This was useful when using, say, psis.100 (a much bigger matrix than psis.20, making the matrix
+operation more time consuming) but isn't really necessary with a smaller psi matrix like psis.20.
+
+6. the 'runAlg' function in algorithms is the right one. The one in 'functions' is redundant, which is why it's commented out; can be gotten rid of.
+Also, in runnings.R, I think the function you were referring to 'runAlgs', not 'runAlg.' runAlg runs clonefinder. runAlgs runs all the algorithms 
+for the analysis; currently clonefinder, sciClone and EXPANDs.
+
+7. In algorithms.R, psiFilter is vestigial, and can be gotten rid of.
+
+8. A couple other changes I can see worth making: in runAlgs, let's not have cnmodels be an argument in the function; that's not going to change, 
+so we can probably just load it automatically. Also, maybe psiset also shouldn't be an argument. In theory, having it be an arg allows the user
+to use a more (or less) 'granular' starting set of possible psi values. But maybe that's unnecessary, and the one with 'granularity' of .05 (psis.20)
+should just be used automatically.
+
+9. Hmm, should we keeo the imputedCN option? I've never actually used it; it's there in case the user only wants analyze mutation data with clonefinder, but
+has copy number estimates imputed from sequencing data or whatever, which is useful for mutation analysis; they can just put in the ready made copy number
+estimates to assist with the mutation heterogeneity analysis. Is this necessary or particularly useful?
+
+10. currently, model parameters are put in as a list; maybe we should make each parameter its own argument.
+
+11. Should I generate a test suite or are you already doing this?
+
+
+###I figured I should specify for potential users the format of the input into runAlg (though maybe this will go in the manual):
+Input format:
+cndata: this is copy number data; it should come in the form of a data frame with the followin columns:
+vardata: this is sequencing (variant) data; it should come in the form of a data frame with the following columns:
+
+#Parameters: 'sigma0'=5,'theta'=.9, 'ktheta'=.3, 'mtheta'=.9, 'alpha'=.5, 'thresh'=.04, 'cutoff'=100, 'Q'=100, 'iters'=4
+sigma0
+
+(should we rename any of these parameters?)
