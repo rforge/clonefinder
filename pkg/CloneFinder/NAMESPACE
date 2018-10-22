@@ -21,6 +21,8 @@ importFrom("stats",
            "rgamma", "rgeom", "rmultinom", "rnbinom", "rnorm", "runif",
            "sd", "var")
 
+importFrom("quantmod", "findPeaks")
+
 ### dealing with simplices
 importFrom(combinat, "combn")    # used for combinations of psi-values
 importFrom(combinat, "xsimplex") # used for generateSimplex
