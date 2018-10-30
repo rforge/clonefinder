@@ -42,6 +42,10 @@ for (psi in psiSets) {
 }
 length(simData)
 
+if(FALSE) {
+  save(simData, file="simData.Rda")
+  load("simData.Rda")
+}
 #########################################
 ### Restart here
 psis.20 <- generateSimplex(20,5)
@@ -50,9 +54,9 @@ pars <- list(sigma0=5, theta = 0.9, ktheta = 0.3, mtheta = 0.9,
              alpha = 0.5, thresh = 0.04, cutoff = 100, Q = 100, iters = 4)
 
 
-#for (J in 1:length(simData)) {
-#for (J in 1:3) {
-for (J in c(1,4,7,10)) {
+for (J in 1:length(simData)) {
+#for (J in 3) {
+#for (J in c(1,4,7,10)) {
   cat("\n\nDataset", J, "\n", file=stdout())
   dset <- simData[[J]]$dset
   ra <- try( runAlg(dset$cn.data, dset$seq.data,
@@ -80,7 +84,7 @@ for (J in c(1,4,7,10)) {
 if (FALSE) {
 J <- 2
 dset <- simData[[J]]$dset
-Rprof("profile2.txt")
+Rprof("profile3.txt")
 ra <- findClones(dset$cn.data, dset$seq.data,
                  cnmodels, psis.20,
                  pars = pars, imputedCN = NULL)
@@ -103,12 +107,14 @@ mutdata <- seqdata[seqdata$status=='somatic',]
 mut.filt <- CloneFinder:::filterMutations(mutdata, mu=mu, threshold=3)
 mutdata.filt <- mut.filt$mat #param 2#
 mutids.filt<- mut.filt$ids
-kPriors <- dgeom((1:5)-1, prob=pars$ktheta, log=TRUE) #param 7#
 psis <- psis.20 #param 3#
-cnmax <- 5 #param 6#
 #param 4 is cnmodels#
 #param 5 is pars#
+cnmax <- 5 #param 6#
+kmax <- 5 #param 7#
+kPriors <- dgeom((1:5)-1, prob=pars$ktheta, log=TRUE) #param 8#
 
+#cndata.filt <- data.frame(chr=1, seg=100, LRR=0, BAF=0.5, X=1, Y=1, markers=1000)
 
 for (psi in psiSets) {
   cat("Working on psi =", psi, "\n", file=stdout())

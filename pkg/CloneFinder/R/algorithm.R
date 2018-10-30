@@ -1,3 +1,5 @@
+debugMe <- FALSE
+
 psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, kPriors=NULL, kmax = 5){
   if(is.null(kPriors)){
     kPriors <- dgeom((1:5)-1, prob=pars$ktheta, log=TRUE)
@@ -6,6 +8,7 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
   dirichletPriors <- sapply(1:nrow(psis), function(k){psiPrior(psis[k,])})
   ## Outer loop, over psi vectors
   res <- lapply(1:nrow(psis), function(Ipsi) {
+    if(debugMe) cat("Ipsi =", Ipsi, "\n", file=stderr())
     nonzero <- which(psis[Ipsi,] > 0)
     models <- cnmodels[,nonzero]
     if(length(nonzero) == 1){
@@ -31,19 +34,19 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
     priorList <- list(lower.priors, upper.priors)
     modList <- list(mods.lower, mods.upper)
     x.numbers <- y.numbers <- rep(1, nrow(cndata.filt))
-    x.numbers[which(cndata.filt$X>1)] <- 2
-    y.numbers[which(cndata.filt$Y>1)] <- 2
-    xmat <- t(sapply(1:nrow(cndata.filt), function(l) {
-      post <- dnorm(cndata.filt$X[l]-etaList[[x.numbers[l]]], 0, pars$sigma0/(cndata.filt$markers[l]^.5), log=TRUE) + 
-        priorList[[x.numbers[l]]]
-      avec <- c(modList[[x.numbers[l]]][which.max(post),], rep(0, cnmax-length(nonzero)))
-      c(avec, etaList[[x.numbers[l]]][which.max(post)], max(post))
+    x.numbers[which(cndata.filt$X > 1)] <- 2
+    y.numbers[which(cndata.filt$Y > 1)] <- 2
+    xmat <- t(sapply(1:nrow(cndata.filt), function(L) {
+      post <- dnorm(cndata.filt$X[L]-etaList[[x.numbers[L]]], 0, pars$sigma0/(cndata.filt$markers[L]^.5), log=TRUE) + 
+        priorList[[x.numbers[L]]]
+      avec <- c(modList[[x.numbers[L]]][which.max(post),], rep(0, cnmax-length(nonzero)))
+      c(avec, etaList[[x.numbers[L]]][which.max(post)], max(post))
     }))
-    ymat <- t(sapply(1:nrow(cndata.filt), function(l) {
-      post <- dnorm(cndata.filt$Y[l]-etaList[[y.numbers[l]]], 0, pars$sigma0/(cndata.filt$markers[l]^.5), log=TRUE) + 
-        priorList[[y.numbers[l]]]
-      bvec <- c(modList[[y.numbers[l]]][which.max(post),], rep(0, cnmax-length(nonzero)))
-      c(bvec, etaList[[y.numbers[l]]][which.max(post)], max(post))
+    ymat <- t(sapply(1:nrow(cndata.filt), function(L) {
+      post <- dnorm(cndata.filt$Y[L]-etaList[[y.numbers[L]]], 0, pars$sigma0/(cndata.filt$markers[L]^.5), log=TRUE) + 
+        priorList[[y.numbers[L]]]
+      bvec <- c(modList[[y.numbers[L]]][which.max(post),], rep(0, cnmax-length(nonzero)))
+      c(bvec, etaList[[y.numbers[L]]][which.max(post)], max(post))
     }))
     psiPost <- sum(xmat[, cnmax + 2]) + sum(ymat[, cnmax + 2])
     cnRes <- list(A = xmat[, 1:cnmax],
@@ -106,6 +109,10 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
   pick <- which.max(psiPosts)
   A <- res[[pick]]$A
   B <- res[[pick]]$B
+  if(is.null(dim(A))) {
+    A <- matrix(A, nrow=1)
+    B <- matrix(B, nrow=1)
+  }
   rownames(A) <- rownames(B) <- rownames(cndata.filt)
   list(A = A, B = B,
        mutated = res[[pick]]$mutated,

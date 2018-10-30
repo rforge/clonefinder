@@ -30,6 +30,9 @@ psiPrior <- function(psi, alpha=.5, kmax=5, minim=.001){
 
 filterCN <- function(data, threshold){
   indices <- which(abs(data$X - 1) >= threshold | abs(data$Y - 1) >= threshold)
+  if (length(indices) < 1) { #always return at least mone segment, even if it's normal
+    indices <- 1
+  }
   list('mat'=data[indices,], 'indices'=indices)
 }
 
