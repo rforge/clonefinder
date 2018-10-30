@@ -175,14 +175,14 @@ findClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) 
   Q <- pars$Q
   iter <- 1
   logPosts <-  rep(NA, (Q)*(iters-1)+nrow(psis))
-  psibank <- matrix(NA, ncol=ncol(psis),nrow=length(logPosts))
-  while(iter<=iters) {
-    if(iter==1) {
+  psibank <- matrix(NA, ncol=ncol(psis), nrow=length(logPosts))
+  while(iter <= iters) {
+    if(iter == 1) {
       bank.indices <- 1:nrow(psis)
     } else {
-      bank.indices <- min(which(is.na(psibank[,1]))):(min(which(is.na(psibank[,1])))+Q-1)
+      bank.indices <- min(which(is.na(psibank[,1]))):(min(which(is.na(psibank[,1]))) + Q - 1)
     }
-    if(max(posts)>maxPost) {
+    if(max(posts) > maxPost) {
       A <- temp$A
       B <- temp$B
       mutated <- temp$mutated
@@ -224,7 +224,8 @@ findClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) 
       foo[foo<pars$thresh] <- 0
       foo/sum(foo)
     }))
-    temp <- psiOptim(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, kPriors)
+    temp <- psiOptim(cndata.filt, mutdata.filt, psis, cnmodels, pars,
+                     cnmax = 5, kmax = kmax, kPriors = kPriors)
     posts <- temp$psiPosts
     iter <- iter + 1
   }
@@ -233,7 +234,8 @@ findClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) 
   psi[which(psi<pars$thresh)] <- 0
   psi <- psi/sum(psi)
   res <- list('indices'=list('indices.cn' = indices.cn, 'mutids.filt' = mutids.filt),
-      'data'=list('seqdata'=seqdata, 'snpdata'=snpdata),'filtered.data'=list('mutdata.filt'=mutdata.filt,'cndata.filt'=cndata.filt),
+      'data'=list('seqdata'=seqdata, 'snpdata'=snpdata),
+      'filtered.data'=list('mutdata.filt'=mutdata.filt,'cndata.filt'=cndata.filt),
       'psibank' = psibank,'etaA'=etaA,'etaB'=etaB,'etaM'=etaM,'psi'=psi,'A'=A,'B'=B,'mutated'=mutated,'psiPosts'=logPosts,
       'pars'=pars,'max.index'=max.index)
   res

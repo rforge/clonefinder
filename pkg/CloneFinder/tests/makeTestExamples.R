@@ -51,8 +51,9 @@ pars <- list(sigma0=5, theta = 0.9, ktheta = 0.3, mtheta = 0.9,
 
 
 #for (J in 1:length(simData)) {
-for (J in 1:3) {
-  cat("Dataset", J, "\n", file=stdout())
+#for (J in 1:3) {
+for (J in c(1,4,7,10)) {
+  cat("\n\nDataset", J, "\n", file=stdout())
   dset <- simData[[J]]$dset
   ra <- try( runAlg(dset$cn.data, dset$seq.data,
                     cnmodels, psis.20,
@@ -63,14 +64,15 @@ for (J in 1:3) {
     cat("psi:\n")
     print(ra$psi)
     cat("A,B:\n")
-    print(ra$A)
-    print(ra$B)
+    print(cbind(A = ra$A, B = ra$B))
     cat("eta:\n")
-    print(ra$etaA)
-    print(ra$etaB)
+    print(data.frame(etaA = ra$etaA, etaB = ra$etaB))
+    cat("indices:\n")
     print(lapply(ra$indices, summary))
+    cat("filtered data:\n")
     print(lapply(ra$filtered.data, summary))
     print(summary(ra$mutated))
+    cat("posteriors\n")
     print(summary(ra$psiPosts))
   }
 }
