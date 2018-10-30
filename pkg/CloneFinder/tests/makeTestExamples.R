@@ -27,7 +27,7 @@ for (psi in psiSets) {
                    pcnv = paramSets$pcnv[J],
                    norm.contam = FALSE)
     dset <- generateTumorData(tumor,
-                              snps.seq = 1000000,
+                              snps.seq = 10000,
                               snps.cgh = 600000,
                               mu = 70,
                               sigma.reads = 25,
@@ -49,9 +49,9 @@ cnmodels <- as.matrix(expand.grid(lapply(1:5, function(i){ 0:5 })))
 pars <- list(sigma0=5, theta = 0.9, ktheta = 0.3, mtheta = 0.9,
              alpha = 0.5, thresh = 0.04, cutoff = 100, Q = 100, iters = 4)
 
-K <- 5
 
-for (J in 1:length(simData)) {
+#for (J in 1:length(simData)) {
+for (J in 1:3) {
   cat("Dataset", J, "\n", file=stdout())
   dset <- simData[[J]]$dset
   ra <- try( runAlg(dset$cn.data, dset$seq.data,
@@ -60,21 +60,54 @@ for (J in 1:length(simData)) {
   if (inherits(ra, "try-error")) {
     cat(ra, "\n", stdout())
   } else {
+    cat("psi:\n")
     print(ra$psi)
-    print(ra$indices)
-    print(ra$filtered.data)
-    print(ra$etaA)
-    print(ra$etaB)
+    cat("A,B:\n")
     print(ra$A)
     print(ra$B)
-    print(ra$mutated)
+    cat("eta:\n")
+    print(ra$etaA)
+    print(ra$etaB)
+    print(lapply(ra$indices, summary))
+    print(lapply(ra$filtered.data, summary))
+    print(summary(ra$mutated))
     print(summary(ra$psiPosts))
   }
 }
 
-
-
 if (FALSE) {
+J <- 2
+dset <- simData[[J]]$dset
+Rprof("profile2.txt")
+ra <- findClones(dset$cn.data, dset$seq.data,
+                 cnmodels, psis.20,
+                 pars = pars, imputedCN = NULL)
+Rprof(NULL)
+summaryRprof("profile2.txt")
+
+snpdata <- dset$cn.data
+cnfilt <- CloneFinder:::filterCN(snpdata, pars$thresh)
+cndata.filt <- cnfilt$mat #Param 1#
+
+seqdata <- dset$seq.data
+if(nrow(seqdata) > 0) {
+  read.den <- density(seqdata$refCounts)
+  peak <- read.den$x[which.max(read.den$y)]
+  mu <- peak
+  pars$mu <- mu
+  pars$sigma.counts <- sd(seqdata$refCounts)
+}
+mutdata <- seqdata[seqdata$status=='somatic',]
+mut.filt <- CloneFinder:::filterMutations(mutdata, mu=mu, threshold=3)
+mutdata.filt <- mut.filt$mat #param 2#
+mutids.filt<- mut.filt$ids
+kPriors <- dgeom((1:5)-1, prob=pars$ktheta, log=TRUE) #param 7#
+psis <- psis.20 #param 3#
+cnmax <- 5 #param 6#
+#param 4 is cnmodels#
+#param 5 is pars#
+
+
 for (psi in psiSets) {
   cat("Working on psi =", psi, "\n", file=stdout())
   for (J in 1:nrow(paramSets)) {

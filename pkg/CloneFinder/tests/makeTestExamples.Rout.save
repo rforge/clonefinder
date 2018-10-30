@@ -44,7 +44,7 @@ Type 'q()' to quit R.
 +                    pcnv = paramSets$pcnv[J],
 +                    norm.contam = FALSE)
 +     dset <- generateTumorData(tumor,
-+                               snps.seq = 1000000,
++                               snps.seq = 10000,
 +                               snps.cgh = 600000,
 +                               mu = 70,
 +                               sigma.reads = 25,
@@ -83,9 +83,9 @@ Working on set J = 3
 > pars <- list(sigma0=5, theta = 0.9, ktheta = 0.3, mtheta = 0.9,
 +              alpha = 0.5, thresh = 0.04, cutoff = 100, Q = 100, iters = 4)
 > 
-> K <- 5
 > 
-> for (J in 1:length(simData)) {
+> #for (J in 1:length(simData)) {
+> for (J in 1:3) {
 +   cat("Dataset", J, "\n", file=stdout())
 +   dset <- simData[[J]]$dset
 +   ra <- try( runAlg(dset$cn.data, dset$seq.data,
@@ -94,38 +94,24 @@ Working on set J = 3
 +   if (inherits(ra, "try-error")) {
 +     cat(ra, "\n", stdout())
 +   } else {
++     cat("psi:\n")
 +     print(ra$psi)
-+     print(ra$indices)
-+     print(ra$filtered.data)
-+     print(ra$etaA)
-+     print(ra$etaB)
++     cat("A,B:\n")
 +     print(ra$A)
 +     print(ra$B)
-+     print(ra$mutated)
++     cat("eta:\n")
++     print(ra$etaA)
++     print(ra$etaB)
++     print(lapply(ra$indices, summary))
++     print(lapply(ra$filtered.data, summary))
++     print(summary(ra$mutated))
 +     print(summary(ra$psiPosts))
 +   }
 + }
 Dataset 1 
+psi:
 [1] 1 0 0 0 0
-$indices.cn
-[1]  61 173 241
-
-$mutids.filt
-numeric(0)
-
-$mutdata.filt
-[1] chr         seg         mut.id      refCounts   varCounts   VAF        
-[7] totalCounts status     
-<0 rows> (or 0-length row.names)
-
-$cndata.filt
-    chr seg        LRR          BAF            X         Y markers
-61    3  61 -0.2964994 0.0003173860 0.0003207143 1.0101659    2212
-173  12 173 -0.3026052 0.0005745121 0.0005724321 0.9958071    1645
-241  21 241  0.1738023 0.6668321567 1.9899805297 0.9942495    2295
-
-[1] 0 0 2
-[1] 1 1 1
+A,B:
     1        
 61  0 0 0 0 0
 173 0 0 0 0 0
@@ -134,247 +120,125 @@ $cndata.filt
 61  1 0 0 0 0
 173 1 0 0 0 0
 241 1 0 0 0 0
-[1] NA
+eta:
+[1] 0 0 2
+[1] 1 1 1
+$indices.cn
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
--30.483 -14.684  -1.080  -7.148  -1.080  -1.080 
+   61.0   117.0   173.0   158.3   207.0   241.0 
+
+$mutids.filt
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+                                                
+
+$mutdata.filt
+      chr           seg          mut.id      refCounts     varCounts  
+ Min.   : NA   Min.   : NA   Min.   : NA   Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA   1st Qu.: NA   1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA   Median : NA   Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN   Mean   :NaN   Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA   3rd Qu.: NA   3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA   Max.   : NA   Max.   : NA   Max.   : NA  
+      VAF       totalCounts     status         
+ Min.   : NA   Min.   : NA   Length:0          
+ 1st Qu.: NA   1st Qu.: NA   Class :character  
+ Median : NA   Median : NA   Mode  :character  
+ Mean   :NaN   Mean   :NaN                     
+ 3rd Qu.: NA   3rd Qu.: NA                     
+ Max.   : NA   Max.   : NA                     
+
+$cndata.filt
+      chr            seg             LRR                BAF           
+ Min.   : 3.0   Min.   : 61.0   Min.   :-0.30261   Min.   :0.0003174  
+ 1st Qu.: 7.5   1st Qu.:117.0   1st Qu.:-0.29955   1st Qu.:0.0004459  
+ Median :12.0   Median :173.0   Median :-0.29650   Median :0.0005745  
+ Mean   :12.0   Mean   :158.3   Mean   :-0.14177   Mean   :0.2225747  
+ 3rd Qu.:16.5   3rd Qu.:207.0   3rd Qu.:-0.06135   3rd Qu.:0.3337033  
+ Max.   :21.0   Max.   :241.0   Max.   : 0.17380   Max.   :0.6668322  
+       X                   Y             markers    
+ Min.   :0.0003207   Min.   :0.9942   Min.   :1645  
+ 1st Qu.:0.0004466   1st Qu.:0.9950   1st Qu.:1928  
+ Median :0.0005724   Median :0.9958   Median :2212  
+ Mean   :0.6636246   Mean   :1.0001   Mean   :2051  
+ 3rd Qu.:0.9952765   3rd Qu.:1.0030   3rd Qu.:2254  
+ Max.   :1.9899805   Max.   :1.0102   Max.   :2295  
+
+   Mode    NA's 
+logical       1 
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-29.036 -13.489   1.230  -5.171   1.230   1.230 
 Dataset 2 
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
- 
- 1Dataset 3 
-Error in etaList[[x.numbers[l]]] : 
-  attempt to select less than one element in get1index
-In addition: Warning message:
-In max(post) : no non-missing arguments to max; returning -Inf
-Error in etaList[[x.numbers[l]]] : 
-  attempt to select less than one element in get1index
- 
- 1Dataset 4 
-[1] 0.7009236 0.2990764 0.0000000 0.0000000 0.0000000
+psi:
+[1] 0.80 0.05 0.05 0.05 0.05
+A,B:
+    Var1 Var2 Var3 Var4 Var5
+109    0    1    1    1    1
+257    2    1    1    1    1
+309    2    1    1    1    1
+    Var1 Var2 Var3 Var4 Var5
+109    1    1    1    1    1
+257    1    1    1    1    1
+309    1    1    1    1    1
+eta:
+[1] 0.2 1.8 1.8
+[1] 1 1 1
 $indices.cn
-[1]  11  53 125 170 286 315 411 448
-
-$mutids.filt
-numeric(0)
-
-$mutdata.filt
-[1] chr         seg         mut.id      refCounts   varCounts   VAF        
-[7] totalCounts status     
-<0 rows> (or 0-length row.names)
-
-$cndata.filt
-    chr seg         LRR       BAF         X         Y markers
-11    1  11 -0.01893488 0.4988560 0.9551472 0.9595280     816
-53    2  53  0.13056138 0.6301665 1.7023415 0.9990739    1849
-125   4 125 -0.07168733 0.4135318 0.7012157 0.9944595    1415
-170   6 170  0.12909792 0.6293934 1.6945333 0.9977943    1154
-286  10 286 -0.06113171 0.4115320 0.7149932 1.0224007    1435
-315  12 315 -0.06852137 0.4106685 0.7014553 1.0066264    1300
-411  18 411 -0.18255521 0.2309684 0.3034082 1.0102270    1355
-448  22 448  0.13019896 0.6305656 1.7019987 0.9971633     994
-
-[1] 1.0000000 1.7009236 0.7009236 1.7009236 0.7009236 0.7009236 0.2990764
-[8] 1.7009236
-[1] 1 1 1 1 1 1 1 1
-    Var1 Var2      
-11     1    1 0 0 0
-53     2    1 0 0 0
-125    1    0 0 0 0
-170    2    1 0 0 0
-286    1    0 0 0 0
-315    1    0 0 0 0
-411    0    1 0 0 0
-448    2    1 0 0 0
-    Var1 Var2      
-11     1    1 0 0 0
-53     1    1 0 0 0
-125    1    1 0 0 0
-170    1    1 0 0 0
-286    1    1 0 0 0
-315    1    1 0 0 0
-411    1    1 0 0 0
-448    1    1 0 0 0
-[1] NA
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
--28.992 -12.413 -11.946 -11.498  -7.889  -4.506 
-Dataset 5 
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
- 
- 1Dataset 6 
-Error in etaList[[x.numbers[l]]] : 
-  attempt to select less than one element in get1index
-In addition: Warning message:
-In max(post) : no non-missing arguments to max; returning -Inf
-Error in etaList[[x.numbers[l]]] : 
-  attempt to select less than one element in get1index
- 
- 1Dataset 7 
-[1] 0.6044462 0.3955538 0.0000000 0.0000000 0.0000000
-$indices.cn
- [1]   4  19  46  53 163 224 239 251 257 293 295 408 444 478
+    109     183     257     225     283     309 
 
 $mutids.filt
-numeric(0)
-
-$mutdata.filt
-[1] chr         seg         mut.id      refCounts   varCounts   VAF        
-[7] totalCounts status     
-<0 rows> (or 0-length row.names)
-
-$cndata.filt
-    chr seg         LRR       BAF         X         Y markers
-4     1   4 -0.02554740 0.4586914 0.8649742 1.0207692    1022
-19    1  19  0.07314133 0.4175716 0.9883307 1.3785226    1198
-46    2  46 -0.05732619 0.4274828 0.7492426 1.0034421    1289
-53    2  53  0.11402240 0.3841168 0.9988855 1.6015878    1432
-163   5 163  0.04933218 0.4446752 0.9963343 1.2442545    1278
-224   8 224 -0.03624450 0.5411707 0.9956800 0.8441830     906
-239   8 239 -0.05804252 0.4282122 0.7492841 1.0005121    1815
-251   9 251  0.03270509 0.4651961 1.0031623 1.1532664    1421
-257   9 257 -0.15808018 0.7140803 0.9924231 0.3973689    1495
-293  11 293 -0.05559981 0.4264628 0.7504321 1.0092337     746
-295  11 295  0.11598503 0.3826418 0.9995566 1.6126951     848
-408  18 408 -0.05650305 0.4290622 0.7534375 1.0025723     950
-444  21 444  0.01829269 0.5006219 1.0443175 1.0417228     681
-478  23 478 -0.09243652 0.6249026 1.0101964 0.6063698    1487
-
- [1] 1 1 1 1 1 1 1 1 1 1 1 1 1 1
- [1] 1.0000000 1.3955538 1.0000000 1.6044462 1.0000000 1.0000000 1.0000000
- [8] 1.0000000 0.3955538 1.0000000 1.6044462 1.0000000 1.0000000 0.6044462
-    Var1 Var2      
-4      1    1 0 0 0
-19     1    1 0 0 0
-46     1    1 0 0 0
-53     1    1 0 0 0
-163    1    1 0 0 0
-224    1    1 0 0 0
-239    1    1 0 0 0
-251    1    1 0 0 0
-257    1    1 0 0 0
-293    1    1 0 0 0
-295    1    1 0 0 0
-408    1    1 0 0 0
-444    1    1 0 0 0
-478    1    1 0 0 0
-    Var1 Var2      
-4      1    1 0 0 0
-19     1    2 0 0 0
-46     1    1 0 0 0
-53     2    1 0 0 0
-163    1    1 0 0 0
-224    1    1 0 0 0
-239    1    1 0 0 0
-251    1    1 0 0 0
-257    0    1 0 0 0
-293    1    1 0 0 0
-295    2    1 0 0 0
-408    1    1 0 0 0
-444    1    1 0 0 0
-478    1    0 0 0 0
-[1] NA
-    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
--21.9914 -12.2477 -10.0918  -8.6902  -4.1768  -0.3157 
-Dataset 8 
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
- 
- 1Dataset 9 
-Error in etaList[[x.numbers[l]]] : 
-  attempt to select less than one element in get1index
-In addition: Warning message:
-In max(post) : no non-missing arguments to max; returning -Inf
-Error in etaList[[x.numbers[l]]] : 
-  attempt to select less than one element in get1index
- 
- 1Dataset 10 
-[1] 0.5614477 0.4385523 0.0000000 0.0000000 0.0000000
-$indices.cn
- [1]   4  30  45  56  69  72  87 175 188 204 206 211 229 262 344 354
-
-$mutids.filt
-numeric(0)
-
-$mutdata.filt
-[1] chr         seg         mut.id      refCounts   varCounts   VAF        
-[7] totalCounts status     
-<0 rows> (or 0-length row.names)
-
-$cndata.filt
-    chr seg         LRR       BAF         X         Y markers
-4     1   4  0.10536520 0.5998670 1.5291503 1.0199985    1314
-30    1  30  0.05091655 0.5564168 1.2512578 0.9975200    1459
-45    2  45 -0.02555903 0.5268294 0.9934384 0.8922545    1456
-56    2  56  0.03411191 0.4655232 1.0071247 1.1563006    1617
-69    3  69 -0.05721928 0.5715368 1.0019704 0.7511459    1540
-72    3  72  0.02764590 0.5248465 1.1186861 1.0127676    1605
-87    3  87 -0.12579949 0.6670758 0.9986325 0.4983975    1857
-175   8 175  0.05026710 0.4450055 0.9992230 1.2461944    1372
-188   8 188  0.09443143 0.6003845 1.4924195 0.9933533    1349
-204   9 204  0.04341154 0.4441092 0.9815926 1.2286581    1387
-206   9 206  0.09991244 0.3992805 1.0051260 1.5122173    1459
-211  10 211  0.04998089 0.5555773 1.2466812 0.9972570     958
-229  11 229 -0.11924413 0.3346874 0.5086573 1.0111407    1268
-262  12 262 -0.05354338 0.4285442 0.7576738 1.0103439    1712
-344  20 344  0.14195120 0.3631442 1.0070716 1.7661284    1757
-354  22 354 -0.05407535 0.4289367 0.7574393 1.0084141    1810
-
- [1] 1.5614477 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000
- [8] 1.0000000 1.4385523 1.0000000 1.0000000 1.0000000 0.5614477 1.0000000
-[15] 1.0000000 1.0000000
- [1] 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 1.0000000 0.4385523
- [8] 1.0000000 1.0000000 1.0000000 1.5614477 1.0000000 1.0000000 1.0000000
-[15] 1.5614477 1.0000000
-    Var1 Var2      
-4      2    1 0 0 0
-30     1    1 0 0 0
-45     1    1 0 0 0
-56     1    1 0 0 0
-69     1    1 0 0 0
-72     1    1 0 0 0
-87     1    1 0 0 0
-175    1    1 0 0 0
-188    1    2 0 0 0
-204    1    1 0 0 0
-206    1    1 0 0 0
-211    1    1 0 0 0
-229    1    0 0 0 0
-262    1    1 0 0 0
-344    1    1 0 0 0
-354    1    1 0 0 0
-    Var1 Var2      
-4      1    1 0 0 0
-30     1    1 0 0 0
-45     1    1 0 0 0
-56     1    1 0 0 0
-69     1    1 0 0 0
-72     1    1 0 0 0
-87     0    1 0 0 0
-175    1    1 0 0 0
-188    1    1 0 0 0
-204    1    1 0 0 0
-206    2    1 0 0 0
-211    1    1 0 0 0
-229    1    1 0 0 0
-262    1    1 0 0 0
-344    2    1 0 0 0
-354    1    1 0 0 0
-[1] NA
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
--29.370 -22.571 -13.581 -14.076  -7.783  -1.906 
-Dataset 11 
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
-Error in `rownames<-`(`*tmp*`, value = rownames(mutdata.filt)) : 
-  attempt to set 'rownames' on an object with no dimensions
- 
- 1Dataset 12 
+      1    1848    7142    7429    9574   21603 
+
+$mutdata.filt
+      chr              seg            mut.id        refCounts     
+ Min.   : 1.000   Min.   :  1.0   Min.   :    1   Min.   : 25.00  
+ 1st Qu.: 4.000   1st Qu.: 86.0   1st Qu.: 1848   1st Qu.: 61.00  
+ Median : 9.000   Median :195.0   Median : 7142   Median : 69.00  
+ Mean   : 9.798   Mean   :188.7   Mean   : 7429   Mean   : 69.71  
+ 3rd Qu.:15.000   3rd Qu.:288.0   3rd Qu.: 9574   3rd Qu.: 79.00  
+ Max.   :24.000   Max.   :382.0   Max.   :21603   Max.   :116.00  
+   varCounts           VAF          totalCounts       status         
+ Min.   : 29.00   Min.   :0.3222   Min.   : 62.0   Length:630        
+ 1st Qu.: 59.00   1st Qu.:0.4661   1st Qu.:121.0   Class :character  
+ Median : 69.00   Median :0.4961   Median :138.5   Mode  :character  
+ Mean   : 68.89   Mean   :0.4968   Mean   :138.6                     
+ 3rd Qu.: 79.00   3rd Qu.:0.5274   3rd Qu.:156.0                     
+ Max.   :112.00   Max.   :0.6389   Max.   :216.0                     
+
+$cndata.filt
+      chr             seg           LRR                BAF           
+ Min.   : 5.00   Min.   :109   Min.   :-0.29924   Min.   :0.0008648  
+ 1st Qu.: 8.50   1st Qu.:183   1st Qu.:-0.06588   1st Qu.:0.3335650  
+ Median :12.00   Median :257   Median : 0.16747   Median :0.6662652  
+ Mean   :11.33   Mean   :225   Mean   : 0.01416   Mean   :0.4448851  
+ 3rd Qu.:14.50   3rd Qu.:283   3rd Qu.: 0.17086   3rd Qu.:0.6668952  
+ Max.   :17.00   Max.   :309   Max.   : 0.17425   Max.   :0.6675252  
+       X                   Y             markers    
+ Min.   :0.0008683   Min.   :0.9778   Min.   :1058  
+ 1st Qu.:0.9820478   1st Qu.:0.9874   1st Qu.:1301  
+ Median :1.9632272   Median :0.9970   Median :1544  
+ Mean   :1.3181463   Mean   :0.9927   Mean   :1426  
+ 3rd Qu.:1.9767852   3rd Qu.:1.0001   3rd Qu.:1610  
+ Max.   :1.9903432   Max.   :1.0033   Max.   :1675  
+
+       V1          V2               V3               V4        
+ Min.   :1   Min.   :0.0000   Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:1   1st Qu.:1.0000   1st Qu.:1.0000   1st Qu.:1.0000  
+ Median :1   Median :1.0000   Median :1.0000   Median :1.0000  
+ Mean   :1   Mean   :0.9873   Mean   :0.9857   Mean   :0.9857  
+ 3rd Qu.:1   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+ Max.   :1   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+       V5        
+ Min.   :0.0000  
+ 1st Qu.:1.0000  
+ Median :1.0000  
+ Mean   :0.9857  
+ 3rd Qu.:1.0000  
+ Max.   :1.0000  
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  -2089   -2075   -2072   -2072   -2067   -2066 
+Dataset 3 
 Error in etaList[[x.numbers[l]]] : 
   attempt to select less than one element in get1index
 In addition: Warning message:
@@ -383,9 +247,38 @@ Error in etaList[[x.numbers[l]]] :
   attempt to select less than one element in get1index
  
  1> 
-> 
-> 
 > if (FALSE) {
++ J <- 2
++ dset <- simData[[J]]$dset
++ Rprof("profile2.txt")
++ ra <- findClones(dset$cn.data, dset$seq.data,
++                  cnmodels, psis.20,
++                  pars = pars, imputedCN = NULL)
++ Rprof(NULL)
++ 
++ snpdata <- dset$cn.data
++ cnfilt <- CloneFinder:::filterCN(snpdata, pars$thresh)
++ cndata.filt <- cnfilt$mat #Param 1#
++ 
++ seqdata <- dset$seq.data
++ if(nrow(seqdata) > 0) {
++   read.den <- density(seqdata$refCounts)
++   peak <- read.den$x[which.max(read.den$y)]
++   mu <- peak
++   pars$mu <- mu
++   pars$sigma.counts <- sd(seqdata$refCounts)
++ }
++ mutdata <- seqdata[seqdata$status=='somatic',]
++ mut.filt <- CloneFinder:::filterMutations(mutdata, mu=mu, threshold=3)
++ mutdata.filt <- mut.filt$mat #param 2#
++ mutids.filt<- mut.filt$ids
++ kPriors <- dgeom((1:5)-1, prob=pars$ktheta, log=TRUE) #param 7#
++ psis <- psis.20 #param 3#
++ cnmax <- 5 #param 6#
++ #param 4 is cnmodels#
++ #param 5 is pars#
++ 
++ 
 + for (psi in psiSets) {
 +   cat("Working on psi =", psi, "\n", file=stdout())
 +   for (J in 1:nrow(paramSets)) {
@@ -410,4 +303,4 @@ Error in etaList[[x.numbers[l]]] :
 > 
 > proc.time()
    user  system elapsed 
- 301.95    2.04  305.18 
+ 949.18    0.10  949.46 

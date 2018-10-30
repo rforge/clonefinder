@@ -379,18 +379,6 @@ logLike <- function(resids, nmarks, sigma0){
 }
 #Length of resids = length of nmarks
 
-psiPrior <- function(psi, alpha=.5, kmax=5, minim=.001){
-  psivec <- psi
-  psivec[which(psivec<minim)] <- 0
-  psivec <- sort(psivec/sum(psivec), decreasing=TRUE)
-  if(length(which(psivec>0))==1){
-    psivec[1] <- 1 - minim
-    psivec[2] <- minim
-  }
-  p <- log(ddirichlet(psivec[c(which(psivec>0))], rep(alpha, length(which(psivec>0)))))
-  p
-}
-
 psiPrior2 <- function(psi, alpha, kmax=5, minim=.001){
   psivec <- psi
   psivec[which(psivec<minim)] <- minim

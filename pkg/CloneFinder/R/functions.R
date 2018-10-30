@@ -15,12 +15,25 @@ dbeta2 <- function(x, mu, sigma, log=FALSE){
   dbeta(x, params[1], params[2], log=log)
 }
 
-filter <- function(data, threshold){
+psiPrior <- function(psi, alpha=.5, kmax=5, minim=.001){
+  psivec <- psi
+  psivec[which(psivec<minim)] <- 0
+  psivec <- sort(psivec/sum(psivec), decreasing=TRUE)
+  if(length(which(psivec>0))==1){
+    psivec[1] <- 1 - minim
+    psivec[2] <- minim
+  }
+  p <- log(ddirichlet(psivec[c(which(psivec>0))], rep(alpha, length(which(psivec>0)))))
+  p
+}
+
+
+filterCN <- function(data, threshold){
   indices <- which(abs(data$X - 1) >= threshold | abs(data$Y - 1) >= threshold)
   list('mat'=data[indices,], 'indices'=indices)
 }
 
-filter.mut <- function(mutdata, mu, threshold){
+filterMutations <- function(mutdata, mu, threshold){
   indices <- which(abs(mutdata$refCounts - mu)>=threshold | abs(mutdata$varCounts - mu)>=threshold)
   ids <- mutdata$mut.id[indices]
   list('mat'=mutdata[indices,], 'ids'=ids)
