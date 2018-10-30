@@ -1,4 +1,4 @@
-if (packageVersion("CloneFinder") < "0.8.7") {
+if (packageVersion("CloneFinder") < "0.9.0") {
   stop("You need to update 'CloneFinder'.")
 }
 library("CloneFinder")
@@ -53,13 +53,22 @@ cnmodels <- as.matrix(expand.grid(lapply(1:5, function(i){ 0:5 })))
 pars <- list(sigma0=5, theta = 0.9, ktheta = 0.3, mtheta = 0.9,
              alpha = 0.5, thresh = 0.04, cutoff = 100, Q = 100, iters = 4)
 
-
 for (J in 1:length(simData)) {
-#for (J in 3) {
-#for (J in c(1,4,7,10)) {
   cat("\n\nDataset", J, "\n", file=stdout())
   dset <- simData[[J]]$dset
-  ra <- try( runAlg(dset$cn.data, dset$seq.data,
+  # cheat and limit the number of mutations to speed up the algorithm
+  seqdata <- dset$seq.data
+  if(nrow(seqdata) > 0) {
+    read.den <- density(seqdata$refCounts)
+    peak <- read.den$x[which.max(read.den$y)]
+  }
+  mutdata <- seqdata[seqdata$status=='somatic',]
+  if (nrow(mutdata) > 1) {
+    mut.filt <- CloneFinder:::filterMutations(mutdata, mu=peak, threshold=3)
+    seqdata <- mut.filt$mat
+    if (nrow(seqdata) > 10) seqdata <- seqdata[1:10,]
+  }
+  ra <- try( runAlg(dset$cn.data, seqdata,
                     cnmodels, psis.20,
                     pars = pars, imputedCN = NULL) )
   if (inherits(ra, "try-error")) {
@@ -82,14 +91,15 @@ for (J in 1:length(simData)) {
 }
 
 if (FALSE) {
-J <- 2
-dset <- simData[[J]]$dset
 Rprof("profile3.txt")
-ra <- findClones(dset$cn.data, dset$seq.data,
-                 cnmodels, psis.20,
-                 pars = pars, imputedCN = NULL)
+for (J in 1:3) {
+  dset <- simData[[J]]$dset
+  ra <- findClones(dset$cn.data, dset$seq.data,
+                   cnmodels, psis.20,
+                   pars = pars, imputedCN = NULL)
+}
 Rprof(NULL)
-summaryRprof("profile2.txt")
+summaryRprof("profile3.txt")
 
 snpdata <- dset$cn.data
 cnfilt <- CloneFinder:::filterCN(snpdata, pars$thresh)
@@ -113,6 +123,10 @@ psis <- psis.20 #param 3#
 cnmax <- 5 #param 6#
 kmax <- 5 #param 7#
 kPriors <- dgeom((1:5)-1, prob=pars$ktheta, log=TRUE) #param 8#
+
+  ra <- findClones(cndata.filt, mutdata.filt[1:10,],
+                   cnmodels, psis.20,
+                   pars = pars, imputedCN = NULL)
 
 #cndata.filt <- data.frame(chr=1, seg=100, LRR=0, BAF=0.5, X=1, Y=1, markers=1000)
 

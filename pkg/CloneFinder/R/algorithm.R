@@ -49,14 +49,14 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
       c(bvec, etaList[[y.numbers[L]]][which.max(post)], max(post))
     }))
     psiPost <- sum(xmat[, cnmax + 2]) + sum(ymat[, cnmax + 2])
-    cnRes <- list(A = xmat[, 1:cnmax],
-                  B = ymat[, 1:cnmax],
+    cnRes <- list(A = xmat[, 1:cnmax, drop=FALSE],
+                  B = ymat[, 1:cnmax, drop=FALSE],
                   etaA = xmat[, cnmax+1],
                   etaB = ymat[, cnmax+1],
                   post = psiPost)
     if(nrow(mutdata.filt) > 0) {
       ## Nested loop, over mutation data
-      mutmat <- t(sapply(1:nrow(mutdata.filt),function(Imut) {
+      mutmat <- t(sapply(1:nrow(mutdata.filt) ,function(Imut) {
         cn.index <- which(cndata.filt$seg==mutdata.filt$seg[Imut])
         if(length(cn.index) > 0) {
           A <- cnRes$A[cn.index,]
