@@ -35,7 +35,9 @@ generateSimplex(k, d, reps = 1)
   function ensures that (a) each row is unique and (b) the entries in
   each row appear in decreasing order. 
 }
-\author{Kevin R. Coombes <krc@silicovore.com>, Mark Zucker <zucker.64@buckeyemail.osu.edu>}
+\author{Kevin R. Coombes \email{krc@silicovore.com},
+  Mark Zucker \email{zucker.64@buckeyemail.osu.edu}
+}
 \examples{
 sampleSimplex(5, 3)
 generateSimplex(5, 3)

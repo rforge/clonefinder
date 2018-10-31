@@ -9,14 +9,9 @@ importFrom("graphics", "plot", "hist")
 #exportMethods("summary")      # comes from 'base'
 
 ### other imported functions
-importFrom("quantmod", "findPeaks")  # used in "seqSeg" in 'functions.R'
-
-importFrom("gtools", "rdirichlet", "ddirichlet")
-
-# obsolete: importFrom("sirt", "dirichlet.mle")
-
+importFrom("quantmod", "findPeaks")  # used in "seqSeg" in '03-utilities.R'
+importFrom("gtools", "rdirichlet", "ddirichlet") # used in '04-algorithms.R'
 importFrom("graphics", "par", "segments")  # used in "plotTumorData",
-
 importFrom("stats",
            "rbeta", "dbeta", "rbinom", "dbinom", "rnorm", "dnorm",
            "rmultinom", "runif", "dgeom",
@@ -41,9 +36,9 @@ export("tumorGen", "dataGen", "runAlg") # deprecated
 export("findClones")
 
 ####################### IN PROGRESS ######################
-### needed for simulations
-exportClasses("Clone")
-export("Clone")
+### needed for simulations; currently internal
+# exportClasses("Clone")
+# export("Clone")
 
 
 

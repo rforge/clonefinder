@@ -51,7 +51,7 @@ tumor <- as(tumor, "list")
 object <- as(tumor, "Tumor")
 
 ### Test data generation (i.e., simulation)
-dataset <- dataGen(tumor,
+dataset <- generateTumorData(object,
                 dataPars$snps.seq, dataPars$snps.cgh, dataPars$mu,
                 dataPars$sigma.reads, dataPars$sigma0.lrr,
                 dataPars$sigma0.baf, dataPars$density.sigma)

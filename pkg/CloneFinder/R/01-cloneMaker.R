@@ -7,16 +7,16 @@
 ### part of each clone.
 
 ### Sample n points from the d-simplex
-sampleSimplex <- function(n, d=5) {
-    result <- matrix(NA, nrow=n, ncol=d)
+sampleSimplex <- function(n, d = 5) {
+    result <- matrix(NA, nrow=n, ncol = d)
     for (i in 1:n) {
-        result[i,] <- diff(sort( c(0, 1, runif(d-1, 0, 1)) ))
+        result[i,] <- diff(sort( c(0, 1, runif(d - 1, 0, 1)) ))
     }
     result
 }
 
 ### Generate a regularly spaced lattice of points in the d-simplex,
-### with k points along each edge.
+### sapnned by k points along each edge.
 ### Use symmetry to reduce the number we need to try.
 generateSimplex <- function(k, d, reps=1){
   simplex <- t(xsimplex(d, k))
@@ -50,7 +50,7 @@ setMethod("initialize", "WeightVector", function(.Object, psi = 1, ...) {
     stop("Psi should not contain negative values.")
   }
   if (all(psi == 0)) {
-    stop("At least one psi value must be larger than zero.")
+    stop("At least one psi component must be larger than zero.")
   }
   .Object@psi = psi/sum(psi)
   .Object
@@ -65,17 +65,14 @@ setAs("WeightVector", "numeric", function(from) from@psi)
 # Part 3: Simulating Data
 
 ############ CLONE ############
-# A clone is a list of segments, where each segment represents exactly
-# one pure compartment.
-
+# A clone is a list of segments, posibly with abnormalities.
 setClass("Clone", representation=list(
                     segments = "integer",
                     weights = "numeric"
                     ))
 
 # We should be able to simulate a clone if we know the number of segments,
-# the number of compartments, and the relative frequency/prevalence of
-# each compartment.
+#  the relative frequency/prevalence of each pure compartment.
 Clone <- function(nSegments, weights=rep(1/5, 5), segnames=NULL) {
   # nSegments = integer, the number of segments
   # weights   = vector, the prevalence of each compartment
@@ -83,9 +80,7 @@ Clone <- function(nSegments, weights=rep(1/5, 5), segnames=NULL) {
   if (nSegments < 1) stop("Number of segments must be positive.")
   
   # start with sanity checks on the weights
-  if(any(is.na(weights))) stop("Missing weights.")
-  if(any(weights < 0)) stop("Negative weights.")
-  weights <- weights/sum(weights) # ensure they sum to 1
+  weights <- as(WeightVector(weights), "numeric")
 
   # now sample the compartments to generate a clone
   segs <- sample(length(weights), nSegments, replace=TRUE, prob=weights)
@@ -130,10 +125,10 @@ Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
   ## Choose the number of copy number (CN) segments.
   total.segs <- round(runif(1, 250, 500))
   ## Distribute segments across the chromosomes.
-  segsperchr <- as.vector(rdirichlet(1, chlens/1000000))
+  segsperchr <- as.vector(rdirichlet(1, chlens/1000000)) # per megabase?
   segsperchr <- round(segsperchr*total.segs)
   segsperchr[segsperchr < 1] <- 1
-  ## Start building a fake DNA copy data frame. Each segments
+  ## Start building a fake DNA copy data frame. Each segment
   ## needs a chromosome with start and end positions.
   chr <- unlist(lapply(1:24, function(i) {
     rep(i, segsperchr[i])
@@ -154,6 +149,7 @@ Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
   cnmat <- cbind(chr, unlist(starts), unlist(ends), rep(1, length(starts)), 
                  rep(1, length(starts)), 1:length(starts), rep(NA, length(starts)))
   colnames(cnmat) <- c('chr', 'start', 'end', 'A', 'B', 'seg', 'parent.index')
+
   ## Evolve some clones, starting with the currently normal one.
   startclone <- list('cn'=cnmat, 'seq'=NA)
   id.end <- 0
@@ -187,8 +183,8 @@ Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
         delta <- sample(c(-1, 1), 1)
       }
       if(parent.index>1 & length(which(!is.na(unlist(newclone.seq)))) > 0) {
-        muts.tochange <- intersect(which(newclone.seq[, i.seg]==tochange),
-                                   which(newclone.seq[, i.allele]==allele))
+        muts.tochange <- intersect(which(newclone.seq[, i.seg] == tochange),
+                                   which(newclone.seq[, i.allele] == allele))
         if(length(muts.tochange) > 0) {
           newclone.seq[muts.tochange, i.cn] <-
             as.numeric(newclone.seq[muts.tochange, i.cn]) + delta
@@ -226,37 +222,39 @@ Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
       rownames(newclone.seq) <- NULL
     } else {
       newclone.seq <- NA # No new mutations
-    } #END: if(nmuts > 0)-else
-    ## Make the new clone, remembewring what changed.
-    if(length(clones) == 1 & nmuts > 0) {
-      i.seg <- which(colnames(seqmat)=='seg')
-      i.cn <- which(colnames(seqmat)=='mutated.copies')
-      i.allele <- which(colnames(seqmat)=='allele')
+    } #END: if(nmuts > 0)
+    
+    ## Make the new clone, remembering what changed.
+    if (length(clones) == 1 & nmuts > 0) {
+      i.seg <- which(colnames(seqmat) == 'seg')
+      i.cn <- which(colnames(seqmat) == 'mutated.copies')
+      i.allele <- which(colnames(seqmat) == 'allele')
     }
     newclone <- list('cn'=newclone.cn, 'seq'=newclone.seq)
     clones <- c(clones, list(newclone))
   } #END: while(length(clones) <= rounds)
-  
-  if(norm.contam==TRUE) { # first "clone" consists of the normal cells.
+
+  ## This is still safe when K == 1.
+  if(norm.contam == TRUE) { # first "clone" consists of the normal cells.
     sampled <- c(1, sample(2:length(clones), K-1, replace=FALSE))
   }else{
     sampled <- sample(2:length(clones), K, replace=FALSE)
   }
   
-  clones.final <- lapply(1:length(sampled), function(i) {
-    cndf <- as.data.frame(clones[[sampled[i]]]$cn)
-    if(length(which(!is.na(unlist(clones[[sampled[i]]]$seq))))){
-      seqdf <- as.data.frame(clones[[sampled[i]]]$seq)
-      for(j in which(colnames(seqdf)!='allele')){
-        seqdf[, j] <- as.numeric(as.character(seqdf[, j]))
+  clones.final <- lapply(1:length(sampled), function(I) {
+    cndf <- as.data.frame(clones[[sampled[I]]]$cn)
+    if(length(which(!is.na(unlist(clones[[sampled[I]]]$seq))))){
+      seqdf <- as.data.frame(clones[[sampled[I]]]$seq)
+      for(J in which(colnames(seqdf)!='allele')) {
+        seqdf[, J] <- as.numeric(as.character(seqdf[, J]))
         seqdf <- na.omit(seqdf[with(seqdf, order(seg, start)), ])
         rownames(seqdf) <- NULL
         seqdf
       }
-      seqdf$normal.copies <- na.omit(unlist(lapply(1:nrow(cndf), function(j){
-        total.cn <- cndf$A[j] + cndf$B[j]
-        if(length(which(seqdf$seg==j))>0){
-          normal.cns <- total.cn - seqdf$mutated.copies[which(seqdf$seg==j)]
+      seqdf$normal.copies <- na.omit(unlist(lapply(1:nrow(cndf), function(J) {
+        total.cn <- cndf$A[J] + cndf$B[J]
+        if(length(which(seqdf$seg == J)) > 0){
+          normal.cns <- total.cn - seqdf$mutated.copies[which(seqdf$seg == J)]
         } else {
           normal.cns <- NA
         }
@@ -265,14 +263,13 @@ Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
     } else {
       seqdf <- NA
     }
-    if(nu>0){
+    if(nu > 0){
       output <- list('cn'=cndf, 'seq'=seqdf)
     }else{
       output <- list('cn'=cndf)
     }
     output
   })
-  list('clones'=clones.final, 'psi'=psi)
   new("Tumor", clones = clones.final, psi = WeightVector(psi))
 }
 

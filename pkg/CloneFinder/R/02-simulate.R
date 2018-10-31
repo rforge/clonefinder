@@ -112,7 +112,7 @@ seqDataGen <- function(tumor, snps.seq=1000000, density.sigma, mu, sigma.reads){
 
 
 #A plot function to visualize data and verify that the simulation is working.
-plotTumorData <- function(tumor, data, snp=TRUE, somatic=TRUE, germline=FALSE){
+plotTumorData <- function(tumor, data){
   snpdata <- data$cn.data
   seqdata <- data$seq.data
   cn.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$cn})
@@ -142,5 +142,5 @@ plotTumorData <- function(tumor, data, snp=TRUE, somatic=TRUE, germline=FALSE){
     segments(x0=starts[j], x1=ends[j], y0=greater.data[j], y1=greater.data[j], col='blue')
   })
   plot(density(errors), xlab='Error Index', main='Density of Segment Errors')
-  mutations <- seqdata[seqdata$status=='somatic', ]
+  invisible(data)
 }

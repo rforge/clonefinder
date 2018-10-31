@@ -1,6 +1,6 @@
 ### The first three functions are here for backwards compatibility.
 ### They are officially "deprecated", which means (a) you should not
-### use them in new code because (b) at some point theu will simply
+### use them in new code because (b) at some point they will simply
 ### go away.
 tumorGen <- function(...) {
   tumor <- Tumor(...)

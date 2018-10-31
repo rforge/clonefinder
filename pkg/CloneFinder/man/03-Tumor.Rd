@@ -75,6 +75,7 @@ getClone(tumor, i)
 }
 \author{
   Kevin R. Coombes \email{krc@silicovore.com},
+  Mark Zucker \email{zucker.64@buckeyemail.osu.edu}
 }
 \seealso{
   \code{\link{WeightVector}}
