@@ -36,13 +36,23 @@ runAlg(...)
   \item{...}{additional variables}
 }
 \details{
-  TODO: MARK TO EXPLAIN THE BASIC ALGORITHM.
-  
-  The set of different copy number models that we use is typically
+  The algorithm starts with an initial set of 'psi' parameters
+  (representing the fraction of tumor belonging to each clone). It
+  computes the best (maximum a posteriori) clonal copy number and/or
+  number of mutated alleles for each clone for each segment/mutation,
+  conditional on the data and each of the initial psi vectors. It then
+  computes the posterior probability for each psi-vector and its
+  computed copy number and mutation parameters. It uses these posterior
+  probabilities to resample new possible psi-vectors. The process
+  repeats iteratively, and with each iterations obtains a better
+  estimate of psi and the clonal segment copy number and mutation
+  assignments until it terminates.
+   
+  The set of copy number models that we use is typically
   generated using the following command:
   \code{as.matrix(expand.grid(lapply(1:5, function(i){0:5})))}
   This setup considers all (7776) possible models with up to five clones,
-  where the copy number for each cloine ranges from 0 to 5. (In the future,
+  where the copy number for each clone ranges from 0 to 5. (In the future,
   we are likely to make this the default; right now, you have to generate
   these models yourself.)
 
@@ -50,15 +60,43 @@ runAlg(...)
   to each clone) that we use is typically generated using the following
   command:
   \code{psis.20 <- generateSimplex(20,5)}
-  This setup considers all (192) possible divisiosn of the tumor into up to
-  five clones, where the fraction of cells per clone is any posisble
-  multiple of 0.5. Each row is sorted to utt he most abundant clones first,
-  which makes it easier to identify specific clones (except in the rare case
-  when two clones contain exactly the same fraction of cells). (In the future,
+  This setup considers all (192) possible divisions of the tumor into up to
+  five clones, where the fraction of cells per clone is any possible
+  multiple of 0.05. Each row is sorted to put the most abundant clones first,
+  which makes it easier to identify specific clones, except in the rare case
+  when two clones contain exactly the same fraction of cells. (In the future,
   we are likely to make this the default; right now, you have to generate
   these models yourself.)
 
-  TODO: DESCRIBE OTHER PARS.
+  The object \code{pars} is a list of numerical algorithm parameters. The
+  elements are:
+
+  \describe{
+    \item{sigma0}{The standard deviation of measured allelic copy
+      number at the SNP level.}
+    \item{ktheta}{The probability parameter of the geometric prior
+      distribution on \code{K}, the number of clones.} 
+    \item{theta}{The probability parameter of the geometric prior
+      distribution on genomic copy number.}
+    \item{mtheta}{The probability parameter of the geometric prior
+      distribution on the occurence of point mutations.}
+    \item{alpha}{The (repeated) alpha parameter of a symmetric Dirichlet
+      distributed prior on the  fractions of cells belong to each clone;
+      default value is 0.5, giving a Jeffreys Prior.}
+    \item{thresh}{The threshold determining the smallest possible
+      detectable clone.}
+    \item{cutoff}{SNP array segments with fewer markers than this are
+      excluded.} 
+    \item{Q}{Determines the number of new \code{psi} vectors resampled
+      from the estimated posterior probability distribution at each
+      iteration of the algorithm } 
+    \item{iters}{The number of iterations in the algorithm.}
+  }
+  The default settings we used are from
+  commonly used unfinformative priors (e.g., alpha=0.5 for the Dirichlet
+  distribution is the Jeffreys Prior) or based on empirical assessments
+  of the variation in data (sigma0, for example, which describes
+  variation in SNP array data).
   
   Note that \code{runAlg} (an alias for \code{findClones}) is DEPRECATED.
 }
@@ -81,10 +119,10 @@ runAlg(...)
     filtered data used during the analysis. Filtering removes
     non-informative segments that have normal copy number or contain only
     germline mutations.}
-  \item{etaA}{TODO}
-  \item{etaB}{TODO}
-  \item{etaM}{TODO}
-  \item{mutated}{TODO}
+  \item{etaA}{A vector of the weighted average allelic copy number for the 'A-Allele' at each segment (that is, the sum of the clonal A-allelic copy number values multiplied by the fraction of the tumor made up by each clone)}
+  \item{etaB}{A vector of the weighted average allelic copy number for the 'B-Allele' at each segment}
+  \item{etaM}{A vector of the weighted average number of copies of the mutated allele at each mutation}
+  \item{mutated}{A matrix of the number of mutated alleles at each locus in each clone, where the number of rows is the number of somatic mutations in the data and the number of columns is the number of clones}
 }
 \author{
   Kevin R. Coombes \email{krc@silicovore.com},

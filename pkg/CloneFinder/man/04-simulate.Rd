@@ -39,7 +39,16 @@ dataGen(tumor, ...)
 }
 \details{
   Copy number and mutation data are simulated essentially
-  independently. TODO: MARK TO EXPLAIN SIMULATION MODELS.
+  independently. Each simulation starts with a single "normal" genome, 
+  and CNVs and/or mutations are randomly generated for each new "branch"
+  or subclone. (The number of subclones depends on the input
+  parameters.) Each successive branch is randomly determined to descend
+  from one of the existing clones, and therefore contains both the
+  aberrations belonging to its parent clone and the novel aberrations
+  assigned to it. Depending on input parameters, the algorithm can also
+  randomly select some clones for extinction in the process of
+  generating the heterogeneous tumor, to yield a more realistic
+  population structure. 
 
   Note that \code{tumorGen} (an alias for \code{Tumor} that returns a
   list instead of a Tumor object) and \code{dataGen} (an alias for
