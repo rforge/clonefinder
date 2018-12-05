@@ -1,0 +1,16 @@
+1. Add a function to create two versions of default 'cnModels'. First
+version is all possibilities from 0 to 5 copies. Second version
+imposes the strong prior that you can't both gain and lose the same
+segment in different clones. 
+
+2. Make the second version of 'cnModels' the default input to the
+'findClones' function. 
+
+3. Add a default set of psi vectors as the input to 'findClones'.
+
+4. Make the 'pars' argument to 'findClones' a proper object, and
+supply a default value.
+
+5. Make a funciton to display psi vectors (projected onto the
+2-simplex, and flattened to the Euclidean plane). Think about allowing
+the 3-simplex for visualization.

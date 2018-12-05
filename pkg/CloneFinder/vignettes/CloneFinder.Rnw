@@ -39,11 +39,6 @@ As usual, we start by loading the package:
 <<lib>>=
 library(CloneFinder)
 @ 
-<<eval=FALSE,echo=FALSE>>=
-library(combinat)
-library(quantmod)
-library(gtools)
-@ 
 
 To run \code{CloneFinder}, we will need a starting set of $\psi$
 vectors as inputs, where $\psi$ records the fraction of cells
@@ -95,45 +90,59 @@ Now we are going to simmulate copy number data for a tumor with three
 clones.
 <<simData>>=
 set.seed(21303) # for reproducibility
-simCN <- Tumor(c(0.5, 0.3, 0.2), rounds = 100, nu = 0, pcnv = 1, norm.contam = FALSE)
-simDatCN <- generateTumorData(simCN,
-                             snps.seq = 0,
+simTumor <- Tumor(c(0.5, 0.3, 0.2), rounds = 100, nu = 10, pcnv = 0.8, norm.contam = FALSE)
+simData <- generateTumorData(simTumor,
+                             snps.seq = 10000,
                              snps.cgh = 600000,
                              mu = 70,
                              sigma.reads = 25,
                              sigma0.lrr = 0.15,
                              sigma0.baf = 0.03,
                              density.sigma = 0.1)
-class(simDatCN)
-length(simDatCN)
-names(simDatCN)
-dim(simDatCN$cn.data)
-dim(simDatCN$seq.data)
-cnDat <- simDatCN$cn.data
+class(simData)
+length(simData)
+names(simData)
+dim(simData$cn.data)
+dim(simData$seq.data)
+cnDat <- simData$cn.data
+seqDat <- simData$seq.data
+@ 
+
+<<realWork,echo=FALSE,eval=TRUE>>=
+f <- system.file("auxiliary/stash.Rda", package="CloneFinder")
+if (file.exists(f)) {
+  load(f)
+} else {
+  resCN <- findClones(cndata=cnDat, vardata=NULL, cnmodels=cnmodels, psis, pars=pars)
+  resMut <- findClones(cndata=NULL, vardata=seqDat, cnmodels=cnmodels, psiset=psis, pars=pars)
+  resBoth <- findClones(cndata=cnDat, vardata=somatic, cnmodels=cnmodels, psis, pars=pars)
+  save(resCN, resMut, resBoth, file = "../inst/auxiliary/stash.Rda")
+}
+rm(f)
 @ 
 
 And the results:
-<<resCN>>=
+<<resCN,eval=FALSE>>=
 resCN <- findClones(cndata=cnDat, vardata=NULL, cnmodels=cnmodels, psis, pars=pars)
 @
 
 The results of the 'only CNV' analysis of this sample:
 <<compare.psis>>=
 resCN$psi
-simCN@psi
+simTumor@psi
 @
 In this case, \code{CloneFinder} accurately estimates not only the
 number of clones but also the clonal fractions. Let's look at the
 clonal copy number assignments as well: 
 <<CNassign>>=
 trueCN_Assignments <- t(sapply(1:nrow(resCN$filtered.data$cndata.filt), function(i) {
-  index <- rownames(simCN@clones[[1]]$cn) == rownames(resCN$filtered.data$cndata.filt)[i]
-  sapply(1:length(simCN@clones),function(j){
-    simCN@clones[[j]]$cn$A[index] + simCN@clones[[j]]$cn$B[index]
+  index <- rownames(simTumor@clones[[1]]$cn) == rownames(resCN$filtered.data$cndata.filt)[i]
+  sapply(1:length(simTumor@clones),function(j){
+    simTumor@clones[[j]]$cn$A[index] + simTumor@clones[[j]]$cn$B[index]
   })
 }))
 
-inferredCN_Assignments <- (resCN$A+resCN$B)[,1:length(simCN@clones)]
+inferredCN_Assignments <- (resCN$A+resCN$B)[,1:length(simTumor@clones)]
 colnames(inferredCN_Assignments) <- colnames(trueCN_Assignments) <- paste("clone", 1:3)
 
 #Clonal copy numbers for each potentially 'deviant' segment, true and inferred:
@@ -146,45 +155,35 @@ Now, let's illustrate the use of \code{CloneFinder} in analyzing mutation
 data (by which I mean variant data such as one would find in a .vcf
 file) to find clones. We will load in some simulated mutation data. We
 are interested here in the variants, not the CNVs, and therefore more
-specifically in somatic mutation data: 
-
-<<>>=
-simDatMut <- get(load('simDatMut.rda'))$dat
-seqDat <- simDatMut$seq.data
+specifically in somatic mutation data. The data looks like this:
+<<somatic>>=
 somatic <- seqDat[seqDat$status=='somatic',]
-@
-The data looks like this:
-<<eval=TRUE, echo=FALSE>>=
 head(somatic)
-@
-Once again. we'll also load the original simulated tumor information, so we can compare the results of the analysis with the pre-determined truth.
-<<eval=TRUE, echo=FALSE>>=
-simMut <- get(load('simMut.rda'))$tumor
 @
 
 And run clonefinder:
-<<>>=
-resMut <- findClones(cndata=NULL, vardata=somatic, cnmodels=cnmodels, psiset=psis, pars=pars)
+<<resMut, eval=FALSE>>=
+resMut <- findClones(cndata=NULL, vardata=seqDat, cnmodels=cnmodels, psiset=psis, pars=pars)
 @
 The results show that CloneFinder reached a good approximation for 'psis', the clonal fractions:
-<<>>=
-resMut$\psi
-simMut$\psi
+<<resMutResults>>=
+resMut$psi
+simTumor@psi
 @
 Let's also look at the mutation assignment compared to the truth:
-<<>>=
-trueMutAssignments <- sapply(1:length(simMut$clones),function(i){
+<<trueMut>>=
+trueMutAssignments <- sapply(1:length(simTumor@clones),function(i){
   sapply(1:length(resMut$filtered.data$mutdata.filt$mut.id),function(j){
-    index <- which(simMut$clones[[i]]$seq$mut.id==resMut$filtered.data$mutdata.filt$mut.id[j])
+    index <- which(simTumor@clones[[i]]$seq$mut.id==resMut$filtered.data$mutdata.filt$mut.id[j])
     if(length(index)==0){
       val <- 0
     }else{
-      val <- simMut$clones[[i]]$seq$mutated.copies[index]
+      val <- simTumor@clones[[i]]$seq$mutated.copies[index]
     }
     val
   })
 })
-inferredMutAssignments <- resMut$mutated[,1:length(simMut$clones)]
+inferredMutAssignments <- resMut$mutated[,1:length(simTumor@clones)]
 colnames(inferredMutAssignments) <- colnames(trueMutAssignments) <- c('clone1','clone2','clone3')
 
 trueMutAssignments
@@ -193,18 +192,14 @@ trueMutAssignments
 
 \section{Both Sequencing and SNP Array Data}
 Finally, we illustrate CloneFinder being run on a sample for which there is both SNP array and mutation data.
-<<eval=FALSE, echo=TRUE>>=
-#simBoth <- get(load('simBoth.rda'))$tumor
-#simDatBoth <- get(load('simDatBoth.rda'))$dat
-cnDat2 <- simDatBoth$cn.data
-mutDat2 <- simDatBoth$seq.data
-resBoth <- findClones(cndata=cnDat2, vardata=mutDat2, cnmodels=cnmodels, psis, pars=pars)
+<<resBoth,eval=FALSE, echo=TRUE>>=
+resBoth <- findClones(cndata=cnDat, vardata=somatic, cnmodels=cnmodels, psis, pars=pars)
 @
 
 And we can look at the inferred allocation of tumor fraction to clones:
-<<>>=
-resBoth$\psi
-simBoth$\psi
+<<reBothResults>>=
+resBoth$psi
+simTumor@psi
 @
 In conclusion, CloneFinder can be applied effectively to cases where one has SNP array data, (processed) sequencing data, or both.
 
