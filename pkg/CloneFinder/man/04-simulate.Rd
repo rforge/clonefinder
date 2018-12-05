@@ -61,7 +61,7 @@ dataGen(tumor, ...)
   may have zero rows or may be returned as an \code{NA}.
 
   The \code{cn.data} component contains seven columns:
-  \details{
+  \describe{
     \item{\code{chr}}{the chromosome number;}
     \item{\code{seq}}{a unique segment identifier;}
     \item{\code{LRR}}{simulate segment-wise log ratios;}
@@ -72,7 +72,7 @@ dataGen(tumor, ...)
   }
 
   The \code{seq.data} component contains eight columns:
-  \details{
+  \describe{
     \item{\code{chr}}{the chromosome number;}
     \item{\code{seq}}{a unique "segment" identifier;}
     \item{\code{mut.id}}{a unique mutation identifier;}
