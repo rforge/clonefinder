@@ -58,25 +58,35 @@ dataGen(tumor, ...)
   The \code{generateTumorData} function returns a list with two
   components, \code{cn.data} and \code{seq.data}. Each component is
   itself a data frame. Note that in some cases, one of these data frames
-  may have zero rowes or may be returned as an \code{NA}.
+  may have zero rows or may be returned as an \code{NA}.
 
-  The \code{cn.data} component contains seven columns: \code{chr}, the
-  chromosome number; \code{seq}, a unique segmwent identifier;
-  \code{LRR}, simulate sebment-wise log ratios; \code{BAF}, simulated
-  segment-wise B allele frequencies; \code{X} and \code{Y}, simulated
-  intensities for two separate alleles/haplotypes per segment; and
-  \code{markers}, the simulated number of SNPS per segment.
+  The \code{cn.data} component contains seven columns:
+  \details{
+    \item{\code{chr}}{the chromosome number;}
+    \item{\code{seq}}{a unique segment identifier;}
+    \item{\code{LRR}}{simulate segment-wise log ratios;}
+    \item{\code{BAF}}{simulated segment-wise B allele frequencies;}
+    \item{\code{X} and \code{Y}}{simulated intensities for two separate
+      alleles/haplotypes per segment; and} 
+    \item{\code{markers}}{the simulated number of SNPS per segment.}
+  }
 
-  The \code{seq.data} component contains eight columns: \code{chr} and
-  \code{seq}, as above; \code{mut.id}, a unique mutation identifier;
-  \code{refCounts} and \code{varCounts}, the simulated numbers of
-  reference and variant counts per; \code{VAF}, the simulated variant
-  allele frequency; \code{totalCounts}, the simulated total number of
-  read counts; and \code{status}, a character (that should probbaly bee
-  a factor) indicating whether a variant should be viewed as somatic or
-  germline.
+  The \code{seq.data} component contains eight columns:
+  \details{
+    \item{\code{chr}}{the chromosome number;}
+    \item{\code{seq}}{a unique "segment" identifier;}
+    \item{\code{mut.id}}{a unique mutation identifier;}
+    \item{\code{refCounts} and \code{varCounts}}{the simulated numbers
+      of reference and variant counts per mutation;}
+    \item{\code{VAF}}{the simulated variant allele frequency;}
+    \item{\code{totalCounts}}{the simulated total number of read counts;
+      and}
+    \item{\code{status}}{a character (that should probably be a factor)
+      indicating whether a variant should be viewed as somatic or
+      germline.}
+  }
 
-  The \code{plotTumorData} fuinction invisibly returns its \code{data}
+  The \code{plotTumorData} function invisibly returns its \code{data}
   argument.
 }
 \author{
