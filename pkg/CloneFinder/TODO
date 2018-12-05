@@ -14,3 +14,10 @@ supply a default value.
 5. Make a funciton to display psi vectors (projected onto the
 2-simplex, and flattened to the Euclidean plane). Think about allowing
 the 3-simplex for visualization.
+
+6. Make all the arguments to the 'generateTumorData' function into a
+proper object with a friendly constructor that assigns sensible
+default values.
+
+7. Change the simulated copy number data to carry along the segment
+locations and not just the "seg" indirect index.

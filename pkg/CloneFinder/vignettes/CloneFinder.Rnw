@@ -9,7 +9,7 @@
 \setlength{\evensidemargin}{\oddsidemargin}
 \newcommand{\code}[1]{\texttt{#1}}
 \title{CloneFinder}
-\author{Mark Zucker \and Kevin Coombes}
+\author{Mark Zucker \and Kevin R. Coombes}
 \date{November, 2018} 
 
 \begin{document}
@@ -34,19 +34,134 @@ course of a cancer. It is possible, for example, that the tumor cells
 that will eventually become the refractory cancer after treatment are
 present as a minor subclone in the tumor early on.
 
-\section{SNP Array Data}
-As usual, we start by loading the package:
+First, we load the \code{CloneFinder} package:
 <<lib>>=
 library(CloneFinder)
 @ 
+
+\section{Simulated Tumor Containing Multiple Clones}
+In order to illustrate the algorithms, we are going to simulate data
+where we know the true structure. Specifically, we will simmulate copy
+number and mutation data for a tumor with three clones.  We start with
+an object that represents the Tumor at a somewhat abstract level.
+<<simTumor>>=
+set.seed(21303) # for reproducibility
+simTumor <- Tumor(c(5, 3, 2), rounds = 100, 
+                  nu = 10, pcnv = 0.8, norm.contam = FALSE)
+@ 
+The first argument to the \code{Tumor} constructor is a vector that
+specifies the relative proportions of cells belonging to each
+clone; the length of the vector determines the number of clones. These
+values are automatically converted to frations that add up to one:
+<<truePsi>>=
+simTumor@psi
+@ 
+
+The second argument, \code{rounds}, specifies the number of
+generations through which the tumor clones are evolved. The idea is
+that new abnormalities, either in the form of mutations or copy number
+variants (CNVs), are acquired at each evolutionary step from some parent
+cell. The parameter \code{nu} is the expected number of new mutations
+and the parameter \code{pcnv} is the probability of a new CNV at each
+step. The final parameter, \code{norm.contam}, is a logical indicator
+of whether the tumor sample is assumed to include a subset of cells
+that represent non-cancerous ``normal contamination''.
+
+The resulting simulated tumor contains descriptions of each
+individual clone. In the current implementation, these are stored as a
+list of clones.
+<<cloneMeta>>=
+class(simTumor@clones)
+length(simTumor@clones)
+@ 
+Individual clones contain descriptions of both CNVs and mutations.
+<<oneClone>>=
+oneClone <- simTumor@clones[[1]]
+class(oneClone)
+length(oneClone)
+names(oneClone)
+@ 
+The copy number data includes the chromosome, with start and end
+positions, the number of copies of the \code{A} and \code{B} alleles,
+an arbitrary ``segment'' identifier, and (as a residual from the
+simulated evolutionary history), a ``parent'' identifier.
+<<oneCN>>=
+dim(oneClone$cn)
+summary(oneClone$cn)
+@ 
+The mutation data has a chromosomal location, arbitrary segment and
+mutation identifiers, the number of mutated and wild type copies
+for each mutation, and the affected allele.
+<<oneMut>>=
+dim(oneClone$seq)
+oneClone$seq
+@ 
+
+\subsection{Simulating Tumor Data}
+Now that we have the tumor in place, we can simulate data arising
+from a sudy of that tumor.
+<<simData>>=
+simData <- generateTumorData(simTumor,
+                             snps.seq = 10000,
+                             snps.cgh = 600000,
+                             mu = 70,
+                             sigma.reads = 25,
+                             sigma0.lrr = 0.15,
+                             sigma0.baf = 0.03,
+                             density.sigma = 0.1)
+@ 
+
+For a description of the many parameters to the
+\code{generateTumorData} function, see the man page.  The first two
+arguments are size parameters. The first, \code{snp.seq}, determines
+the number of \textit{germline} variants to simulate; in the absence
+of separate copy number data, these are used to provide a crude
+estimate. The second, \code{snps.cgh}, represents the number of SNP
+locations on the simulated SNP chip from which copy number segments
+are derived.  The remaining parameters control the simulated read depth
+and variabilty.
+
+As with individual clones, the simulated data is structured as a list
+with separate data frames for the CNVs and mutations.
+<<peekData>>=
+class(simData)
+length(simData)
+names(simData)
+@ 
+The simulated copy number data includes chromosomal locations along
+with estimated log R ratios (\code{LRR}), B allele frequencies
+(\code{BAF}), separate intensity values for the two parental alleles
+(\code{X} and \code{Y}), and the number of SNPs in each segment
+(\code{markers}).
+<<simCNData>>=
+cnDat <- simData$cn.data
+dim(cnDat)
+summary(cnDat)
+@ 
+
+The simulated sequencing data, in addition to chromosomal locations,
+has read counts for the numebr of reerence allelels, alternate
+(meaning varianmt or mutated) alleles, totla counts, the variant
+allele frequency (\code{VAF}) and a status indicator of whether the
+variant is believed to be germline or soimatic.
+<<simMutData>>=
+dim(simData$seq.data)
+seqDat <- simData$seq.data
+dim(seqDat)
+summary(seqDat)
+table(seqDat$status)
+@ 
+
+
+\section{Finding Clones}
 
 To run \code{CloneFinder}, we will need a starting set of $\psi$
 vectors as inputs, where $\psi$ records the fraction of cells
 belonging to each clone. For each $\psi$ vector, the algorithm will
 compute the most probable copy number state for each clone at each
-segment. The maximum posterior probability is computed for each imput
-psi vector, and these probabilities are used to resample new potential
-psi vectors. We usually start by considering every possible
+segment. The maximum posterior probability is computed for each input
+$\psi$ vector, and these probabilities are used to resample new potential
+$\psi$ vectors. We usually start by considering every possible
 decomposition of the tumor into five clones, where the fraction
 assigned to each clone is a multiple of $1/20 = 0.05$.  We can
 generate this initial matrix of $\psi$ vectors as follows:
@@ -59,7 +174,10 @@ tail(psis)
 
 For SNP array data, we also need, as input, a set of possible clonal
 segment copy number states. If none exists the function will
-automatically generate one. 
+automatically generate one. The version used here considers all
+possible copy number states from 0 to 5 copies, but it imposes a
+strong prior belief that two different clones cannot both gain and
+lose the same segment.
 <<cnmodels>>=
 cnmodels <- expand.grid(rep(list(0:5),5))
 include <- sapply(1:nrow(cnmodels), function(i) {
@@ -68,7 +186,7 @@ include <- sapply(1:nrow(cnmodels), function(i) {
 cnmodels <- cnmodels[include,]
 @
 
-Now we will define the algorithm parameters:
+Now we will define the other algorithm parameters:
 <<pars>>=
 pars <- list(sigma0 = 5,    # SNP-wise standard deviation
              ktheta = 0.3,  # geometric prior parameter on number of clones
@@ -86,54 +204,38 @@ data to identify the clones present. We will load in some simulated
 mutation data. We'll also load in the actual simulated tumor
 information so we can compare the truth with the results: 
 
-Now we are going to simmulate copy number data for a tumor with three
-clones.
-<<simData>>=
-set.seed(21303) # for reproducibility
-simTumor <- Tumor(c(0.5, 0.3, 0.2), rounds = 100, nu = 10, pcnv = 0.8, norm.contam = FALSE)
-simData <- generateTumorData(simTumor,
-                             snps.seq = 10000,
-                             snps.cgh = 600000,
-                             mu = 70,
-                             sigma.reads = 25,
-                             sigma0.lrr = 0.15,
-                             sigma0.baf = 0.03,
-                             density.sigma = 0.1)
-class(simData)
-length(simData)
-names(simData)
-dim(simData$cn.data)
-dim(simData$seq.data)
-cnDat <- simData$cn.data
-seqDat <- simData$seq.data
-@ 
-
 <<realWork,echo=FALSE,eval=TRUE>>=
 f <- system.file("auxiliary/stash.Rda", package="CloneFinder")
 if (file.exists(f)) {
   load(f)
 } else {
-  resCN <- findClones(cndata=cnDat, vardata=NULL, cnmodels=cnmodels, psis, pars=pars)
-  resMut <- findClones(cndata=NULL, vardata=seqDat, cnmodels=cnmodels, psiset=psis, pars=pars)
-  resBoth <- findClones(cndata=cnDat, vardata=somatic, cnmodels=cnmodels, psis, pars=pars)
+  resCN <- findClones(cndata = cnDat, vardata = NULL, cnmodels = cnmodels, psis, pars = pars)
+  resMut <- findClones(cndata = NULL, vardata = seqDat, cnmodels = cnmodels, psiset = psis, pars = pars)
+  resBoth <- findClones(cndata = cnDat, vardata = somatic, cnmodels = cnmodels, psis, pars = pars)
   save(resCN, resMut, resBoth, file = "../inst/auxiliary/stash.Rda")
 }
 rm(f)
 @ 
 
-And the results:
+\subsection{Finding Clones from Copy Number Data}
+The \code{findClones} function can estimate the clonal architecture
+from copy number data, or from mutation and variant data, or jointly
+from both kinds of data.  In this section, we will run the algorithm
+using \textbf{only the copy number data}. To do that, we set the
+\code{varData} argument to \code{NULL}.
 <<resCN,eval=FALSE>>=
-resCN <- findClones(cndata=cnDat, vardata=NULL, cnmodels=cnmodels, psis, pars=pars)
+resCN <- findClones(cndata = cnDat, vardata = NULL, 
+                    cnmodels = cnmodels, psiset = psis, pars = pars)
 @
 
-The results of the 'only CNV' analysis of this sample:
+Here are the results of the ``CNV only'' analysis of this sample:
 <<compare.psis>>=
 resCN$psi
 simTumor@psi
 @
 In this case, \code{CloneFinder} accurately estimates not only the
 number of clones but also the clonal fractions. Let's look at the
-clonal copy number assignments as well: 
+clonal copy number assignments as well:
 <<CNassign>>=
 trueCN_Assignments <- t(sapply(1:nrow(resCN$filtered.data$cndata.filt), function(i) {
   index <- rownames(simTumor@clones[[1]]$cn) == rownames(resCN$filtered.data$cndata.filt)[i]
@@ -143,29 +245,26 @@ trueCN_Assignments <- t(sapply(1:nrow(resCN$filtered.data$cndata.filt), function
 }))
 
 inferredCN_Assignments <- (resCN$A+resCN$B)[,1:length(simTumor@clones)]
-colnames(inferredCN_Assignments) <- colnames(trueCN_Assignments) <- paste("clone", 1:3)
+colnames(inferredCN_Assignments) <- colnames(trueCN_Assignments) <- paste("C", 1:3)
 
 #Clonal copy numbers for each potentially 'deviant' segment, true and inferred:
-trueCN_Assignments
-inferredCN_Assignments
+data.frame(Truth = trueCN_Assignments,
+           Infer = inferredCN_Assignments)
 @
+Although not perfect, the algorithm managed to correctly estimate  most of the
+segment-wise allelic copy numbers of different clones.
 
 \section{Sequencing Data}
 Now, let's illustrate the use of \code{CloneFinder} in analyzing mutation
-data (by which I mean variant data such as one would find in a .vcf
-file) to find clones. We will load in some simulated mutation data. We
-are interested here in the variants, not the CNVs, and therefore more
-specifically in somatic mutation data. The data looks like this:
-<<somatic>>=
-somatic <- seqDat[seqDat$status=='somatic',]
-head(somatic)
-@
-
-And run clonefinder:
+data (by which we mean variant data such as one would find in a .vcf
+file) to find clones.  This time, we run the \code{CloneFinder}
+algorithm with the \code{cndata} argument set to \code{NULL}.
 <<resMut, eval=FALSE>>=
-resMut <- findClones(cndata=NULL, vardata=seqDat, cnmodels=cnmodels, psiset=psis, pars=pars)
+resMut <- findClones(cndata = NULL, vardata = seqDat, 
+                     cnmodels = cnmodels, psiset = psis, pars = pars)
 @
-The results show that CloneFinder reached a good approximation for 'psis', the clonal fractions:
+Here the results aren't as good; at least two of the actual clones
+have been split into two mpieces.
 <<resMutResults>>=
 resMut$psi
 simTumor@psi
@@ -184,16 +283,18 @@ trueMutAssignments <- sapply(1:length(simTumor@clones),function(i){
   })
 })
 inferredMutAssignments <- resMut$mutated[,1:length(simTumor@clones)]
-colnames(inferredMutAssignments) <- colnames(trueMutAssignments) <- c('clone1','clone2','clone3')
+colnames(inferredMutAssignments) <- colnames(trueMutAssignments) <- c('C1','C2','C3')
 
-trueMutAssignments
-trueMutAssignments
+data.frame(Truth = trueMutAssignments,
+           Infer = inferredMutAssignments)
 @
 
 \section{Both Sequencing and SNP Array Data}
-Finally, we illustrate CloneFinder being run on a sample for which there is both SNP array and mutation data.
+Finally, we illustrate running \code{CloneFinder} on a sample for
+which there is both SNP array and mutation data. 
 <<resBoth,eval=FALSE, echo=TRUE>>=
-resBoth <- findClones(cndata=cnDat, vardata=somatic, cnmodels=cnmodels, psis, pars=pars)
+resBoth <- findClones(cndata = cnDat, vardata = somatic, 
+                      cnmodels = cnmodels, psiset = psis, pars = pars)
 @
 
 And we can look at the inferred allocation of tumor fraction to clones:
@@ -201,6 +302,7 @@ And we can look at the inferred allocation of tumor fraction to clones:
 resBoth$psi
 simTumor@psi
 @
-In conclusion, CloneFinder can be applied effectively to cases where one has SNP array data, (processed) sequencing data, or both.
+In conclusion, CloneFinder can be applied effectively to cases where
+one has SNP array data, (processed) sequencing data, or both. 
 
 \end{document}
