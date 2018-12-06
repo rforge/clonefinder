@@ -101,18 +101,18 @@ runAlg(...)
   Note that \code{runAlg} (an alias for \code{findClones}) is DEPRECATED.
 }
 \value{
-  The \code{fidClones} function returns a (rather long) list containing:
+  The \code{findClones} function returns a (rather long) list containing:
 
   \item{psi}{The most likely posterior psi-vector, given the data. The
-    number of non-zero entris is the number of clones found, and the onzeo
+    number of non-zero entries is the number of clones found, and the non-zero
     entries are the fraction of cells per clone}
   \item{A}{The most likely copy numbers for the A allele in each segment in each clone.}
   \item{B}{The most likely copy numbers for the B allele in each segment in each clone.}
-  \item{psibank}{a matrix, where each row is one of the psi-vectors
-    considered during the analysis}
-  \item{psiPosts}{a numeric vector, the (marginal) posterior probability of
+  \item{psibank}{A matrix, where each row is one of the psi-vectors
+    considered during the analysis.}
+  \item{psiPosts}{A numeric vector, the (marginal) posterior probability of
     each psi-vector considered during the analysis.}
-  \item{indices}{}
+  \item{indices}{???}
   \item{data}{a list with two data-frame components containing the data
     used during the analysis.}
   \item{filtered.data}{a list with two data-frame components containing the
@@ -140,7 +140,7 @@ psis <- c(0.6, 0.3, 0.1) # three clones
 tumor <- Tumor(psis, rounds = 100, nu = 0, pcnv = 1, norm.contam = FALSE)
 # simulate a dataset
 dataset <- generateTumorData(tumor, 10000, 600000, 70, 25, 0.15, 0.03, 0.1)
-\donttest{ra <- runAlg(dset$cn.data, dset$seq.data,
+\donttest{result <- findClones(dset$cn.data, dset$seq.data,
              cnmodels, psis.20, pars = pars, imputedCN = NULL) }
 }
 \keyword{array}

@@ -6,7 +6,7 @@
 \title{Class "WeightVector"}
 \description{
   A class, with validity checking, to contain vectors of non-negative
-  real number whose sum equals one.
+  real numbers whose sum equals one.
 }
 \usage{
 WeightVector(phi)

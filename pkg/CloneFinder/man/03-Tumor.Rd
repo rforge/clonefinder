@@ -8,7 +8,7 @@
 \title{Class "Tumor"}
 \description{
   A class that represents tumors, thought of as a collection of
-  subclones each with an associated measure as a fraction of all
+  (sub)clones each with an associated measure as a fraction of all
   tumor cells.
 }
 \usage{

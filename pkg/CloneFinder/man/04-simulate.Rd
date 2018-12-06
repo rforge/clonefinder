@@ -17,8 +17,8 @@ dataGen(tumor, ...)
 }
 \arguments{
   \item{tumor}{ an object of the \code{Tumor} class. }
-  \item{snps.seq}{an integer; the total number of germline variantts and
-  somatic mutations to simulate int he tumor genome.}
+  \item{snps.seq}{an integer; the total number of germline variants and
+  somatic mutations to simulate in the tumor genome.}
   \item{snps.cgh}{an integer; the number of single nucleotide
     polymorphisms (SNPs) to simulate as meaurements made to estimate
     copy number.}
@@ -64,7 +64,7 @@ dataGen(tumor, ...)
   \describe{
     \item{\code{chr}}{the chromosome number;}
     \item{\code{seq}}{a unique segment identifier;}
-    \item{\code{LRR}}{simulate segment-wise log ratios;}
+    \item{\code{LRR}}{simulated segment-wise log ratios;}
     \item{\code{BAF}}{simulated segment-wise B allele frequencies;}
     \item{\code{X} and \code{Y}}{simulated intensities for two separate
       alleles/haplotypes per segment; and} 

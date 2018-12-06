@@ -15,7 +15,7 @@
 \begin{document}
 \SweaveOpts{concordance=TRUE}
 \maketitle
-
+\tableofcontents
 \section{Introduction}
 Tumors often consist of multiple distinct subpopulations or
 clones. Information about the number of clones present in a tumor can
@@ -25,7 +25,7 @@ from sequencing or from SNP array data. The \code{CloneFinder} package
 can be applied to SNP array data, sequencing data, or both, from tumor
 cells from a cancer patient. \code{CloneFinder} can determine the
 number of clones, the distribution of cells among clones, and the copy
-number variations and mutations (depending onthe available data
+number variations and mutations (depending on the available data
 sources) that occur in each clone. The presence of multiple detectable
 clones is called ``clonal heterogeneity'' in the literature.
 
@@ -41,7 +41,7 @@ library(CloneFinder)
 
 \section{Simulated Tumor Containing Multiple Clones}
 In order to illustrate the algorithms, we are going to simulate data
-where we know the true structure. Specifically, we will simmulate copy
+where we know the true structure. Specifically, we will simulate copy
 number and mutation data for a tumor with three clones.  We start with
 an object that represents the Tumor at a somewhat abstract level.
 <<simTumor>>=
@@ -52,7 +52,7 @@ simTumor <- Tumor(c(5, 3, 2), rounds = 100,
 The first argument to the \code{Tumor} constructor is a vector that
 specifies the relative proportions of cells belonging to each
 clone; the length of the vector determines the number of clones. These
-values are automatically converted to frations that add up to one:
+values are automatically converted to fractions that add up to one:
 <<truePsi>>=
 simTumor@psi
 @ 
@@ -140,10 +140,10 @@ summary(cnDat)
 @ 
 
 The simulated sequencing data, in addition to chromosomal locations,
-has read counts for the numebr of reerence allelels, alternate
-(meaning varianmt or mutated) alleles, totla counts, the variant
-allele frequency (\code{VAF}) and a status indicator of whether the
-variant is believed to be germline or soimatic.
+has read counts for the number of reference alleles, alternate
+(meaning varianmt or mutated) alleles, total counts, the variant
+allele frequency (\code{VAF}), and a status indicator of whether the
+variant is believed to be germline or somatic.
 <<simMutData>>=
 dim(simData$seq.data)
 seqDat <- simData$seq.data
@@ -199,11 +199,6 @@ pars <- list(sigma0 = 5,    # SNP-wise standard deviation
              iters = 4)     # number of iterations
 @
 
-First, let's illustrate the use of CloneFinder in analyzing SNP array
-data to identify the clones present. We will load in some simulated
-mutation data. We'll also load in the actual simulated tumor
-information so we can compare the truth with the results: 
-
 <<realWork,echo=FALSE,eval=TRUE>>=
 f <- system.file("auxiliary/stash.Rda", package="CloneFinder")
 if (file.exists(f)) {
@@ -227,7 +222,6 @@ using \textbf{only the copy number data}. To do that, we set the
 resCN <- findClones(cndata = cnDat, vardata = NULL, 
                     cnmodels = cnmodels, psiset = psis, pars = pars)
 @
-
 Here are the results of the ``CNV only'' analysis of this sample:
 <<compare.psis>>=
 resCN$psi
@@ -237,40 +231,42 @@ In this case, \code{CloneFinder} accurately estimates not only the
 number of clones but also the clonal fractions. Let's look at the
 clonal copy number assignments as well:
 <<CNassign>>=
-trueCN_Assignments <- t(sapply(1:nrow(resCN$filtered.data$cndata.filt), function(i) {
-  index <- rownames(simTumor@clones[[1]]$cn) == rownames(resCN$filtered.data$cndata.filt)[i]
+trueCN_Assignments <- t(sapply(1:nrow(resCN$filtered.data$cndata.filt),
+function(i) {
+  index <- rownames(simTumor@clones[[1]]$cn) == 
+           rownames(resCN$filtered.data$cndata.filt)[i]
   sapply(1:length(simTumor@clones),function(j){
     simTumor@clones[[j]]$cn$A[index] + simTumor@clones[[j]]$cn$B[index]
   })
 }))
 
 inferredCN_Assignments <- (resCN$A+resCN$B)[,1:length(simTumor@clones)]
-colnames(inferredCN_Assignments) <- colnames(trueCN_Assignments) <- paste("C", 1:3)
+colnames(inferredCN_Assignments) <- colnames(trueCN_Assignments) <- 
+  paste("C", 1:3)
 
-#Clonal copy numbers for each potentially 'deviant' segment, true and inferred:
 data.frame(Truth = trueCN_Assignments,
            Infer = inferredCN_Assignments)
 @
 Although not perfect, the algorithm managed to correctly estimate  most of the
 segment-wise allelic copy numbers of different clones.
 
-\section{Sequencing Data}
+\subsection{Sequencing Data}
 Now, let's illustrate the use of \code{CloneFinder} in analyzing mutation
-data (by which we mean variant data such as one would find in a .vcf
+data (by which we mean variant data such as one would find in a \code{.vcf}
 file) to find clones.  This time, we run the \code{CloneFinder}
 algorithm with the \code{cndata} argument set to \code{NULL}.
 <<resMut, eval=FALSE>>=
 resMut <- findClones(cndata = NULL, vardata = seqDat, 
                      cnmodels = cnmodels, psiset = psis, pars = pars)
 @
-Here the results aren't as good; at least two of the actual clones
-have been split into two mpieces.
+Here the results aren't as good; at least one of the actual clones
+has been split into separate pieces.
 <<resMutResults>>=
 resMut$psi
 simTumor@psi
 @
-Let's also look at the mutation assignment compared to the truth:
-<<trueMut>>=
+%Let's also look at the mutation assignment compared to the truth:
+<<trueMut,echo=FALSE,eval=FALSE>>=
 trueMutAssignments <- sapply(1:length(simTumor@clones),function(i){
   sapply(1:length(resMut$filtered.data$mutdata.filt$mut.id),function(j){
     index <- which(simTumor@clones[[i]]$seq$mut.id==resMut$filtered.data$mutdata.filt$mut.id[j])
@@ -289,7 +285,7 @@ data.frame(Truth = trueMutAssignments,
            Infer = inferredMutAssignments)
 @
 
-\section{Both Sequencing and SNP Array Data}
+\subsection{Both Sequencing and SNP Array Data}
 Finally, we illustrate running \code{CloneFinder} on a sample for
 which there is both SNP array and mutation data. 
 <<resBoth,eval=FALSE, echo=TRUE>>=
@@ -302,6 +298,10 @@ And we can look at the inferred allocation of tumor fraction to clones:
 resBoth$psi
 simTumor@psi
 @
+Surprisingly, the results here are similar to the overaggressive
+results obtained using just the sequencing data rather than the simpler
+and correct results obtained when using just the copy number data.
+
 In conclusion, CloneFinder can be applied effectively to cases where
 one has SNP array data, (processed) sequencing data, or both. 
 
