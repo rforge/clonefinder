@@ -17,4 +17,7 @@ as(wv, "numeric")
 try( as.numeric(wv) ) # doesn't play well in the methods sandbox
 
 canCoerce(wv, "numeric")
-canCoerce(wv, "double") # more methods weirdness. "double" doesn't have a class def
+# bug in R core fixed in going from 3.5 to 3.6
+ifelse(getRversion() < "3.6.0",
+  !canCoerce(wv, "double"),   # fails in older versions
+  canCoerce(wv, "double"))    # works in newer versions

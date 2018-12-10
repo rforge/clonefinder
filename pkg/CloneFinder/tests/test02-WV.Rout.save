@@ -58,9 +58,12 @@ Error in as.numeric(wv) :
 > 
 > canCoerce(wv, "numeric")
 [1] TRUE
-> canCoerce(wv, "double") # more methods weirdness. "double" doesn't have a class def
-[1] FALSE
+> # bug in R core fixed in going from 3.5 to 3.6
+> ifelse(getRversion() < "3.6.0",
++   !canCoerce(wv, "double"),   # fails in older versions
++   canCoerce(wv, "double"))    # works in newer versions
+[1] TRUE
 > 
 > proc.time()
    user  system elapsed 
-   0.63    0.18    0.81 
+   0.63    0.21    0.88 
