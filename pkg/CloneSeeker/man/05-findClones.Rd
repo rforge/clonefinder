@@ -1,15 +1,15 @@
-\name{Finding Clones}
-\alias{findClones}
+\name{Seeking Clones}
+\alias{seekClones}
 \alias{runAlg}
-\title{ Finding Tumor Clones From Data}
+\title{Seeking Tumor Clones From Data}
 \description{
   Starting with copy number segmentation data and/or sequencing mutation
-  data for a tumor, find the number of clones, the fraction of cells
+  data for a tumor, seek the number of clones, the fraction of cells
   belonging to each clone, and the likely set of abnormalities in each
   clone.
 }
 \usage{
-findClones(cndata, vardata, cnmodels, psiset, pars, imputedCN = NULL)
+seekClones(cndata, vardata, cnmodels, psiset, pars, imputedCN = NULL)
 runAlg(...)
 }
 \arguments{
@@ -98,10 +98,10 @@ runAlg(...)
   of the variation in data (sigma0, for example, which describes
   variation in SNP array data).
   
-  Note that \code{runAlg} (an alias for \code{findClones}) is DEPRECATED.
+  Note that \code{runAlg} (an alias for \code{seekClones}) is DEPRECATED.
 }
 \value{
-  The \code{findClones} function returns a (rather long) list containing:
+  The \code{seekClones} function returns a (rather long) list containing:
 
   \item{psi}{The most likely posterior psi-vector, given the data. The
     number of non-zero entries is the number of clones found, and the non-zero
@@ -140,7 +140,7 @@ psis <- c(0.6, 0.3, 0.1) # three clones
 tumor <- Tumor(psis, rounds = 100, nu = 0, pcnv = 1, norm.contam = FALSE)
 # simulate a dataset
 dataset <- generateTumorData(tumor, 10000, 600000, 70, 25, 0.15, 0.03, 0.1)
-\donttest{result <- findClones(dset$cn.data, dset$seq.data,
+\donttest{result <- seekClones(dset$cn.data, dset$seq.data,
              cnmodels, psis.20, pars = pars, imputedCN = NULL) }
 }
 \keyword{array}

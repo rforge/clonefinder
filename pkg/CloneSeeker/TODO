@@ -4,11 +4,11 @@ imposes the strong prior that you can't both gain and lose the same
 segment in different clones. 
 
 2. Make the second version of 'cnModels' the default input to the
-'findClones' function. 
+'seekClones' function. 
 
-3. Add a default set of psi vectors as the input to 'findClones'.
+3. Add a default set of psi vectors as the input to 'seekClones'.
 
-4. Make the 'pars' argument to 'findClones' a proper object, and
+4. Make the 'pars' argument to 'seekClones' a proper object, and
 supply a default value.
 
 5. Make a function to display psi vectors (projected onto the

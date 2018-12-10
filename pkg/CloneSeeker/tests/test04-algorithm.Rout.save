@@ -15,10 +15,10 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> if (packageVersion("CloneFinder") < "0.9.0") {
-+   stop("You need to update 'CloneFinder'.")
+> if (packageVersion("CloneSeeker") < "0.9.0") {
++   stop("You need to update 'CloneSeeker'.")
 + }
-> library("CloneFinder")
+> library("CloneSeeker")
 > 
 > psiSets <- list(c(1),                     # only one clone
 +                 c(0.7, 0.3),              # two clones
@@ -97,7 +97,7 @@ Working on set J = 3
 +   cat("\n\nDataset", J, "\n", file=stdout())
 +   dset <- simData[[J]]$dset
 +   ## Cheat and limit the number of mutations to speed up the algorithm for CRAN
-+   ## This code was copied out of the "findClones" algorithm.
++   ## This code was copied out of the "seekClones" algorithm.
 +   seqdata <- dset$seq.data
 +   if(nrow(seqdata) > 0) {
 +     read.den <- density(seqdata$refCounts)
@@ -105,7 +105,7 @@ Working on set J = 3
 +   }
 +   mutdata <- seqdata[seqdata$status == 'somatic',]
 +   if (nrow(mutdata) > 1) {
-+     mut.filt <- CloneFinder:::filterMutations(mutdata, mu=peak, threshold=3)
++     mut.filt <- CloneSeeker:::filterMutations(mutdata, mu=peak, threshold=3)
 +     seqdata <- mut.filt$mat
 +     if (nrow(seqdata) > 10) seqdata <- seqdata[1:10,]
 +   }
@@ -275,7 +275,7 @@ posteriors
 +   Rprof("profile3.txt")
 +   for (J in c(1, 5, 9)) {
 +     dset <- simData[[J]]$dset
-+     ra <- findClones(dset$cn.data, dset$seq.data,
++     ra <- seekClones(dset$cn.data, dset$seq.data,
 +                      cnmodels, psis.20,
 +                      pars = pars, imputedCN = NULL)
 +   }
@@ -285,4 +285,4 @@ posteriors
 > 
 > proc.time()
    user  system elapsed 
- 113.17    0.37  113.58 
+ 108.63    0.24  108.91 

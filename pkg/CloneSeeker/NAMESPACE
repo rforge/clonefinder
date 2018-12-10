@@ -33,7 +33,7 @@ export("generateTumorData", "plotTumorData")
 export("tumorGen", "dataGen", "runAlg") # deprecated
 
 ### algorithm.R
-export("findClones")
+export("seekClones")
 
 ####################### IN PROGRESS ######################
 ### needed for simulations; currently internal

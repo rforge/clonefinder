@@ -63,7 +63,7 @@ for (J in testset) {
   cat("\n\nDataset", J, "\n", file=stdout())
   dset <- simData[[J]]$dset
   ## Cheat and limit the number of mutations to speed up the algorithm for CRAN
-  ## This code was copied out of the "findClones" algorithm.
+  ## This code was copied out of the "seekClones" algorithm.
   seqdata <- dset$seq.data
   if(nrow(seqdata) > 0) {
     read.den <- density(seqdata$refCounts)
@@ -102,7 +102,7 @@ if (FALSE) { # save the profiling code for later
   Rprof("profile3.txt")
   for (J in c(1, 5, 9)) {
     dset <- simData[[J]]$dset
-    ra <- findClones(dset$cn.data, dset$seq.data,
+    ra <- seekClones(dset$cn.data, dset$seq.data,
                      cnmodels, psis.20,
                      pars = pars, imputedCN = NULL)
   }

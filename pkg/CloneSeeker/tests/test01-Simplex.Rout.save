@@ -15,7 +15,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> library(CloneFinder)
+> library(CloneSeeker)
 > 
 > set.seed(461283)
 > sampleSimplex(4, 3)
@@ -48,4 +48,4 @@ Error in matrix(NA, nrow = n, ncol = d) : invalid 'ncol' value (< 0)
 > 
 > proc.time()
    user  system elapsed 
-   1.77    0.21    1.99 
+   0.60    0.28    0.85 

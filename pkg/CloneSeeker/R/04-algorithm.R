@@ -131,7 +131,7 @@ psiFilter <- function(psis, psi.center, range) {
 }
 
 #'snp data' means cgh data unless there is no cgh data, in which case we substitute in snp info from seq data
-findClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) {
+seekClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) {
   if(is.null(cndata)) {
     if(is.null(imputedCN)) {
       seqsnps <- vardata[vardata$status=='germline',]

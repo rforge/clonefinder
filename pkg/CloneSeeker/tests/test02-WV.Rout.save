@@ -15,7 +15,7 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> library(CloneFinder)
+> library(CloneSeeker)
 > 
 > new("WeightVector")
 An object of class "WeightVector"
@@ -66,4 +66,4 @@ Error in as.numeric(wv) :
 > 
 > proc.time()
    user  system elapsed 
-   0.63    0.21    0.88 
+   0.60    0.20    0.87 

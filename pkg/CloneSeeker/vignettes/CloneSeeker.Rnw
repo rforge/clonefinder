@@ -153,7 +153,7 @@ table(seqDat$status)
 @ 
 
 
-\section{Finding Clones}
+\section{Seeking Clones}
 
 To run \code{CloneSeeker}, we will need a starting set of $\psi$
 vectors as inputs, where $\psi$ records the fraction of cells
@@ -204,22 +204,22 @@ f <- system.file("auxiliary/stash.Rda", package="CloneSeeker")
 if (file.exists(f)) {
   load(f)
 } else {
-  resCN <- findClones(cndata = cnDat, vardata = NULL, cnmodels = cnmodels, psis, pars = pars)
-  resMut <- findClones(cndata = NULL, vardata = seqDat, cnmodels = cnmodels, psiset = psis, pars = pars)
-  resBoth <- findClones(cndata = cnDat, vardata = somatic, cnmodels = cnmodels, psis, pars = pars)
+  resCN <- seekClones(cndata = cnDat, vardata = NULL, cnmodels = cnmodels, psis, pars = pars)
+  resMut <- seekClones(cndata = NULL, vardata = seqDat, cnmodels = cnmodels, psiset = psis, pars = pars)
+  resBoth <- seekClones(cndata = cnDat, vardata = somatic, cnmodels = cnmodels, psis, pars = pars)
   save(resCN, resMut, resBoth, file = "../inst/auxiliary/stash.Rda")
 }
 rm(f)
 @ 
 
-\subsection{Finding Clones from Copy Number Data}
-The \code{findClones} function can estimate the clonal architecture
+\subsection{Seeking Clones from Copy Number Data}
+The \code{seekClones} function can estimate the clonal architecture
 from copy number data, or from mutation and variant data, or jointly
 from both kinds of data.  In this section, we will run the algorithm
 using \textbf{only the copy number data}. To do that, we set the
 \code{varData} argument to \code{NULL}.
 <<resCN,eval=FALSE>>=
-resCN <- findClones(cndata = cnDat, vardata = NULL, 
+resCN <- seekClones(cndata = cnDat, vardata = NULL, 
                     cnmodels = cnmodels, psiset = psis, pars = pars)
 @
 Here are the results of the ``CNV only'' analysis of this sample:
@@ -253,10 +253,10 @@ segment-wise allelic copy numbers of different clones.
 \subsection{Sequencing Data}
 Now, let's illustrate the use of \code{CloneSeeker} in analyzing mutation
 data (by which we mean variant data such as one would find in a \code{.vcf}
-file) to find clones.  This time, we run the \code{CloneSeeker}
+file) to seek clones.  This time, we run the \code{CloneSeeker}
 algorithm with the \code{cndata} argument set to \code{NULL}.
 <<resMut, eval=FALSE>>=
-resMut <- findClones(cndata = NULL, vardata = seqDat, 
+resMut <- seekClones(cndata = NULL, vardata = seqDat, 
                      cnmodels = cnmodels, psiset = psis, pars = pars)
 @
 Here the results aren't as good; at least one of the actual clones
@@ -289,7 +289,7 @@ data.frame(Truth = trueMutAssignments,
 Finally, we illustrate running \code{CloneSeeker} on a sample for
 which there is both SNP array and mutation data. 
 <<resBoth,eval=FALSE, echo=TRUE>>=
-resBoth <- findClones(cndata = cnDat, vardata = somatic, 
+resBoth <- seekClones(cndata = cnDat, vardata = somatic, 
                       cnmodels = cnmodels, psiset = psis, pars = pars)
 @
 
