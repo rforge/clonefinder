@@ -1,4 +1,4 @@
-library(CloneFinder)
+library(CloneSeeker)
 
 dataPars <- list(snps.seq = 1000000,
                  snps.cgh = 600000,

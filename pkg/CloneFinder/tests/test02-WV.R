@@ -1,4 +1,4 @@
-library(CloneFinder)
+library(CloneSeeker)
 
 new("WeightVector")
 new("WeightVector", 1:3)

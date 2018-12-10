@@ -20,8 +20,8 @@ psi vectors; you could just load the premade one. This was useful when using, sa
 operation more time consuming) but isn't really necessary with a smaller psi matrix like psis.20.
 
 6. the 'runAlg' function in algorithms is the right one. The one in 'functions' is redundant, which is why it's commented out; can be gotten rid of.
-Also, in runnings.R, I think the function you were referring to 'runAlgs', not 'runAlg.' runAlg runs clonefinder. runAlgs runs all the algorithms 
-for the analysis; currently clonefinder, sciClone and EXPANDs.
+Also, in runnings.R, I think the function you were referring to 'runAlgs', not 'runAlg.' runAlg runs cloneseeker. runAlgs runs all the algorithms 
+for the analysis; currently cloneseeker, sciClone and EXPANDs.
 
 7. In algorithms.R, psiFilter is vestigial, and can be gotten rid of.
 
@@ -30,7 +30,7 @@ so we can probably just load it automatically. Also, maybe psiset also shouldn't
 to use a more (or less) 'granular' starting set of possible psi values. But maybe that's unnecessary, and the one with 'granularity' of .05 (psis.20)
 should just be used automatically.
 
-9. Hmm, should we keeo the imputedCN option? I've never actually used it; it's there in case the user only wants analyze mutation data with clonefinder, but
+9. Hmm, should we keeo the imputedCN option? I've never actually used it; it's there in case the user only wants analyze mutation data with cloneseeker, but
 has copy number estimates imputed from sequencing data or whatever, which is useful for mutation analysis; they can just put in the ready made copy number
 estimates to assist with the mutation heterogeneity analysis. Is this necessary or particularly useful?
 

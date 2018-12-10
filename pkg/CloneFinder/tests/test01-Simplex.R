@@ -1,4 +1,4 @@
-library(CloneFinder)
+library(CloneSeeker)
 
 set.seed(461283)
 sampleSimplex(4, 3)

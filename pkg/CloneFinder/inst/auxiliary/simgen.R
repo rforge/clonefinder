@@ -1,7 +1,7 @@
-if (packageVersion("CloneFinder") < "0.8.6") {
-  stop("You need to update 'CloneFinder'.")
+if (packageVersion("CloneSeeker") < "1.0.0") {
+  stop("You need to update 'CloneSeeker'.")
 }
-library("CloneFinder")
+library("CloneSeeker")
 
 ###Generate a sample simulation population:
 #set: 1 (pcnv=0, nu=30, sigma.lrr=.15, sigma.baf=.03, sigma.reads=25); k = 1:5
@@ -240,7 +240,7 @@ if(gen.mixtures) {
   rewind <- rbind(rewind.cll, rewind.hapmap)
   datapath <- paste('C:/Users/Mark/OneDrive - The Ohio State University/clonetools/dat/data-mix2', version, sep='')
   simpath <- paste('C:/Users/Mark/OneDrive - The Ohio State University/clonetools/sim/sims-mix2', version, sep='')
-  psipool <- get(load('C:/Users/Mark/OneDrive - The Ohio State University/clonetools/clonefinder/psis.100.rda'))
+  psipool <- get(load('C:/Users/Mark/OneDrive - The Ohio State University/clonetools/cloneseeker/psis.100.rda'))
   psipool <- psipool[which(sapply(1:nrow(psipool), function(j) {length(which(psipool[j, ]==0 | psipool[j, ] > threshold))==ncol(psipool)})), ]
   ks <- sapply(1:nrow(psipool), function(i) {length(which(psipool[i, ] > 0))})
   N <- 300 #Let's to 60 apiece for k=1, 2, 3, 4, and 5

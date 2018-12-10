@@ -1,14 +1,14 @@
-%\VignetteIndexEntry{CloneFinder}
+%\VignetteIndexEntry{CloneSeeker}
 %\VignetteKeywords{SNP,Copy Number,clone,subclone}
 %\VignetteDepends{stats}
-%\VignettePackage{CloneFinder}
+%\VignettePackage{CloneSeeker}
 \documentclass{article}
 \usepackage{Sweave}
 \addtolength{\textwidth}{1in}
 \addtolength{\oddsidemargin}{-.5in}
 \setlength{\evensidemargin}{\oddsidemargin}
 \newcommand{\code}[1]{\texttt{#1}}
-\title{CloneFinder}
+\title{CloneSeeker}
 \author{Mark Zucker \and Kevin R. Coombes}
 \date{November, 2018} 
 
@@ -21,9 +21,9 @@ Tumors often consist of multiple distinct subpopulations or
 clones. Information about the number of clones present in a tumor can
 be inferred using either mutation allele frequency data, from
 sequencing studies, or from copy number varants (CNVs), derived either
-from sequencing or from SNP array data. The \code{CloneFinder} package
+from sequencing or from SNP array data. The \code{CloneSeeker} package
 can be applied to SNP array data, sequencing data, or both, from tumor
-cells from a cancer patient. \code{CloneFinder} can determine the
+cells from a cancer patient. \code{CloneSeeker} can determine the
 number of clones, the distribution of cells among clones, and the copy
 number variations and mutations (depending on the available data
 sources) that occur in each clone. The presence of multiple detectable
@@ -34,9 +34,9 @@ course of a cancer. It is possible, for example, that the tumor cells
 that will eventually become the refractory cancer after treatment are
 present as a minor subclone in the tumor early on.
 
-First, we load the \code{CloneFinder} package:
+First, we load the \code{CloneSeeker} package:
 <<lib>>=
-library(CloneFinder)
+library(CloneSeeker)
 @ 
 
 \section{Simulated Tumor Containing Multiple Clones}
@@ -155,7 +155,7 @@ table(seqDat$status)
 
 \section{Finding Clones}
 
-To run \code{CloneFinder}, we will need a starting set of $\psi$
+To run \code{CloneSeeker}, we will need a starting set of $\psi$
 vectors as inputs, where $\psi$ records the fraction of cells
 belonging to each clone. For each $\psi$ vector, the algorithm will
 compute the most probable copy number state for each clone at each
@@ -200,7 +200,7 @@ pars <- list(sigma0 = 5,    # SNP-wise standard deviation
 @
 
 <<realWork,echo=FALSE,eval=TRUE>>=
-f <- system.file("auxiliary/stash.Rda", package="CloneFinder")
+f <- system.file("auxiliary/stash.Rda", package="CloneSeeker")
 if (file.exists(f)) {
   load(f)
 } else {
@@ -227,7 +227,7 @@ Here are the results of the ``CNV only'' analysis of this sample:
 resCN$psi
 simTumor@psi
 @
-In this case, \code{CloneFinder} accurately estimates not only the
+In this case, \code{CloneSeeker} accurately estimates not only the
 number of clones but also the clonal fractions. Let's look at the
 clonal copy number assignments as well:
 <<CNassign>>=
@@ -251,9 +251,9 @@ Although not perfect, the algorithm managed to correctly estimate  most of the
 segment-wise allelic copy numbers of different clones.
 
 \subsection{Sequencing Data}
-Now, let's illustrate the use of \code{CloneFinder} in analyzing mutation
+Now, let's illustrate the use of \code{CloneSeeker} in analyzing mutation
 data (by which we mean variant data such as one would find in a \code{.vcf}
-file) to find clones.  This time, we run the \code{CloneFinder}
+file) to find clones.  This time, we run the \code{CloneSeeker}
 algorithm with the \code{cndata} argument set to \code{NULL}.
 <<resMut, eval=FALSE>>=
 resMut <- findClones(cndata = NULL, vardata = seqDat, 
@@ -286,7 +286,7 @@ data.frame(Truth = trueMutAssignments,
 @
 
 \subsection{Both Sequencing and SNP Array Data}
-Finally, we illustrate running \code{CloneFinder} on a sample for
+Finally, we illustrate running \code{CloneSeeker} on a sample for
 which there is both SNP array and mutation data. 
 <<resBoth,eval=FALSE, echo=TRUE>>=
 resBoth <- findClones(cndata = cnDat, vardata = somatic, 
@@ -302,7 +302,7 @@ Surprisingly, the results here are similar to the overaggressive
 results obtained using just the sequencing data rather than the simpler
 and correct results obtained when using just the copy number data.
 
-In conclusion, CloneFinder can be applied effectively to cases where
+In conclusion, CloneSeeker can be applied effectively to cases where
 one has SNP array data, (processed) sequencing data, or both. 
 
 \end{document}

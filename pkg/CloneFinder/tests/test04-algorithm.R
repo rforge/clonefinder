@@ -1,7 +1,7 @@
-if (packageVersion("CloneFinder") < "0.9.0") {
-  stop("You need to update 'CloneFinder'.")
+if (packageVersion("CloneSeeker") < "0.9.0") {
+  stop("You need to update 'CloneSeeker'.")
 }
-library("CloneFinder")
+library("CloneSeeker")
 
 psiSets <- list(c(1),                     # only one clone
                 c(0.7, 0.3),              # two clones
@@ -71,7 +71,7 @@ for (J in testset) {
   }
   mutdata <- seqdata[seqdata$status == 'somatic',]
   if (nrow(mutdata) > 1) {
-    mut.filt <- CloneFinder:::filterMutations(mutdata, mu=peak, threshold=3)
+    mut.filt <- CloneSeeker:::filterMutations(mutdata, mu=peak, threshold=3)
     seqdata <- mut.filt$mat
     if (nrow(seqdata) > 10) seqdata <- seqdata[1:10,]
   }

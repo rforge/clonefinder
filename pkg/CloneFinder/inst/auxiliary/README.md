@@ -26,5 +26,5 @@ some of the analyses described in our manuscript.
 ## Analyses
 
 1. `simgen.R` is the script that creates all the simulated data sets
-   used in our paper to compare the CloneFinder algorithm to other
+   used in our paper to compare the CloneSeeker algorithm to other
    algorithms intended to detect clones.
