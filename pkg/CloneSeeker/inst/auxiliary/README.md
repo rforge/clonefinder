@@ -25,6 +25,9 @@ some of the analyses described in our manuscript.
 
 ## Analyses
 
-1. `simgen.R` is the script that creates all the simulated data sets
+1. `generateSimulationSet.R` is the script that creates  simulated data sets like the ones
    used in our paper to compare the CloneSeeker algorithm to other
+   algorithms intended to detect clones.
+2. `generateMixtures.R` is the script that creates the artificial mixture data sets like 
+   the one used in our paper to compare the CloneSeeker algorithm to other
    algorithms intended to detect clones.
