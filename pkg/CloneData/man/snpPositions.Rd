@@ -2,7 +2,7 @@
 \alias{snpPositions-data}
 \alias{snpPositions}
 \docType{data}
-\title{}
+\title{SNP Genomic Coordinates}
 \description{
 }
 \usage{

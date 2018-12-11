@@ -2,7 +2,7 @@
 \alias{hapmapSegments-data}
 \alias{hapmapSegments}
 \docType{data}
-\title{}
+\title{Segmented HapMap Copy Number Data}
 \description{
 }
 \usage{
