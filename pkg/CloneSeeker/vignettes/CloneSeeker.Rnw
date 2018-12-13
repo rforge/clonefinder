@@ -147,6 +147,7 @@ variant is believed to be germline or somatic.
 <<simMutData>>=
 dim(simData$seq.data)
 seqDat <- simData$seq.data
+somatic <- seqDat[seqDat$status=='somatic']
 dim(seqDat)
 summary(seqDat)
 table(seqDat$status)

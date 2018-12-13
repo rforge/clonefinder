@@ -39,20 +39,23 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
     xmat <- t(sapply(1:nrow(cndata.filt), function(L) {
       post <- dnorm(cndata.filt$X[L]-etaList[[x.numbers[L]]], 0, pars$sigma0/(cndata.filt$markers[L]^.5), log=TRUE) + 
         priorList[[x.numbers[L]]]
-      avec <- c(modList[[x.numbers[L]]][which.max(post),], rep(0, cnmax-length(nonzero)))
+      avec <- c(modList[[x.numbers[L]]][which.max(post),], rep(0, kmax-length(nonzero)))
       c(avec, etaList[[x.numbers[L]]][which.max(post)], max(post))
     }))
     ymat <- t(sapply(1:nrow(cndata.filt), function(L) {
       post <- dnorm(cndata.filt$Y[L]-etaList[[y.numbers[L]]], 0, pars$sigma0/(cndata.filt$markers[L]^.5), log=TRUE) + 
         priorList[[y.numbers[L]]]
-      bvec <- c(modList[[y.numbers[L]]][which.max(post),], rep(0, cnmax-length(nonzero)))
+      bvec <- c(modList[[y.numbers[L]]][which.max(post),], rep(0, kmax-length(nonzero)))
       c(bvec, etaList[[y.numbers[L]]][which.max(post)], max(post))
     }))
-    psiPost <- sum(xmat[, cnmax + 2]) + sum(ymat[, cnmax + 2])
-    cnRes <- list(A = xmat[, 1:cnmax, drop=FALSE],
-                  B = ymat[, 1:cnmax, drop=FALSE],
-                  etaA = xmat[, cnmax+1],
-                  etaB = ymat[, cnmax+1],
+    if(nrow(cndata.filt)==0 | length(na.omit(cndata.filt$seg))==0){
+      xmat <- ymat <- matrix(numeric(),nrow=0,ncol=kmax+2)
+    }
+    psiPost <- sum(xmat[, kmax + 2]) + sum(ymat[, kmax + 2])
+    cnRes <- list(A = xmat[, 1:kmax, drop=FALSE],
+                  B = ymat[, 1:kmax, drop=FALSE],
+                  etaA = xmat[, kmax+1],
+                  etaB = ymat[, kmax+1],
                   post = psiPost)
     if(nrow(mutdata.filt) > 0) {
       ## Nested loop, over mutation data
@@ -113,7 +116,9 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
     A <- matrix(A, nrow=1)
     B <- matrix(B, nrow=1)
   }
-  rownames(A) <- rownames(B) <- rownames(cndata.filt)
+  if(nrow(A)>0){
+    rownames(A) <- rownames(B) <- rownames(cndata.filt)
+  }
   list(A = A, B = B,
        mutated = res[[pick]]$mutated,
        etaA = res[[pick]]$etaA,
@@ -135,7 +140,12 @@ seekClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) 
   if(is.null(cndata)) {
     if(is.null(imputedCN)) {
       seqsnps <- vardata[vardata$status=='germline',]
-      snpdata <- seqSeg(seqsnps, len=100, thresh=.25)
+      if(nrow(seqsnps)>0){
+        snpdata <- seqSeg(seqsnps, len=100, thresh=.25)
+      }else{
+        snpdata <- data.frame('chr'=numeric(),'seg'=numeric(),'LRR'=numeric(),'BAF'=numeric(),
+                              'X'=numeric(),'Y'=numeric(),'markers'=numeric())
+      }
     } else {
       snpdata <- imputedCN
     }
