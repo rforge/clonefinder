@@ -25,9 +25,13 @@ some of the analyses described in our manuscript.
 
 ## Analyses
 
-1. `generateSimulationSet.R` is the script that creates  simulated data sets like the ones
-   used in our paper to compare the CloneSeeker algorithm to other
+1. `simgen.R` is the script that created the original simulated data
+   sets used in our paper to compare the CloneSeeker algorithm to other
    algorithms intended to detect clones.
-2. `generateMixtures.R` is the script that creates the artificial mixture data sets like 
-   the one used in our paper to compare the CloneSeeker algorithm to other
-   algorithms intended to detect clones.
+2. `running.R` analyzes all th simulated data.
+3. `asswssing.R` compares the infered results feomthe the algorithms
+   to the true properties of the simulated adta.
+4. `clinical.R` applies th CloneSeeker alorithm to CLL data.
+5. `cnv_survival.R` tsts the associations of subclones with clinical
+   variables in CLL.
+6. ``figures.R` generates the figures in the manuscript.
