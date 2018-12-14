@@ -2,5 +2,8 @@
 ### NAMESPACE
 ###
 
-# touch to force rebuild
+import("CloneSeeker")
+importFrom("stats", "density", "na.omit")
+importFrom("utils", "data")
 
+export("generateSimulationSet", "generateMixtures")

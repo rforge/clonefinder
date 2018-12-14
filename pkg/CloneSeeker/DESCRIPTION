@@ -1,6 +1,6 @@
 Package: CloneSeeker
-Version: 1.0.1
-Date: 2018-12-11
+Version: 1.0.2
+Date: 2018-12-14
 Title: Seeking and Finding Clones in SNP and Sequencing Data
 Author: Kevin R. Coombes, Mark Zucker
 Maintainer: Kevin R. Coombes <krc@silicovore.com>

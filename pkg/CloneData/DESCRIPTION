@@ -1,7 +1,7 @@
 Package: CloneData
 Title: Data to Support CloneSeeker Algorithm
-Version: 1.0.0
-Date: 2018-12-11
+Version: 1.0.1
+Date: 2018-12-14
 Author: Kevin R. Coombes, Mark Zucker
 Description: This is a data-only package to provide example data for
   the CloneSeeker package, which implements an algorithm to determine
@@ -9,6 +9,7 @@ Description: This is a data-only package to provide example data for
   muitation data, or both.
 Maintainer: Kevin R. Coombes <krc@silicovore.com>
 Depends: R (>= 3.0)
+Imports: CloneSeeker, stats, utils
 License: Apache License (== 2.0)
 LazyData: yes
 URL: http://oompa.r-forge.r-project.org/
