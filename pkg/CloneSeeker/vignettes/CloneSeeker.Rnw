@@ -189,7 +189,7 @@ cnmodels <- cnmodels[include,]
 
 Now we will define the other algorithm parameters:
 <<pars>>=
-pars <- list(sigma0 = 5,    # SNP-wise standard deviation
+pars <- list(sigma0 = 1,    # SNP-wise standard deviation
              ktheta = 0.3,  # geometric prior parameter on number of clones
              theta = 0.9,   # geometric prior parameter on copy number changes
              mtheta = 0.9,  # gemoetric prior parameter on point mutations

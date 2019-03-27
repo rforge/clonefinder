@@ -151,6 +151,11 @@ seekClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) 
     }
   } else {
     snpdata <- cndata
+    if(is.null(snpdata$X)){
+      tcn <- 2*10^snpdata$LRR
+      snpdata$X <- tcn*snpdata$BAF
+      snpdata$Y <- tcn*(1-snpdata$BAF)
+    }
   }
   #There's no reason vardata should have class 'logical' unless it's NA
   if(is.null(vardata) | class(vardata)=='logical') {
