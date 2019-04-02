@@ -218,7 +218,15 @@ seekClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) 
     max.index <- max(bank.indices)
     postset <- logPosts[1:max.index]
     probs <- exp(postset)
-    probs[which(is.infinite(probs))] <- 1
+    if(length(which(is.infinite(probs)))==length(probs)) {
+      probs <- rep(1/length(probs), length(probs))
+    }
+    probs[which(is.infinite(probs))] <- max(c(1,max(probs[which(is.finite(probs))])))
+    if(is.infinite(sum(probs))){
+      power <- log10(length(probs)) + log10(mean(probs))
+      divideBy <- 10^(power-308)
+      probs <- probs/divideBy
+    }
     probs <- probs/sum(probs)
     if(length(which(is.na(probs)))==length(probs)) {
       min.post <- min(postset)
@@ -228,9 +236,6 @@ seekClones <- function(cndata, vardata, cnmodels, psiset, pars, imputedCN=NULL) 
       if(length(which(is.na(probs)))==length(probs)) {
         probs <- rep(1/length(probs),length(probs))
       }
-    }
-    if(length(which(is.infinite(postset)))==length(postset)) {
-      probs <- rep(1/length(probs), length(probs))
     }
     indices <- sample(1:max.index, Q, replace=TRUE, prob=probs)
     alphas <- psibank[indices,]
