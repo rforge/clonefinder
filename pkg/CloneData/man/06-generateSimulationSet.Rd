@@ -93,6 +93,12 @@ generateSimulationSet(simPath, dataPath, nPerK, rounds=400, nu=0,
   }
 
 }
+\references{
+  Zucker MR, Abruzzo LV, Herling CD, Barron LL, Keating MJ, Abrams ZB,
+  Heerema N, Coombes KR. Inferring Clonal Heterogeneity in Cancer using
+  SNP Arrays and Whole Genome Sequencing. Bioinformatics. To
+  appear. doi: 10.1093/bioinformatics/btz057.
+}
 \author{
   Kevin R. Coombes \email{krc@silicovore.com},
   Mark Zucker \email{zucker.64@buckeyemail.osu.edu}

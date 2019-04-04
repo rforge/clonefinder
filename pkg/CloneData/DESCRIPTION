@@ -1,12 +1,12 @@
 Package: CloneData
 Title: Data to Support CloneSeeker Algorithm
-Version: 1.0.1
-Date: 2018-12-14
+Version: 1.0.3
+Date: 20190-04-04
 Author: Kevin R. Coombes, Mark Zucker
 Description: This is a data-only package to provide example data for
   the CloneSeeker package, which implements an algorithm to determine
   clonal architecture from SNP-array copy number data, sequencing
-  muitation data, or both.
+  muitation data, or both. See <doi:10.1093/bioinformatics/btz057>.
 Maintainer: Kevin R. Coombes <krc@silicovore.com>
 Depends: R (>= 3.0)
 Imports: CloneSeeker, stats, utils
