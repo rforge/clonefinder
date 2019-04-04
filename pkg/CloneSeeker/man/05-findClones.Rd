@@ -124,6 +124,12 @@ runAlg(...)
   \item{etaM}{A vector of the weighted average number of copies of the mutated allele at each mutation}
   \item{mutated}{A matrix of the number of mutated alleles at each locus in each clone, where the number of rows is the number of somatic mutations in the data and the number of columns is the number of clones}
 }
+\references{
+  Zucker MR, Abruzzo LV, Herling CD, Barron LL, Keating MJ, Abrams ZB,
+  Heerema N, Coombes KR. Inferring Clonal Heterogeneity in Cancer using
+  SNP Arrays and Whole Genome Sequencing. Bioinformatics. To
+  appear. doi: 10.1093/bioinformatics/btz057.
+}
 \author{
   Kevin R. Coombes \email{krc@silicovore.com},
   Mark Zucker \email{zucker.64@buckeyemail.osu.edu}

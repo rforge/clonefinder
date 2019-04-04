@@ -1,12 +1,13 @@
 Package: CloneSeeker
-Version: 1.0.2
-Date: 2018-12-14
+Version: 1.0.3
+Date: 2019-04-04
 Title: Seeking and Finding Clones in SNP and Sequencing Data
 Author: Kevin R. Coombes, Mark Zucker
 Maintainer: Kevin R. Coombes <krc@silicovore.com>
 Description: Defines the classes and functions used to simulate and
   to analyze data sets describing copy number variants and,
   optionally, sequencing mutations in order to detect clonal subsets.
+  See <doi:10.1093/bioinformatics/btz057>.
 Depends: R (>= 3.0)
 Imports: methods, graphics, combinat, gtools, quantmod, cluster, sirt
 License: Apache License (== 2.0)
