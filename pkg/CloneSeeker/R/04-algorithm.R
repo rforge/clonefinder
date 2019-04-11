@@ -1,4 +1,4 @@
-debugMe <- FALSE
+#debugMe <- FALSE
 
 psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, kPriors=NULL, kmax = 5){
   if(is.null(kPriors)){
@@ -8,7 +8,7 @@ psiOptim <- function(cndata.filt, mutdata.filt, psis, cnmodels, pars, cnmax=5, k
   dirichletPriors <- sapply(1:nrow(psis), function(k){psiPrior(psis[k,])})
   ## Outer loop, over psi vectors
   res <- lapply(1:nrow(psis), function(Ipsi) {
-    if(debugMe) cat("Ipsi =", Ipsi, "\n", file=stderr())
+#    if(debugMe) cat("Ipsi =", Ipsi, "\n", file=stderr())
     nonzero <- which(psis[Ipsi,] > 0)
     models <- cnmodels[,nonzero]
     if(length(nonzero) == 1){
