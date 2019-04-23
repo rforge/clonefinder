@@ -1,5 +1,5 @@
 Package: CloneSeeker
-Version: 1.0.5
+Version: 1.0.6
 Date: 2019-04-23
 Title: Seeking and Finding Clones in Copy Number and Sequencing Data
 Author: Kevin R. Coombes, Mark Zucker
@@ -9,6 +9,6 @@ Description: Defines the classes and functions used to simulate and
   optionally, sequencing mutations in order to detect clonal subsets.
   See Zucker et al. (2019) <doi:10.1093/bioinformatics/btz057>.
 Depends: R (>= 3.0)
-Imports: methods, graphics, combinat, gtools, quantmod, cluster, sirt
+Imports: methods, graphics, combinat, gtools, quantmod
 License: Apache License (== 2.0)
 URL: http://oompa.r-forge.r-project.org/
