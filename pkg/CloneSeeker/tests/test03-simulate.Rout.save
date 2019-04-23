@@ -26,6 +26,7 @@ Type 'q()' to quit R.
 +                  density.sigma = 0.1)
 > psis <- c(0.6, 0.3, 0.1)
 > 
+> RNGversion("3.5.3")
 > set.seed(412634)
 > ### Mutations only? without contamination
 > tumor <- Tumor(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
@@ -256,4 +257,4 @@ $seq.data
 > 
 > proc.time()
    user  system elapsed 
-  31.69    0.34   32.21 
+  21.79    0.21   22.02 

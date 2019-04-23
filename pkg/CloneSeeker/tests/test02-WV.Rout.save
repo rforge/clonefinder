@@ -66,4 +66,4 @@ Error in as.numeric(wv) :
 > 
 > proc.time()
    user  system elapsed 
-   0.60    0.20    0.87 
+   0.40    0.09    0.48 

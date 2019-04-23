@@ -17,6 +17,7 @@ Type 'q()' to quit R.
 
 > library(CloneSeeker)
 > 
+> RNGversion("3.5.3")
 > set.seed(461283)
 > sampleSimplex(4, 3)
            [,1]      [,2]      [,3]
@@ -48,4 +49,4 @@ Error in matrix(NA, nrow = n, ncol = d) : invalid 'ncol' value (< 0)
 > 
 > proc.time()
    user  system elapsed 
-   0.60    0.28    0.85 
+   0.42    0.09    0.70 
