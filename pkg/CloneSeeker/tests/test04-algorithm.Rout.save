@@ -135,3 +135,155 @@ Working on set J = 3
 
 
 Dataset 1 
+psi:
+[1] 1 0 0 0 0
+A,B:
+    2         1        
+60  1 0 0 0 0 0 0 0 0 0
+133 2 0 0 0 0 1 0 0 0 0
+239 1 0 0 0 0 0 0 0 0 0
+249 2 0 0 0 0 1 0 0 0 0
+eta:
+  etaA etaB
+1    1    0
+2    2    1
+3    1    0
+4    2    1
+indices:
+$indices.cn
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   60.0   114.8   186.0   170.2   241.5   249.0 
+
+$mutids.filt
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+                                                
+
+filtered data:
+$mutdata.filt
+      chr           seg          mut.id      refCounts     varCounts  
+ Min.   : NA   Min.   : NA   Min.   : NA   Min.   : NA   Min.   : NA  
+ 1st Qu.: NA   1st Qu.: NA   1st Qu.: NA   1st Qu.: NA   1st Qu.: NA  
+ Median : NA   Median : NA   Median : NA   Median : NA   Median : NA  
+ Mean   :NaN   Mean   :NaN   Mean   :NaN   Mean   :NaN   Mean   :NaN  
+ 3rd Qu.: NA   3rd Qu.: NA   3rd Qu.: NA   3rd Qu.: NA   3rd Qu.: NA  
+ Max.   : NA   Max.   : NA   Max.   : NA   Max.   : NA   Max.   : NA  
+      VAF       totalCounts     status         
+ Min.   : NA   Min.   : NA   Length:0          
+ 1st Qu.: NA   1st Qu.: NA   Class :character  
+ Median : NA   Median : NA   Mode  :character  
+ Mean   :NaN   Mean   :NaN                     
+ 3rd Qu.: NA   3rd Qu.: NA                     
+ Max.   : NA   Max.   : NA                     
+
+$cndata.filt
+      chr             seg             LRR                BAF        
+ Min.   : 3.00   Min.   : 60.0   Min.   :-0.30293   Min.   :0.6671  
+ 1st Qu.: 6.75   1st Qu.:114.8   1st Qu.:-0.29704   1st Qu.:0.6671  
+ Median :14.00   Median :186.0   Median :-0.06140   Median :0.8333  
+ Mean   :13.25   Mean   :170.2   Mean   :-0.06236   Mean   :0.8333  
+ 3rd Qu.:20.50   3rd Qu.:241.5   3rd Qu.: 0.17327   3rd Qu.:0.9994  
+ Max.   :22.00   Max.   :249.0   Max.   : 0.17628   Max.   :0.9995  
+       X               Y                markers    
+ Min.   :0.995   Min.   :0.0004786   Min.   :1645  
+ 1st Qu.:1.009   1st Qu.:0.0005717   1st Qu.:1863  
+ Median :1.499   Median :0.4953013   Median :1958  
+ Mean   :1.499   Mean   :0.4975008   Mean   :2077  
+ 3rd Qu.:1.988   3rd Qu.:0.9922305   3rd Qu.:2172  
+ Max.   :2.002   Max.   :0.9989222   Max.   :2747  
+
+   Mode    NA's 
+logical       1 
+posteriors
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-38.431 -16.621   1.287  -6.668   1.287   1.287 
+
+
+Dataset 5 
+psi:
+[1] 0.6770672 0.3229328 0.0000000 0.0000000 0.0000000
+A,B:
+    Var1 Var2       Var1 Var2      
+34     1    1 0 0 0    0    1 0 0 0
+67     1    1 0 0 0    1    2 0 0 0
+95     1    2 0 0 0    1    1 0 0 0
+124    1    1 0 0 0    1    1 0 0 0
+207    1    1 0 0 0    2    1 0 0 0
+359    2    1 0 0 0    1    1 0 0 0
+404    2    1 0 0 0    1    1 0 0 0
+eta:
+      etaA      etaB
+1 1.000000 0.3229328
+2 1.000000 1.3229328
+3 1.322933 1.0000000
+4 1.000000 1.0000000
+5 1.000000 1.6770672
+6 1.677067 1.0000000
+7 1.677067 1.0000000
+indices:
+$indices.cn
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+   34.0    81.0   124.0   184.3   283.0   404.0 
+
+$mutids.filt
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    1.0   372.8  1147.5  3308.6  6060.5  9265.0 
+
+filtered data:
+$mutdata.filt
+      chr         seg            mut.id         refCounts       varCounts    
+ Min.   :1   Min.   : 1.00   Min.   :   1.0   Min.   : 48.0   Min.   :16.00  
+ 1st Qu.:1   1st Qu.: 4.50   1st Qu.: 372.8   1st Qu.: 76.0   1st Qu.:33.25  
+ Median :1   Median : 7.00   Median :1147.5   Median : 84.5   Median :48.50  
+ Mean   :1   Mean   : 6.00   Mean   :3308.6   Mean   : 91.2   Mean   :45.80  
+ 3rd Qu.:1   3rd Qu.: 7.75   3rd Qu.:6060.5   3rd Qu.:103.5   3rd Qu.:56.25  
+ Max.   :1   Max.   :10.00   Max.   :9265.0   Max.   :162.0   Max.   :74.00  
+      VAF          totalCounts       status         
+ Min.   :0.1649   Min.   : 86.0   Length:10         
+ 1st Qu.:0.2914   1st Qu.:122.2   Class :character  
+ Median :0.3333   Median :131.5   Mode  :character  
+ Mean   :0.3375   Mean   :137.0                     
+ 3rd Qu.:0.3632   3rd Qu.:156.0                     
+ Max.   :0.6066   Max.   :194.0                     
+
+$cndata.filt
+      chr              seg             LRR                BAF        
+ Min.   : 1.000   Min.   : 34.0   Min.   :-0.30214   Min.   :0.3718  
+ 1st Qu.: 2.500   1st Qu.: 81.0   1st Qu.: 0.03634   1st Qu.:0.4675  
+ Median : 4.000   Median :124.0   Median : 0.05576   Median :0.5661  
+ Mean   : 7.286   Mean   :184.3   Mean   : 0.03329   Mean   :0.5903  
+ 3rd Qu.:11.000   3rd Qu.:283.0   3rd Qu.: 0.13503   3rd Qu.:0.6298  
+ Max.   :19.000   Max.   :404.0   Max.   : 0.13663   Max.   :0.9993  
+       X                Y                markers    
+ Min.   :0.9873   Min.   :0.0006854   Min.   : 806  
+ 1st Qu.:1.0050   1st Qu.:0.9990327   1st Qu.:1180  
+ Median :1.0415   Median :1.0144844   Median :1352  
+ Mean   :1.2533   Mean   :1.0071720   Mean   :1316  
+ 3rd Qu.:1.5031   3rd Qu.:1.1625513   3rd Qu.:1454  
+ Max.   :1.7279   Max.   :1.7118662   Max.   :1784  
+
+       V1            V2            V3          V4          V5   
+ Min.   :0.0   Min.   :0.0   Min.   :0   Min.   :0   Min.   :0  
+ 1st Qu.:1.0   1st Qu.:0.0   1st Qu.:0   1st Qu.:0   1st Qu.:0  
+ Median :1.0   Median :0.0   Median :0   Median :0   Median :0  
+ Mean   :0.8   Mean   :0.4   Mean   :0   Mean   :0   Mean   :0  
+ 3rd Qu.:1.0   3rd Qu.:1.0   3rd Qu.:0   3rd Qu.:0   3rd Qu.:0  
+ Max.   :1.0   Max.   :1.0   Max.   :0   Max.   :0   Max.   :0  
+posteriors
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-151.65 -138.43  -69.28  -91.18  -63.23  -57.25 
+> 
+> if (FALSE) { # save the profiling code for later
++   Rprof("profile3.txt")
++   for (J in c(1, 5, 9)) {
++     dset <- simData[[J]]$dset
++     ra <- seekClones(dset$cn.data, dset$seq.data,
++                      cnmodels, psis.20,
++                      pars = pars, imputedCN = NULL)
++   }
++   Rprof(NULL)
++   summaryRprof("profile3.txt")
++ }
+> 
+> proc.time()
+   user  system elapsed 
+  67.18    0.06   67.34 
