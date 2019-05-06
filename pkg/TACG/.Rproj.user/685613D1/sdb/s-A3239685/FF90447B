@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"Simulations\"\nauthor: \"Mark Zucker\"\ndate: \"April 11, 2019\"\noutput: pdf_document\n---\n\nGenerating simulations and data:\n```{r setup, include=FALSE}\nlibrary(TACG)\nset.seed(123)\nf.loci <- system.file(\"auxiliary/loci.Rda\", package=\"TACG\")\nloci <- get(load(f.loci))\nf.chlens <- system.file('auxiliary/chlens.Rda',package=\"TACG\")\nchlens <- get(load(f.chlens))\ntemp <- genSimChroms(N=3, chr=17, loci=loci, minLen=200000, maxLen=10000000, datapath=NULL, chlens=chlens, save=FALSE)\nsims <- lapply(1:length(temp),function(i){temp[[i]]$sim})\ndataset <- lapply(1:length(temp),function(i){temp[[i]]$dat})\n```\n\nRunning segmentation algorithms:\n```{r setup, include=FALSE}\nres <- runSegAlgs(i=1, alg='DNAcopy', data=dataset[[1]], respath=NULL,saveRes=FALSE,alpha=NULL,thresh=NULL)\nalgs <- c('DNAcopy','HMM','Haar','GLAD')\nindices <- 1:length(dataset)\nresSet <- runSegAlgsOnSet(algs=algs,indices=indices,cores=1,data=dataset,respath=NULL,save=FALSE)\n```\n\nAssessing results:\n```{r setup, include=FALSE}\nassessments.dnac <- assess(alg='DNAcopy',set=indices,res=resSet[1:3],sims=sims)\nassessments.hmm <- assess(alg='HMM',set=indices,res=resSet[4:6],sims=sims)\nassessments.haar <- assess(alg='Haar',set=indices,res=resSet[7:9],sims=sims)\nassessments.glad <- assess(alg='GLAD',set=indices,res=resSet[10:12],sims=sims)\n```\n\nPlotting characteristics:\n```{r setup, include=FALSE}\n\n```\n\n",
+    "created" : 1555476153359.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1519670759",
+    "id" : "FF90447B",
+    "lastKnownWriteTime" : 1555493675,
+    "last_content_update" : 1555493675260,
+    "path" : "~/TACG/vignettes/Simulations.Rmd",
+    "project_path" : "vignettes/Simulations.Rmd",
+    "properties" : {
+        "last_setup_crc32" : ""
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

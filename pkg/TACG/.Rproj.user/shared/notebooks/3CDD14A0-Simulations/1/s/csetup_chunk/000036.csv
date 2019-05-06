@@ -1,0 +1,5 @@
+"0","assessments.dnac <- assess(alg='DNAcopy',set=indices,res=resSet[1:3],sims=sims)
+"
+"2","Error in cnSegments[which(cnSegments$ID == paste(""sample."", i, sep = """")),  : 
+  incorrect number of dimensions
+"

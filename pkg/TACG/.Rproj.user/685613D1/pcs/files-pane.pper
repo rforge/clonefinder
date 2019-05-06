@@ -1,0 +1,9 @@
+{
+    "path" : "~/TACG",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        }
+    ]
+}
