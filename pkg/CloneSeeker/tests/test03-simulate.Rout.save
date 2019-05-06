@@ -1,6 +1,6 @@
 
-R version 3.5.1 (2018-07-02) -- "Feather Spray"
-Copyright (C) 2018 The R Foundation for Statistical Computing
+R version 3.6.0 (2019-04-26) -- "Planting of a Tree"
+Copyright (C) 2019 The R Foundation for Statistical Computing
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -26,7 +26,7 @@ Type 'q()' to quit R.
 +                  density.sigma = 0.1)
 > psis <- c(0.6, 0.3, 0.1)
 > 
-> RNGversion("3.5.3")
+> suppressWarnings( RNGversion("3.5.0") )
 > set.seed(412634)
 > ### Mutations only? without contamination
 > tumor <- Tumor(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
@@ -257,4 +257,4 @@ $seq.data
 > 
 > proc.time()
    user  system elapsed 
-  21.79    0.21   22.02 
+  30.51    0.82   31.57 

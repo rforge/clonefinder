@@ -1,6 +1,6 @@
 library(CloneSeeker)
 
-RNGversion("3.5.3")
+suppressWarnings( RNGversion("3.5.0") )
 set.seed(461283)
 sampleSimplex(4, 3)
 all( apply(sampleSimplex(4, 3), 1, sum) == 1) # assertion

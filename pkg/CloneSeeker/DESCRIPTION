@@ -1,6 +1,6 @@
 Package: CloneSeeker
-Version: 1.0.6
-Date: 2019-04-23
+Version: 1.0.7
+Date: 2019-05-06
 Title: Seeking and Finding Clones in Copy Number and Sequencing Data
 Author: Kevin R. Coombes, Mark Zucker
 Maintainer: Kevin R. Coombes <krc@silicovore.com>

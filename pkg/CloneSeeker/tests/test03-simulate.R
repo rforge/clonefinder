@@ -9,7 +9,7 @@ dataPars <- list(snps.seq = 1000000,
                  density.sigma = 0.1)
 psis <- c(0.6, 0.3, 0.1)
 
-RNGversion("3.5.3")
+suppressWarnings( RNGversion("3.5.0") )
 set.seed(412634)
 ### Mutations only? without contamination
 tumor <- Tumor(psis, rounds = 400, nu = 100, pcnv = 0, norm.contam = FALSE)
