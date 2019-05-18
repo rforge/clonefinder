@@ -15,8 +15,11 @@ generateTumorData <- function(tumor, snps.seq, snps.cgh, mu, sigma.reads, sigma0
 
 ### TODO: Document the algorithm
 snpDataGen <- function(tumor, snps.cgh=600000, sigma0.lrr=.01, sigma0.baf=.01, segmented=TRUE, snp.rate=NULL, snp.loci=NULL, theta=1, density.sigma=.1, save=FALSE, fn, id){
-  psi <- tumor$psi
-  cn.clones <- lapply(1:length(tumor$clones), function(j){tumor$clones[[j]]$cn})
+  psi <- tumor@psi
+  if(class(psi)=='WeightVector'){
+    psi <- psi@psi
+  }
+  cn.clones <- lapply(1:length(tumor@clones), function(j){tumor@clones[[j]]$cn})
   chr <- cn.clones[[1]]$chr
   eta <- data.frame('A'=Reduce('+', lapply(1:length(which(psi>0)),function(j){psi[j]*cn.clones[[j]]$A})),
                     'B'=Reduce('+', lapply(1:length(which(psi>0)),function(j){psi[j]*cn.clones[[j]]$B})))
@@ -39,15 +42,15 @@ snpDataGen <- function(tumor, snps.cgh=600000, sigma0.lrr=.01, sigma0.baf=.01, s
     df <- data.frame('chr'=chr, seg=1:nrow(eta), 'LRR'=lrr, 'BAF'=baf,'X'=X, 'Y'=Y, 'markers'=markers)
   }else{
     if(is.null(snp.loci)){
-      loci <- unlist(lapply(1:length(markers),function(j){sample(tumor$clones[[1]]$cn$start[j]:tumor$clones[[1]]$cn$end[j], markers[j], replace=FALSE)}))
+      loci <- unlist(lapply(1:length(markers),function(j){sample(tumor@clones[[1]]$cn$start[j]:tumor@clones[[1]]$cn$end[j], markers[j], replace=FALSE)}))
     }else{
       loci <- snp.loci
-      markers <- sapply(1:length(markers),function(j){length(which(loci >= tumor$clones[[1]]$cn$start[j] & loci <= tumor$clones[[1]]$cn$end[j]))})
+      markers <- sapply(1:length(markers),function(j){length(which(loci >= tumor@clones[[1]]$cn$start[j] & loci <= tumor@clones[[1]]$cn$end[j]))})
     }
     loci <- sort(loci,decreasing=FALSE)
     lrr <- unlist(lapply(1:length(markers),function(j){rnorm(markers[j], mean=mu.lrr[j], sd=sigma0.lrr)}))
     baf <- unlist(lapply(1:length(markers),function(j){rnorm(markers[j], mean=mu.baf[j], sd=sigma0.baf)}))
-    chrvec <- unlist(lapply(1:nrow(tumor$clones[[1]]$cn), function(j){rep(tumor$clones[[1]]$cn$chr[j],markers[j])}))
+    chrvec <- unlist(lapply(1:nrow(tumor@clones[[1]]$cn), function(j){rep(tumor@clones[[1]]$cn$chr[j],markers[j])}))
     hom <- sample(1:length(lrr),round((1-snp.rate)*length(lrr)),replace=FALSE)
     baf[hom] <- rnorm(length(hom),0,sigma0.baf/theta)
     baf[baf<0] <- -baf[baf<0]
@@ -68,6 +71,19 @@ snpDataGen <- function(tumor, snps.cgh=600000, sigma0.lrr=.01, sigma0.baf=.01, s
 
 #snp.info is an option for an already made snp df (like from snpDataGen) to generate
 #read counts from those in addition to generating new ones.
+
+#SeqDatGen requires auxiliary functions estBetaParams and rbeta2: rbeta but parametrized in terms of mean and sigma.
+estBetaParams <- function(mu, var) {
+  alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+  beta <- alpha * (1 / mu - 1)
+  c('alpha' = abs(alpha), 'beta' = abs(beta)) # shouldn't negatives be an error ?! 
+}
+
+rbeta2 <- function(n, mu, sigma){
+  params <- estBetaParams(mu, sigma^2)
+  rbeta(n, params[1], params[2])
+}
+
 seqDataGen <- function(tumor, snps.seq=1000000, density.sigma, mu, sigma.reads){
   cn.clones <- lapply(1:length(tumor@clones), function(i){tumor@clones[[i]]$cn})
   chrs <- cn.clones[[1]]$chr

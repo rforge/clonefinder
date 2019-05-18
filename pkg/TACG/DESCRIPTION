@@ -11,3 +11,4 @@ Depends: R (>= 3.0)
 Imports: methods, graphics, gtools, snow, parallel, ADaCGH2, DNAcopy
 License: Apache License (== 2.0)
 URL: 
+LazyData: true

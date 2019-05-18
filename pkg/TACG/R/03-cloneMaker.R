@@ -121,6 +121,9 @@ getClone <- function(tumor, i) {
 
 ### TODO: Wrap everything except psi into some sort of parameter class.
 Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
+  if(!exists('chlens')){
+    data('chlens')
+  }
   K <- length(which(psi > 0)) # number of clones
   ## Choose the number of copy number (CN) segments.
   total.segs <- round(runif(1, 250, 500))

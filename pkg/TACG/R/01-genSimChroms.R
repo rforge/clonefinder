@@ -1,5 +1,5 @@
 #Generates simulations and data:
-genSimChroms <- function(N, chr=17, loci=loci, minLen=200000, maxLen=10000000, datapath=NULL, chlens=chlens, save=FALSE){
+genSimChroms <- function(N, chr=17, loci, minLen=200000, maxLen=10000000, datapath=NULL, chlens, save=FALSE){
   kset <- sample(1:2,N,replace=TRUE)
   nestedness <- sapply(kset,function(k){sample(0:(k-1),1)})
   psiset <- lenset <- matrix(NA,nrow=N,ncol=2)
@@ -64,7 +64,7 @@ genSimChroms <- function(N, chr=17, loci=loci, minLen=200000, maxLen=10000000, d
         }else{
           B <- matrix(rbind(c(1,1,1+parset$dev1[q]),c(1+parset$dev2[q],1,1)),nrow=2,ncol=3)
         }
-        desc <- c(0,0)
+        desc <- rep(0,0)
       }else{
         starts <- c(parset$start1[q],parset$start2[q],parset$start2[q]+parset$len2[q])
         lens <- c(starts[2]-starts[1],parset$len2[q],starts[1]+parset$len1[q]-starts[3])
@@ -99,13 +99,12 @@ genSimChroms <- function(N, chr=17, loci=loci, minLen=200000, maxLen=10000000, d
     }
     A <- rbind(A,rep(1,ncol(A)))
     B <- rbind(B,rep(1,ncol(B)))
+    desc <- c(desc,0)
     clones <- lapply(1:nrow(A),function(j){
-      list(data.frame('chr'=rep(chr,ncol(A)),'start'=starts,'end'=starts+lens-1,'A'=A[j,],'B'=B[j,],
-                           'parent.index'=desc[j],'seg'=1:ncol(A)))
-      #'seq'=data.frame('chr'=numeric(0),'start'=numeric(0),
-      #'seg'=numeric(0),'mut.id'=numeric(0),'mutated.copies allele'=numeric(0),'normal.copies'=numeric(0))
+      list('cn'=data.frame('chr'=rep(chr,ncol(A)),'start'=starts,'end'=starts+lens-1,'A'=A[j,],'B'=B[j,],
+                           'parent.index'=desc[j],'seg'=1:ncol(A)),'seq'=NULL)
     })
-    sim <- list('clones'=clones,'psi'=c(psi,1-sum(psi)))
+    sim <- new("Tumor",psi=new("WeightVector",psi=psi),clones=clones)
     if(save){
       snpDataGen(sim,snp.loci=loci,snps.cgh=length(loci),sigma0.baf=sigmaSet[1],sigma0.lrr=sigmaSet[1]*5,segmented=FALSE,snp.rate=.33,save=TRUE,
                  fn=paste(datpath,'/simdat',q,'.rda',sep=''),id=q)
