@@ -12,10 +12,21 @@
 data(hapmapSegments)
 }
 \format{A data frame (\code{hapmapSegments}), with seven columns and 61,163
-  rows. This object contains the results of perfroming a sergmentaiton c
-  copy number analysis (using \code{DNAcopy}) .
-
-  Describe/interpret columns.
+  rows. This object contains the results of performing a segmentation
+  copy number analysis (using \code{DNAcopy}).
+  The seven columns are:
+  \describe{
+    \item{\code{loc.start}}{The starting base position of the segment.}
+    \item{\code{loc.end}}{The ending base postion of the segment.}
+    \item{\code{seg.median}}{The median log R ratio across the segment.}
+    \item{\code{SamID}}{The HapMap sample ID.}
+    \item{\code{chrom}}{The chromosome on which the segment is located,
+      stored as a single character in \{1, 2, .., 22, X, Y\}.}
+    \item{\code{AvgBAF}}{The average B allele frequency across the
+      segment.} 
+    \item{\code{num.mark}}{The number of markers (i.e., measured SNPs)
+      located in the segment.}
+  }
 }
 \source{
   BeadChip readings derived from 225 HapMap controls assessed on

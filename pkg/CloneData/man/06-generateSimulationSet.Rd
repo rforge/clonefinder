@@ -2,7 +2,9 @@
 \alias{generateSimulationSet}
 \title{ Generating sets of simulated tumors with SNP array and SNV data }
 \description{
-  Generating and saving a set of simulated tumors and data that can be used in clonal heterogeneity analysis to assess accuracy of algorithms. 
+  Generating and saving a set of simulated tumors and data that can be
+  used in clonal heterogeneity analysis to assess accuracy of
+  algorithms.
 }
 \usage{
 generateSimulationSet(simPath, dataPath, nPerK, rounds=400, nu=0,
@@ -15,12 +17,12 @@ generateSimulationSet(simPath, dataPath, nPerK, rounds=400, nu=0,
   of clones, where the nth entry dictates how many n-clone tumors will be generated.}
   \item{rounds}{integer; the number of branches or total 'historical' clones generated
   in the tumor simulation.}
-  \item{nu}{an integer; the average number of mutations occuring per clonal branchin event.}
-  \item{pcnv}{a real number between 0 to 1; the probability of a cnv occurring at each
+  \item{nu}{an integer; the average number of mutations occuring per clonal branching event.}
+  \item{pcnv}{a real number between 0 to 1; the probability of a CNV occurring at each
   clonal branching event.}
   \item{norm.contam}{a logical value; determines whether to include normal 
   contamination in simulated tumor.}
-  \item{dataPars}{ a list of parameters for data generation; see details .}
+  \item{dataPars}{ a list of parameters for data generation; see Details.}
 }
 \details{
   A set of simulation can be generated including both the simulated clonally 
@@ -33,14 +35,18 @@ generateSimulationSet(simPath, dataPath, nPerK, rounds=400, nu=0,
 }
 \value{
   The \code{generateSimulationSet} function generates and saves two
-  lists for each simulation: a simulated tumor (saved in the path
-  'simpath'), with objects: \code{psi}, a vector of clonal fractions,
-  and \code{clones}, which is a list of tumor clones, each of which in
-  turn consists of a data frame \code{cn} and a data frame \code{seq} ;
-  and a simulated data object (saved in the path 'datapath'), with
-  objects: \code{cn.data} and \code{se .data}. Each component is itself
-  a data frame. Note that in some cases, one of these data frames may
-  have zero rows or may be returned as an \code{NA}. 
+  lists for each simulation:
+  \enumerate{
+    \item{a simulated tumor (saved in the path \code{simpath}), with
+      objects: \code{psi}, a vector of clonal fractions, and
+      \code{clones}, which is a list of tumor clones, each of which in
+      turn consists of a data frame \code{cn} and a data frame
+      \code{seq}; and} 
+    \item{a simulated data object (saved in the path \code{datapath}),
+      with objects: \code{cn.data} and \code{se .data}. Each component
+      is itself a data frame. Note that in some cases, one of these data
+      frames may have zero rows or may be returned as an \code{NA}.}
+  }
 
   Each list in the \code{cn} component contains seven columns:
   \describe{
