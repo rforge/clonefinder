@@ -234,7 +234,7 @@ $seq.data
  Mean   :1.0017   Mean   :1.0044   Mean   :1695  
  3rd Qu.:1.0065   3rd Qu.:1.0067   3rd Qu.:1920  
  Max.   :1.5935   Max.   :1.6204   Max.   :2714  
-> summary(dataset$seq.data) # note that all mut.id are NA's since there were no mutations
+> summary(dataset$seq.data[,-7]) # note that all mut.id are NA's since there were no mutations
       chr              seg            mut.id        refCounts     
  Min.   : 1.000   Min.   :  1.0   Min.   : NA     Min.   : 10.00  
  1st Qu.: 4.000   1st Qu.: 88.0   1st Qu.: NA     1st Qu.: 60.00  
@@ -243,18 +243,18 @@ $seq.data
  3rd Qu.:14.000   3rd Qu.:265.0   3rd Qu.: NA     3rd Qu.: 79.00  
  Max.   :24.000   Max.   :354.0   Max.   : NA     Max.   :148.00  
                                   NA's   :1e+06                   
-   varCounts           VAF          totalCounts       status         
- Min.   : 12.00   Min.   :0.2500   Min.   : 30.0   Length:1000000    
- 1st Qu.: 61.00   1st Qu.:0.4712   1st Qu.:123.0   Class :character  
- Median : 70.00   Median :0.5000   Median :140.0   Mode  :character  
- Mean   : 70.24   Mean   :0.5019   Mean   :139.9                     
- 3rd Qu.: 80.00   3rd Qu.:0.5304   3rd Qu.:157.0                     
- Max.   :170.00   Max.   :0.8435   Max.   :254.0                     
-                                                                     
+   varCounts           VAF            status         
+ Min.   : 12.00   Min.   :0.2500   Length:1000000    
+ 1st Qu.: 61.00   1st Qu.:0.4712   Class :character  
+ Median : 70.00   Median :0.5000   Mode  :character  
+ Mean   : 70.24   Mean   :0.5019                     
+ 3rd Qu.: 80.00   3rd Qu.:0.5304                     
+ Max.   :170.00   Max.   :0.8435                     
+                                                     
 > 
 > plotTumorData(object, dataset)
 > 
 > 
 > proc.time()
    user  system elapsed 
-  30.51    0.82   31.57 
+  30.35    0.68   31.03 
