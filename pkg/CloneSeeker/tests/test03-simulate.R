@@ -62,7 +62,7 @@ names(dataset)
 lapply(dataset, class)
 lapply(dataset, dim)
 summary(dataset$cn.data)
-summary(dataset$seq.data[,-7]) # note that all mut.id are NA's since there were no mutations
+summary(dataset$seq.data[,-(6:7)]) # note that all mut.id are NA's since there were no mutations
 
 plotTumorData(object, dataset)
 
