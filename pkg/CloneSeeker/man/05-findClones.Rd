@@ -146,7 +146,7 @@ psis <- c(0.6, 0.3, 0.1) # three clones
 tumor <- Tumor(psis, rounds = 100, nu = 0, pcnv = 1, norm.contam = FALSE)
 # simulate a dataset
 dataset <- generateTumorData(tumor, 10000, 600000, 70, 25, 0.15, 0.03, 0.1)
-\donttest{result <- seekClones(dset$cn.data, dset$seq.data,
+\donttest{result <- seekClones(dataset$cn.data, dataset$seq.data,
              cnmodels, psis.20, pars = pars, imputedCN = NULL) }
 }
 \keyword{array}

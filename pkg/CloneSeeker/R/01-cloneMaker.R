@@ -242,9 +242,11 @@ Tumor <- function(psi, rounds, nu=100, pcnv=0.5, norm.contam=FALSE, cnmax=4) {
   }
   
   clones.final <- lapply(1:length(sampled), function(I) {
-    cndf <- as.data.frame(clones[[sampled[I]]]$cn)
+    cndf <- as.data.frame(clones[[sampled[I]]]$cn,
+                          stringsAsFactors = TRUE)
     if(length(which(!is.na(unlist(clones[[sampled[I]]]$seq))))){
-      seqdf <- as.data.frame(clones[[sampled[I]]]$seq)
+      seqdf <- as.data.frame(clones[[sampled[I]]]$seq,
+                             stringsAsFactors = TRUE)
       for(J in which(colnames(seqdf)!='allele')) {
         seqdf[, J] <- as.numeric(as.character(seqdf[, J]))
         seqdf <- na.omit(seqdf[with(seqdf, order(seg, start)), ])
